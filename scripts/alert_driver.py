@@ -116,7 +116,7 @@ class DriverTile(sw.Tile):
         
         # select type 
         self.select_type = v.Select(items=available_drivers, label=ms.SELECT_TYPE, v_model=None)
-        self.output.bind(self.select_type, self.io, 'alert_type')
+        #self.output.bind(self.select_type, self.io, 'alert_type')
         
         # start/end line
         self.start_picker = DatePicker('Start', xs6=True)
@@ -155,6 +155,8 @@ class DriverTile(sw.Tile):
         def on_change(widget, data, event, inputs_list, obj):
             base_list = [obj.picker_line] # the date pickers are used for every type of alerts
             
+            setattr(obj.io, 'alert_type', widget.v_model)
+            
             if widget.v_model == available_drivers[0]: # gee assets
                 fields_2_show = base_list + [obj.select_date_asset, obj.select_alerts_asset]
                 obj.toggle_inputs(fields_2_show, inputs_list)
@@ -174,60 +176,5 @@ class DriverTile(sw.Tile):
             obj = self
         ))
         
-        return 
-        
-
-def get_alerts(io, output):
-    
-    if io.alert_type == available_drivers[0]: # gee assets
-        return (None, None)
-    
-    if io.alert_type == available_drivers[1]: # local files 
-        return (None, None)
-    
-    if io.alert_type == available_drivers[2]: # glad alerts
-        return (None, None)
-    
-    # if I'm here it means that the io_alert_type is not define 
-    output.add_live_msg(ms.WRONG_DRVIER, 'error')
-    return (None, None)
-
-def get_gee_alerts(io, output):
-    
-    # verify the dates are in the same year 
-    
-    # convert the date in julian day of the io year 
-    
-    # load the gee glad alerts files 
-    
-    # merge and compress them 
-    
-    # return the obtained files
-    return None
-    
-    
-def get_gee_assets(io, output):
-    
-    # check that the files exist 
-    
-    # mask the appropriate alerts 
-    
-    # download the alerts to sepal 
-    
-    # merge and compress 
-    
-    # return the obtained files
-    return None
-
-def get_local_alerts(io, output):
-    
-    # check that the file exist 
-    
-    # mask the appropriate alerts 
-    
-    # compress 
-    
-    # return the obtained files
-    return None
-    
+        return     
     

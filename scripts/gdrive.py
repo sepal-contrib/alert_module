@@ -4,6 +4,8 @@ import ee
 import io
 from googleapiclient.http import MediaIoBaseDownload
 from apiclient import discovery
+from utils import utils
+from utils import messages as ms
 
 import logging
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
@@ -87,3 +89,51 @@ class gdrive(object):
         
         for fId in files_id:
             service.files().delete(fileId=fId).execute()
+            
+    def download_to_disk(self, filename, image, aoi_name, output):
+        """download the tile to the GEE disk
+        
+        Args:
+            filename (str): descripsion of the file
+            image (ee.FeatureCollection): image to export
+            aoi_name (str): Id of the aoi used to clip the image
+            
+        Returns:
+            download (bool) : True if a task is running, false if not
+        """
+        
+        def launch_task(filename, image, aoi_name, output):
+            """check if file exist and launch the process if not"""
+            
+            download = False
+            
+            files = self.get_files(filename) 
+            
+            if files == []:
+                task_config = {
+                    'image':image,
+                    'description':filename,
+                    'scale': 30,
+                    'region':ee.FeatureCollection(aoi_name).geometry(),
+                    'maxPixels': 1e13
+                }
+                
+                task = ee.batch.Export.image.toDrive(**task_config)
+                task.start()
+                download = True
+            else:
+                output.add_live_msg(ms.ALREADY_COMPLETED.format(filename), 'success')
+            
+            return download
+        
+        task = utils.search_task(filename)
+        if not task:
+            download = launch_task(filename, image, aoi_name, output)
+        else:
+            if task.state == 'RUNNING':
+                output.add_live_msg(ms.TASK_RUNNING.format(filename))
+                download = True
+            else: 
+                download = launch_task(filename, image, aoi_name, output)
+                
+        return download
