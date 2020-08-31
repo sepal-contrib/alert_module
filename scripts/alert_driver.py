@@ -5,6 +5,7 @@ from ipywidgets import jslink
 from sepal_ui import sepalwidgets as sw
 import glob
 import os
+from functools import partial
 
 available_drivers = [
     'gee_assets',
@@ -58,7 +59,7 @@ class DatePicker(v.Layout, sw.SepalWidget):
 class AlertIo:
     
     def __init__(self):
-        #input
+        # input
         self.alert_type = None
         self.start = None
         self.end = None
@@ -67,11 +68,11 @@ class AlertIo:
         self.date_asset = None
         self.alert_asset = None
         
-        #output 
+        # output 
         self.date = None
         self.alert = None
         
-#tile class of the driver 
+# tile class of the driver 
 class DriverTile(sw.Tile):
     
     def __init__(self, io, **kwargs):
@@ -81,7 +82,7 @@ class DriverTile(sw.Tile):
         self.output = sw.Alert()
         
         
-        #create the inputs 
+        # create the inputs 
         self.set_inputs()
         inputs = [
             self.select_type,
@@ -91,8 +92,12 @@ class DriverTile(sw.Tile):
             self.select_date_asset,
             self.select_alerts_asset
         ]
+         
+        # hide all inputs but select_type
+        self.show_inputs()
         
-        #misc
+        
+        # misc
         id_ = "driver_widget"
         title = "Select your alerts"
         
@@ -109,93 +114,120 @@ class DriverTile(sw.Tile):
         
         root_dir = os.path.expanduser('~')
         
-        #select type 
+        # select type 
         self.select_type = v.Select(items=available_drivers, label=ms.SELECT_TYPE, v_model=None)
         self.output.bind(self.select_type, self.io, 'alert_type')
         
-        #start/end line
+        # start/end line
         self.start_picker = DatePicker('Start', xs6=True)
-        self.output.bind(self.start_picker, self.io, 'start')
+        self.output.bind(self.start_picker.children[0].children[0].children[0], self.io, 'start')
         
         self.end_picker = DatePicker('End', xs6=True)
-        self.output.bind(self.end_picker, self.io, 'end')
+        self.output.bind(self.end_picker.children[0].children[0].children[0], self.io, 'end')
         
         self.picker_line = v.Layout(xs=12, row=True,  children=[self.start_picker, self.end_picker])
         
-        #date file
+        # date file
         raw_list = glob.glob(root_dir + "/**/*.tif*", recursive=True)
         self.select_date_file = v.Select(items=raw_list, label=ms.SELECT_DATE_FILE, v_model=None)
         self.output.bind(self.select_date_file, self.io, 'date_file')
         
-        #alert file 
+        # alert file 
         self.select_alerts_file = v.Select(items=raw_list, label=ms.SELECT_ALERTS_FILE, v_model=None)
         self.output.bind(self.select_alerts_file, self.io, 'alert_file')
         
-        #date asset
+        # date asset
         self.select_date_asset = v.TextField(label=ms.SELECT_DATE_ASSET, placeholder='users/[username]/[asset_name]', v_model=None)
         self.output.bind(self.select_date_asset, self.io, 'date_asset')
         
-        #alert asset 
+        # alert asset 
         self.select_alerts_asset = v.TextField(label=ms.SELECT_ALERTS_ASSET, placeholder='users/[username]/[asset_name]', v_model=None)
         self.output.bind(self.select_alerts_asset, self.io, 'alert_asset')
         
         return self
+    
+    def show_inputs(self):
         
+        #hide them all but select_type
+        inputs_list = [self.picker_line, self.select_date_file, self.select_alerts_file, self.select_date_asset, self.select_alerts_asset]
+        self.toggle_inputs([], inputs_list)
         
-
+        def on_change(widget, data, event, inputs_list, obj):
+            base_list = [obj.picker_line] # the date pickers are used for every type of alerts
+            
+            if widget.v_model == available_drivers[0]: # gee assets
+                fields_2_show = base_list + [obj.select_date_asset, obj.select_alerts_asset]
+                obj.toggle_inputs(fields_2_show, inputs_list)
+            elif widget.v_model == available_drivers[1]: #file
+                fields_2_show = base_list + [obj.select_date_file, obj.select_alerts_file]
+                obj.toggle_inputs(fields_2_show, inputs_list)
+            elif widget.v_model == available_drivers[2]: #glad alerts
+                obj.toggle_inputs(base_list, inputs_list)
+            else:  # the type is not suported
+                obj.toogle_inputs([], inputs_list)
+            
+            return 
+        
+        self.select_type.on_event('change', partial(
+            on_change,
+            inputs_list = inputs_list,
+            obj = self
+        ))
+        
+        return 
         
 
 def get_alerts(io, output):
     
-    if io.alert_type == available_drivers[0]: #gee assets
+    if io.alert_type == available_drivers[0]: # gee assets
         return (None, None)
     
-    if io.alert_type == available_drivers[1]: #local files 
+    if io.alert_type == available_drivers[1]: # local files 
         return (None, None)
     
-    if io.alert_type == available_drivers[2]: #glad alerts
+    if io.alert_type == available_drivers[2]: # glad alerts
         return (None, None)
     
-    #if I'm here it means that the io_alert_type is not define 
+    # if I'm here it means that the io_alert_type is not define 
     output.add_live_msg(ms.WRONG_DRVIER, 'error')
     return (None, None)
 
 def get_gee_alerts(io, output):
     
-    #verify the dates are in the same year 
+    # verify the dates are in the same year 
     
-    #convert the date in julian day of the io year 
+    # convert the date in julian day of the io year 
     
-    #load the gee glad alerts files 
+    # load the gee glad alerts files 
     
-    #merge and compress them 
+    # merge and compress them 
     
-    #return the obtained files
+    # return the obtained files
     return None
     
     
 def get_gee_assets(io, output):
     
-    #check that the files exist 
+    # check that the files exist 
     
-    #mask the appropriate alerts 
+    # mask the appropriate alerts 
     
-    #download the alerts to sepal 
+    # download the alerts to sepal 
     
-    #merge and compress 
+    # merge and compress 
     
-    #return the obtained files
+    # return the obtained files
     return None
 
 def get_local_alerts(io, output):
     
-    #check that the file exist 
+    # check that the file exist 
     
-    #mask the appropriate alerts 
+    # mask the appropriate alerts 
     
-    #compress 
+    # compress 
     
-    #return the obtained files
+    # return the obtained files
     return None
     
     
