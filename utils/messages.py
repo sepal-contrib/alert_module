@@ -24,3 +24,14 @@ MERGE_TILE = "Merge gee tiles"
 IDENTIFY_PATCH = "Identify all unique patch"
 PATCH_SIZE = "Compute patch size"
 COMPRESS_FILE= "Compress file"
+
+#####################################
+##           msg drivers           ##
+#####################################
+WRONG_DRIVER = "the selected alert type is not supported by this module"
+SELECT_ALERTS = "select these alerts"
+SELECT_TYPE = "Select the alert type"
+SELECT_DATE_FILE = "Select the date file"
+SELECT_ALERTS_FILE = "Select the alerts file"
+SELECT_DATE_ASSET = "Select date asset"
+SELECT_ALERTS_ASSET = "Select alerts asset"
