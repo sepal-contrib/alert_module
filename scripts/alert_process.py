@@ -3,6 +3,7 @@ from datetime import datetime
 from utils import messages as ms
 import os
 from scripts import glad_import
+from scripts import gee_import
 from sepal_ui import gdal as sgdal
 from utils import utils
 from scripts import gdrive
@@ -88,16 +89,60 @@ def get_glad_alerts(aoi_io, io, output):
     
 def get_gee_assets(aoi_io, io, output):
     
-    # check that the files exist 
+    #verify useful inputs 
+    if not output.check_input(io.start): return (None, None)
+    if not output.check_input(io.start): return (None, None)
+    if not output.check_input(io.date_asset): return (None, None)
+    if not output.check_input(io.alert_asset): return (None, None)
+    if not output.check_input(io.asset_date_band): return (None, None)
+    if not output.check_input(io.asset_alerts_band): return (None, None)
+    
+    # check that the asset exist 
+    
+    #filename 
+    aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
+    filename = aoi_name + '_{0}_{1}_gee_alerts'.format(io.start, io.end)
+    
+    #check if the file exist 
+    alert_dir = utils.create_result_folder(aoi_name)
+    
+    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end 
+    alert_date_tmp_map = basename + '_tmp_glad_date.tif'
+    alert_date_map     = basename + '_glad_date.tif'
+    alert_tmp_map      = basename + '_tmp_glad_map.tif'
+    alert_map          = basename + '_glad_map.tif'
+    
+    if os.path.isfile(alert_map):
+        output.add_live_msg(ms.ALREADY_DONE, 'success')
+        return (alert_date_map, alert_map)
+    
+    drive_handler = gdrive.gdrive()
+    
     
     # mask the appropriate alerts 
+    filename_date = filename + '_dates'
+    alerts_date = gee_import.get_alerts_dates(aoi_io.assetId, [io.start, io.end], io.date_asset, io.asset_date_band)
+    download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io.assetId, output)
     
-    # download the alerts to sepal 
+    #reteive alert date masked with date range 
+    filename_map = filename + '_map'
+    alerts = glad_import.get_alerts(aoi_io.assetId, alerts_date, io.alerts_asset, io.asset_alerts_band)
+    download = drive_handler.download_to_disk(filename_map, alerts, aoi_io.assetId, output)
     
-    # merge and compress 
+    #wait for completion 
+    # I assume that there is 2 or 0 file to launch 
+    # if one of the 2 process have been launch individually it will crash
+    if download:
+        utils.wait_for_completion([filename_map, filename_date], output)
+        output.add_live_msg(ms.TASK_COMPLETED.format(filename_map), 'success') 
+    
+    # merge and compress them 
+    digest_tiles(filename_date, alert_dir, output, alert_date_tmp_map, alert_date_map)
+    digest_tiles(filename_map, alert_dir, output, alert_tmp_map, alert_map)
     
     # return the obtained files
-    return (None, None)
+    return (alert_date_map, alert_map)
+
 
 def get_local_alerts(aoi_io, io, output):
     

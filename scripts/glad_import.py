@@ -57,27 +57,5 @@ def get_alerts(aoi_name, year, date_masked):
     #use the mask of the julian alerts 
     alerts = alerts.updateMask(date_masked.mask())
     
-    return alerts
-    
-def gee_process(asset_name, date_range, year, widget_alert):
-    
-    global widget_gee_process_alert
-    
-    #check for the julian day task 
-    filename_date = utils.construct_filename(asset_name, date_range) + '_dates'
-    alerts_date = get_alerts_dates(asset_name, year, date_range)
-    download = download_to_disk(filename_date, alerts_date, asset_name, widget_alert)
-    
-    #reteive alert date masked with date range 
-    filename = utils.construct_filename(asset_name, date_range) + '_map'
-    alerts = get_alerts(asset_name, year, alerts_date)
-    download = download_to_disk(filename, alerts, asset_name, widget_alert)
-    
-    #wait for completion 
-    # I assume that there is 2 or 0 file to launch 
-    # if one of the 2 process have been launch individually it will crash
-    if download:
-        utils.wait_for_completion([filename, filename_date], widget_alert)
-        utils.displayIO(widget_alert, 'success', TASK_COMPLETED.format(filename)) 
-        
+    return alerts       
     
