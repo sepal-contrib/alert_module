@@ -31,7 +31,7 @@ def get_glad_alerts(aoi_io, io, output):
     
     #verify useful inputs 
     if not output.check_input(io.start): return (None, None)
-    if not output.check_input(io.start): return (None, None)
+    if not output.check_input(io.end): return (None, None)
     
     #convert to dates
     start = datetime.strptime(io.start, '%Y-%m-%d')
@@ -91,7 +91,7 @@ def get_gee_assets(aoi_io, io, output):
     
     #verify useful inputs 
     if not output.check_input(io.start): return (None, None)
-    if not output.check_input(io.start): return (None, None)
+    if not output.check_input(io.end): return (None, None)
     if not output.check_input(io.date_asset): return (None, None)
     if not output.check_input(io.alert_asset): return (None, None)
     if not output.check_input(io.asset_date_band): return (None, None)
@@ -146,14 +146,44 @@ def get_gee_assets(aoi_io, io, output):
 
 def get_local_alerts(aoi_io, io, output):
     
+    if not output.check_input(io.start): return (None, None)
+    if not output.check_input(io.start): return (None, None)
+    if not output.check_input(io.date_file): return (None, None)
+    if not output.check_input(io.alert_file): return (None, None)
+    
     # check that the file exist 
+    if not os.path.isfile(io.date_file): return (None, None)
+    if not os.path.isfile(io.alert_file): return (None, None)
     
-    # mask the appropriate alerts 
+    #filename 
+    aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
+    filename = aoi_name + '_{0}_{1}_gee_alerts'.format(io.start, io.end)
     
-    # compress 
+    #check if the file exist 
+    alert_dir = utils.create_result_folder(aoi_name)
+    
+    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end 
+    alert_date_map     = basename + '_glad_date.tif'
+    alert_map          = basename + '_glad_map.tif'
+    
+    if os.path.isfile(alert_map):
+        output.add_live_msg(ms.ALREADY_DONE, 'success')
+        return (alert_date_map, alert_map)
+    
+    #mask the alert dates 
+    start = datetime.strptime(date_range[0], '%Y-%m-%d').toordinal()
+    end = datetime.strptime(date_range[1], '%Y-%m-%d').toordinal()
+    
+    
+    calc = "(A>={0})*(A<={1})*A".format(start, end)
+    sgdal.calc(calc, [io.date_file], alert_date_map, Type_='Byte', co='COMPRESS=LZW')
+    
+    #filter the alerts 
+    calc = "(A>0)*B"
+    sgdal.calc(calc, [alert_date_map, io.alert_file], alert_map, Type_='Byte', co='COMPRESS=LZW')
     
     # return the obtained files
-    return (None, None)
+    return (alert_date_map, alert_map)
 
 def digest_tiles(filename, alert_dir, output, tmp_file, comp_file):
     
