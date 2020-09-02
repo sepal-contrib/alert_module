@@ -10,6 +10,7 @@ from scripts import gdrive
 import glob
 import time
 import gdal
+from pathlib import Path
 
 def get_alerts(aoi_io, io, output):
     
@@ -50,11 +51,11 @@ def get_glad_alerts(aoi_io, io, output):
     #check if the file exist 
     alert_dir = utils.create_result_folder(aoi_name)
     
-    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end 
-    alert_date_tmp_map = basename + '_tmp_glad_date.tif'
-    alert_date_map     = basename + '_glad_date.tif'
-    alert_tmp_map      = basename + '_tmp_glad_map.tif'
-    alert_map          = basename + '_glad_map.tif'
+    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end + '_glad'
+    alert_date_tmp_map = basename + '_tmp_date.tif'
+    alert_date_map     = basename + '_date.tif'
+    alert_tmp_map      = basename + '_tmp_map.tif'
+    alert_map          = basename + '_map.tif'
     
     if os.path.isfile(alert_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
@@ -100,17 +101,18 @@ def get_gee_assets(aoi_io, io, output):
     # check that the asset exist 
     
     #filename 
+    asset_name = Path(io.alerts_asset).stem
     aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
-    filename = aoi_name + '_{0}_{1}_gee_alerts'.format(io.start, io.end)
+    filename = aoi_name + '_{0}_{1}_{2}_alerts'.format(io.start, io.end, asset_name)
     
     #check if the file exist 
     alert_dir = utils.create_result_folder(aoi_name)
     
-    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end 
-    alert_date_tmp_map = basename + '_tmp_glad_date.tif'
-    alert_date_map     = basename + '_glad_date.tif'
-    alert_tmp_map      = basename + '_tmp_glad_map.tif'
-    alert_map          = basename + '_glad_map.tif'
+    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end +'_' + asset_name
+    alert_date_tmp_map = basename + '_tmp_date.tif'
+    alert_date_map     = basename + '_date.tif'
+    alert_tmp_map      = basename + '_tmp_map.tif'
+    alert_map          = basename + '_map.tif'
     
     if os.path.isfile(alert_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
@@ -156,15 +158,16 @@ def get_local_alerts(aoi_io, io, output):
     if not os.path.isfile(io.alert_file): return (None, None)
     
     #filename 
+    alert_name = Path(io.alerts_file).stem
     aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
-    filename = aoi_name + '_{0}_{1}_gee_alerts'.format(io.start, io.end)
+    filename = aoi_name + '_{0}_{1}_{2}_alerts'.format(io.start, io.end, alert_name)
     
     #check if the file exist 
     alert_dir = utils.create_result_folder(aoi_name)
     
-    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end 
-    alert_date_map     = basename + '_glad_date.tif'
-    alert_map          = basename + '_glad_map.tif'
+    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end + '_' + alert_name 
+    alert_date_map     = basename + '_date.tif'
+    alert_map          = basename + '_map.tif'
     
     if os.path.isfile(alert_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
