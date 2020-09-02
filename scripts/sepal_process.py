@@ -1,217 +1,102 @@
 import time
-import subprocess
 import glob
 import os
+from pathlib import Path
+from datetime import datetime
+
 import ee
-import sys
-sys.path.append("..") # Adds higher directory to python modules path
-from utils import utils
-from scripts import gdrive
-from threading import Thread
 import ipyvuetify as v
-from sepal_ui.scripts import utils as su
-from sepal_ui import widgetFactory as wf
-from utils import messages as ms
-from scripts import gee_process
-from utils import parameters as pm
-from sepal_ui.scripts import mapping
 import numpy as np
 from bqplot import *
 import matplotlib.pyplot as plt
-import csv
-from sepal_ui import oft 
-from sepal_ui import gdal as sgdal
 import gdal
 import pandas as pd
+
+from utils import utils
+from utils import messages as ms
+from utils import parameters as pm
+from sepal_ui.scripts import mapping
+from sepal_ui import oft 
+from sepal_ui import gdal as sgdal
+from sepal_ui import sepalwidgets as sw
+from scripts.alert_driver import available_drivers 
 
 #initialize earth engine
 ee.Initialize()
 
-def download_task_tif(filename, glad_dir):
-    """Download the tif files from your google drive folder to the local glad_results folder
+def sepal_process(aoi_io, alert_io, output):
+    """execute the 2 different operations of the computation successively: clump and compute
     
     Args:
-        filename (str): pathname pattern to the .tif files
-        glad_dir (str): pathname to the local gad_result directory
-    """
-    drive_handler = gdrive.gdrive()
-    files = drive_handler.get_files(filename)
-    drive_handler.download_files(files, glad_dir)
-    
-def delete_local_file(pathname):
-    """delete the files that have been already merged
-    
-    Args:
-        pathnamec (str): the pathname patern to the .tif files 
-        
-    Returns: 
-        (str): a message corresponding to the number of deleted files
-    """
-    #list the input files
-    file_list = []
-    for file in glob.glob(pathname):
-        file_list.append(file)
-        
-    count = 0
-    for file in file_list:
-        os.remove(file)
-        count += 1
-        
-    return "{0} files deleted".format(count)
-
-
-def sepal_process(asset_name, year, date_range, output, oft_output):
-    """execute the 3 different operations of the computation successively: merge, clump and compute
-    
-    Args:
-        asset_name (str): the assetId of the aoi computed in step 1
-        year (str): the year used to compute the glad alerts
-        widget_alert (v.Alert) the alert that display the output of the process
+        aoi_io (object): the aoiIo object that contains the aoi informations
+        alert_io (object): the AlertIO object that contains all the current alerts information
+        output (sw.Alert) the alert that display the output of the process
         
     Returns:
         (str,str): the links to the .tif (res. .txt) file 
     """
-    
-    output_debug = [v.Html(tag="h3", children=['Process outputs'])]
-    
-    aoi_name= utils.get_aoi_name(asset_name)
         
     #define the files variables
-    glad_dir = utils.create_result_folder(asset_name)
+    result_dir = utils.create_result_folder(aoi_io.assetId)
     
-    #year and country_code are defined by step 1 cell
-    basename = glad_dir + aoi_name + '_' + date_range[0] + '_' + date_range[1]  
-    alert_date_tmp_map = basename + '_tmp_glad_date.tif'
-    alert_date_map     = basename + '_glad_date.tif'
-    alert_tmp_map      = basename + '_tmp_glad.tif'
-    alert_map          = basename + '_glad.tif'
-    clump_tmp_map      = basename + '_tmp_clump.tif'
-    clump_map          = basename + '_clump.tif'
-    alert_stats        = basename + '_stats.txt'
-        
-    filename = utils.construct_filename(asset_name, date_range)
-    
-    #check that the tiles exist in gdrive
-    drive_handler = gdrive.gdrive()
-    files = drive_handler.get_files(filename)
-    
-    if files == []:
-        su.displayIO(output, ms.NO_TASK, 'error')
-        return (None, None)
+    #basename info are extracted from alert filename
+    basename = Path(alert_io.alert).stem.replace('_map', '') 
+    clump_tmp_map      = result_dir + basename + '_tmp_clump.tif'
+    clump_map          = result_dir + basename + '_clump.tif'
+    alert_stats        = result_dir + basename + '_stats.txt'
         
     #check that the process is not already done
-    if utils.check_for_file(alert_stats):
-        su.displayIO(output, ms.ALREADY_DONE, 'success')
-        return (alert_map, alert_stats)
-    
-    ##############################
-    ##   digest the date map    ##
-    ##############################
-    filename_date = filename + '_date'
-    download_task_tif(filename_date, glad_dir)
-    
-    pathname = filename_date + "*.tif"
-    
-    files = []
-    for file in glob.glob(glad_dir + pathname):
-        files.append(file)
-        
-    #run the merge process
-    su.displayIO(output, ms.MERGE_TILE)
-    time.sleep(2)
-    io = sgdal.merge(files, out_filename=alert_date_tmp_map, v=True, output=oft_output)
-    output_debug.append(v.Html(tag='p', children=[io]))
-    
-    #delete local files
-    for file in files:
-        os.remove(file)
-    
-    #compress raster
-    su.displayIO(output, ms.COMPRESS_FILE)
-    gdal.Translate(alert_date_map, alert_date_tmp_map, creationOptions=['COMPRESS=LZW'])
-    os.remove(alert_date_tmp_map)
-    
-    ##############################
-    ##   digest the map         ##
-    ##############################
-    
-    #download from GEE
-    filename_map = filename + '_map'
-    download_task_tif(filename_map, glad_dir)
-        
-    #process data with otf
-    pathname = filename_map + "*.tif"
-    
-    #create the files list 
-    files = []
-    for file in glob.glob(glad_dir + pathname):
-        files.append(file)
-    
-    #run the merge process
-    su.displayIO(output, ms.MERGE_TILE)
-    time.sleep(2)
-    io = sgdal.merge(files, out_filename=alert_tmp_map, v=True, output=oft_output)
-    output_debug.append(v.Html(tag='p', children=[io]))
-    
-    #delete local files
-    for file in files:
-        os.remove(file)
-    
-    #compress raster
-    su.displayIO(output, ms.COMPRESS_FILE)
-    gdal.Translate(alert_map, alert_tmp_map, creationOptions=['COMPRESS=LZW'])
-    os.remove(alert_tmp_map)
+    if os.path.isfile(alert_stats):
+        output.add_live_msg(ms.ALREADY_DONE, 'success')
+        return alert_stats
     
     #clump the patches together
-    su.displayIO(output, ms.IDENTIFY_PATCH)
+    output.add_live_msg(ms.IDENTIFY_PATCH)
     time.sleep(2)
-    io = oft.clump(alert_map, clump_tmp_map, output=oft_output)
-    output_debug.append(v.Html(tag='p', children=[io]))
+    oft.clump(alert_io.alert, clump_tmp_map, output=output)
     
     #compress clump raster
-    su.displayIO(output, ms.COMPRESS_FILE)
+    output.add_live_msg(ms.COMPRESS_FILE)
     gdal.Translate(clump_map, clump_tmp_map, creationOptions=['COMPRESS=LZW'])
     os.remove(clump_tmp_map)
     
     #create the histogram of the patches
-    su.displayIO(output, ms.PATCH_SIZE)
-    time.sleep(2)
-    io = oft.his(alert_map, alert_stats, maskfile=clump_map, maxval=3, output=oft_output)
-    output_debug.append(v.Html(tag='p', children=[io]))
+    output.add_live_msg(ms.PATCH_SIZE)
+    time.sleep(2)  #maxval=3 for glad alert
+    io = oft.his(alert_io.alert, alert_stats, maskfile=clump_map, maxval=3, output=output)
     
-    su.displayIO(output, ms.COMPUTAION_COMPLETED, 'success')  
+    #output.add_msg(io, 'error')
+    #return (None, None)
     
-    oft_output.children = output_debug
+    output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
-    return (alert_map, alert_stats)
+    return alert_stats
 
-def display_results(asset_name, year, date_range, raster):
+def display_results(aoi_io, alert_io, output, stats):
     
-    glad_dir = utils.create_result_folder(asset_name)
-    aoi_name = utils.get_aoi_name(asset_name) 
+    aoi_name = Path(aoi_io.assetId).stem
+    result_dir = utils.create_result_folder(aoi_io.assetId)
+    year = datetime.strptime(alert_io.start, '%Y-%m-%d').year
     
-    basename = glad_dir + aoi_name + '_' + date_range[0] + '_' + date_range[1]
+    basename = result_dir + Path(alert_io.alert).stem.replace('_map', '')
     alert_stats = basename + '_stats.txt'
     
-    df = pd.read_csv(alert_stats, header=None, sep=' ') 
-    df.columns = ['patchId', 'nb_pixel', 'no_data', 'no_alerts', 'prob', 'conf']
+    df = pd.read_csv(stats, header=None, sep=' ') 
     
-    ####################
-    ##     tif link   ##
-    ####################
-    tif_btn = wf.DownloadBtn(ms.TIF_BTN, raster)
+    if alert_io.alert_type == available_drivers[2]: #glad alerts
+        df.columns = ['patchId', 'nb_pixel', 'no_data', 'no_alerts', 'prob', 'conf']
+    elif alert_io.alert_type in [available_drivers[0], available_drivers[1]]: #gee and local alerts
+        df.columns = ['patchId', 'nb_pixel', 'no_data', 'no_alerts', 'conf']
     
-    ####################
-    ##    csv file    ##
-    ####################
+    #tif link
+    tif_btn = sw.DownloadBtn(ms.TIF_BTN, alert_io.alert)
     
-    alert_csv = create_csv(df, aoi_name, glad_dir, date_range)
-    csv_btn = wf.DownloadBtn(ms.CSV_BTN, alert_csv)
+    #csv file 
+    alert_csv = create_csv(df, basename)
+    csv_btn = sw.DownloadBtn(ms.CSV_BTN, alert_csv)
     
-    ##########################
-    ##    create the figs   ##
-    ##########################
     
+    #figs
     figs = []
     
     bins=30
@@ -229,9 +114,9 @@ def display_results(asset_name, year, date_range, raster):
     y_conf = np.append(y_conf, 0) #add the 0 to prevent bugs when there are no data (2017 for ex)
     max_conf = np.amax(y_conf)
     
-    #cannot plot 2 bars charts with different x_data
+    #plot the bar chart
     conf_y, conf_x = np.histogram(y_conf, bins=30, weights=y_conf)
-    bar = Bars(x=conf_x, y=conf_y, scales={'x': x_sc, 'y': y_sc}, colors=[colors[0]])
+    bar = Bars(x=conf_x, y=conf_y, scales={'x': x_sc, 'y': y_sc}, colors=colors)
     title ='Distribution of the confirmed GLAD alerts for {0} in {1}'.format(aoi_name, year)
     
     figs.append(Figure(
@@ -240,59 +125,28 @@ def display_results(asset_name, year, date_range, raster):
         axes=[ax_x, ax_y] 
     ))
     
-    #load the prob patches
-    y_prob = df[df['prob'] != 0]['prob'].to_numpy()
-    y_prob = np.append(y_prob, 0) #add the 0 to prevent bugs when there are no data (2017 for ex)
-    max_prob = np.amax(y_prob)
+    labels = ['confirmed alert']
+    data_hist = [y_conf]
     
-    #cannot plot 2 bars charts with different x_data
-    prob_y, prob_x = np.histogram(y_prob, bins=30, weights=y_prob)
-    bar = Bars(x=prob_x, y=prob_y, scales={'x': x_sc, 'y': y_sc}, colors=[colors[1]])
-    title ='Distribution of the potential GLAD alerts for {0} in {1}'.format(aoi_name, year)
-    
-    figs.append(Figure(
-        title= title,
-        marks=[bar], 
-        axes=[ax_x, ax_y]
-    ))
-    
-    ##########################################
-    #       clean display when no probale    #
-    ##########################################
-    labels = ['confirmed alert', 'potential alert']
-    data_hist = [y_conf, y_prob]
-    if not year == pm.getLastUpdatedYear():
-        labels = [labels[0]]
-        data_hist = [data_hist[0]]
-        figs = [figs[0]]
-        colors = [colors[0]]
-    
-    ############################
-    ##       create hist      ##
-    ############################
-    
+    #hist
     png_link = basename + '_hist.png'
     
-    title = 'Distribution of the GLAD alerts \nfor {0} in {1}'.format(aoi_name, year)
+    title = 'Distribution of the alerts \nfor {0} in {1}'.format(aoi_name, year)
     png_link = create_png(
         data_hist, 
         labels, 
         colors, 
         bins, 
-        max(max_conf,max_prob), 
+        max_conf, 
         title, 
         png_link
     )
-    png_btn = wf.DownloadBtn(ms.PNG_BTN, png_link)
+    png_btn = sw.DownloadBtn(ms.PNG_BTN, png_link)
     
-    ###########################
-    ##      create the map   ##
-    ###########################
-    m = display_alerts(asset_name, year, date_range)
+    #mapping of the results
+    m = display_alerts(aoi_io.assetId)
     
-    #########################
-    ##   sum-up layout     ##
-    #########################
+    #create a sum-up layout
     
     #create the partial layout 
     partial_layout = v.Layout(
@@ -314,7 +168,6 @@ def display_results(asset_name, year, date_range, raster):
         ]),
         partial_layout
     ]
-    
     
     return children
 
@@ -341,28 +194,21 @@ def create_png(data_hist, labels, colors, bins, max_, title, filepath):
     
     return filepath
     
-def create_csv(df, aoi_name, glad_dir, date_range):
+def create_csv(df, basename):
     
     Y_conf = df[df['conf'] != 0]['conf'].to_numpy()
     unique, counts = np.unique(Y_conf, return_counts=True)
     conf_dict = dict(zip(unique, counts))
-    #null if all the alerts have been confirmed
-    Y_prob = df[df['prob'] != 0]['prob'].to_numpy()
-    unique, counts = np.unique(Y_prob, return_counts=True)
-    prob_dict = dict(zip(unique, counts))
-        
-    #add missing keys to conf
-    conf_dict = utils.complete_dict(conf_dict, prob_dict) 
-    prob_dict = utils.complete_dict(prob_dict, conf_dict)
     
-    df2 = pd.DataFrame([conf_dict, prob_dict], index=['confirmed alerts', 'Potential alerts'])
+    df2 = pd.DataFrame([conf_dict], index=['confirmed alerts'])
     
-    filename = glad_dir + aoi_name + '_{}_{}_distrib.csv'.format(date_range[0],date_range[1])
+    filename = basename + '_distrib.csv'
+    
     df2.to_csv(filename)
     
     return filename
 
-def display_alerts(aoi_name, year, date_range):
+def display_alerts(aoi_name):
     """dipslay the selected alerts on the geemap
     currently re-computing the alerts on the fly because geemap is faster to use ee interface than reading a .tif file
     """
@@ -370,18 +216,20 @@ def display_alerts(aoi_name, year, date_range):
     #create the map
     m = utils.init_result_map()
     
-    aoi = ee.FeatureCollection(aoi_name)
-    alerts_date = gee_process.get_alerts_dates(aoi_name, year, date_range)
-    alerts = gee_process.get_alerts(aoi_name, year, alerts_date)
-    alertsMasked = alerts.updateMask(alerts.gt(0));
+    #display a raster on the map 
     
-    palette = pm.getPalette()
-    m.addLayer(alertsMasked, {
-        'bands':['conf' + str(year%100)], 
-        'min':2, 
-        'max':3, 
-        'palette': palette[::-1]
-    }, 'alerts') 
+    aoi = ee.FeatureCollection(aoi_name)
+    #alerts_date = gee_process.get_alerts_dates(aoi_name, year, date_range)
+    #alerts = gee_process.get_alerts(aoi_name, year, alerts_date)
+    #alertsMasked = alerts.updateMask(alerts.gt(0));
+    #
+    #palette = pm.getPalette()
+    #m.addLayer(alertsMasked, {
+    #    'bands':['conf' + str(year%100)], 
+    #    'min':2, 
+    #    'max':3, 
+    #    'palette': palette[::-1]
+    #}, 'alerts') 
     
     #Create an empty image into which to paint the features, cast to byte.
     empty = ee.Image().byte()
@@ -390,10 +238,10 @@ def display_alerts(aoi_name, year, date_range):
                  
     m.centerObject(aoi, zoom=mapping.update_zoom(aoi_name))
     
-    legend_keys = ['potential alerts', 'confirmed alerts']
-    legend_colors = palette[::-1]
+    #legend_keys = ['potential alerts', 'confirmed alerts']
+    #legend_colors = palette[::-1]
     
-    m.add_legend(legend_keys=legend_keys, legend_colors=legend_colors, position='topleft')
+    #m.add_legend(legend_keys=legend_keys, legend_colors=legend_colors, position='topleft')
     
     return m
                  

@@ -8,4 +8,4 @@ def getLastUpdatedYear():
     return 2020
 
 def getPalette():
-    return ['#d32f2f', '#ffeb3b']
+    return ['#d32f2f']

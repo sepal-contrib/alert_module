@@ -10,7 +10,6 @@ NO_YEAR = "The input are not correctly set up, please provide a year for your al
 ######################
 ##     sepal        ##
 ######################
-SEPAL_INTRO = 'click on "Run Sepal process" to launch the process on your Sepal account'
 SEPAL_BTN = "Run Sepal process"
 NO_PROCESS = "No process to display"
 NO_TASK = "The GEE process has not been completed, launch it or run a status check through step 2."

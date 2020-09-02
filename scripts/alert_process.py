@@ -45,13 +45,13 @@ def get_glad_alerts(aoi_io, io, output):
     year = start.year
     
     #filename 
-    aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
+    aoi_name = Path(aoi_io.assetId).stem.replace('aoi_','')
     filename = aoi_name + '_{0}_{1}_glad_alerts'.format(io.start, io.end)
     
     #check if the file exist 
-    alert_dir = utils.create_result_folder(aoi_name)
+    result_dir = utils.create_result_folder(aoi_name)
     
-    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end + '_glad'
+    basename = result_dir + aoi_name + '_' + io.start + '_' + io.end + '_glad'
     alert_date_tmp_map = basename + '_tmp_date.tif'
     alert_date_map     = basename + '_date.tif'
     alert_tmp_map      = basename + '_tmp_map.tif'
@@ -81,8 +81,10 @@ def get_glad_alerts(aoi_io, io, output):
         output.add_live_msg(ms.TASK_COMPLETED.format(filename_map), 'success') 
     
     # merge and compress them 
-    digest_tiles(filename_date, alert_dir, output, alert_date_tmp_map, alert_date_map)
-    digest_tiles(filename_map, alert_dir, output, alert_tmp_map, alert_map)
+    digest_tiles(filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
+    digest_tiles(filename_map, result_dir, output, alert_tmp_map, alert_map)
+    
+    output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
     # return the obtained files
     return (alert_date_map, alert_map)
@@ -106,9 +108,9 @@ def get_gee_assets(aoi_io, io, output):
     filename = aoi_name + '_{0}_{1}_{2}_alerts'.format(io.start, io.end, asset_name)
     
     #check if the file exist 
-    alert_dir = utils.create_result_folder(aoi_name)
+    result_dir = utils.create_result_folder(aoi_name)
     
-    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end +'_' + asset_name
+    basename = result_dir + aoi_name + '_' + io.start + '_' + io.end +'_' + asset_name
     alert_date_tmp_map = basename + '_tmp_date.tif'
     alert_date_map     = basename + '_date.tif'
     alert_tmp_map      = basename + '_tmp_map.tif'
@@ -139,8 +141,10 @@ def get_gee_assets(aoi_io, io, output):
         output.add_live_msg(ms.TASK_COMPLETED.format(filename_map), 'success') 
     
     # merge and compress them 
-    digest_tiles(filename_date, alert_dir, output, alert_date_tmp_map, alert_date_map)
-    digest_tiles(filename_map, alert_dir, output, alert_tmp_map, alert_map)
+    digest_tiles(filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
+    digest_tiles(filename_map, result_dir, output, alert_tmp_map, alert_map)
+    
+    output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
     # return the obtained files
     return (alert_date_map, alert_map)
@@ -163,9 +167,9 @@ def get_local_alerts(aoi_io, io, output):
     filename = aoi_name + '_{0}_{1}_{2}_alerts'.format(io.start, io.end, alert_name)
     
     #check if the file exist 
-    alert_dir = utils.create_result_folder(aoi_name)
+    result_dir = utils.create_result_folder(aoi_name)
     
-    basename = alert_dir + aoi_name + '_' + io.start + '_' + io.end + '_' + alert_name 
+    basename = result_dir + aoi_name + '_' + io.start + '_' + io.end + '_' + alert_name 
     alert_date_map     = basename + '_date.tif'
     alert_map          = basename + '_map.tif'
     
@@ -185,18 +189,20 @@ def get_local_alerts(aoi_io, io, output):
     calc = "(A>0)*B"
     sgdal.calc(calc, [alert_date_map, io.alert_file], alert_map, Type_='Byte', co='COMPRESS=LZW')
     
+    output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
+    
     # return the obtained files
     return (alert_date_map, alert_map)
 
-def digest_tiles(filename, alert_dir, output, tmp_file, comp_file):
+def digest_tiles(filename, result_dir, output, tmp_file, comp_file):
     
     drive_handler = gdrive.gdrive()
     files = drive_handler.get_files(filename)
-    drive_handler.download_files(files, alert_dir)
+    drive_handler.download_files(files, result_dir)
     
     pathname = filename + "*.tif"
     
-    files = [file for file in glob.glob(alert_dir + pathname)]
+    files = [file for file in glob.glob(result_dir + pathname)]
         
     #run the merge process
     output.add_live_msg(ms.MERGE_TILE)
