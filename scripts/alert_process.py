@@ -11,6 +11,7 @@ import glob
 import time
 import gdal
 from pathlib import Path
+from osgeo import gdalconst
 
 def get_alerts(aoi_io, io, output):
     
@@ -57,9 +58,9 @@ def get_glad_alerts(aoi_io, io, output):
     alert_tmp_map      = basename + '_tmp_map.tif'
     alert_map          = basename + '_map.tif'
     
-    if os.path.isfile(alert_map):
+    if os.path.isfile(alert_tmp_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
-        return (alert_date_map, alert_map)
+        return (alert_date_tmp_map, alert_tmp_map)
     
     drive_handler = gdrive.gdrive()
     
@@ -81,13 +82,13 @@ def get_glad_alerts(aoi_io, io, output):
         output.add_live_msg(ms.TASK_COMPLETED.format(filename_map), 'success') 
     
     # merge and compress them 
-    digest_tiles(filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
-    digest_tiles(filename_map, result_dir, output, alert_tmp_map, alert_map)
+    digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
+    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map, alert_map)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
     # return the obtained files
-    return (alert_date_map, alert_map)
+    return (alert_date_tmp_map, alert_tmp_map)
     
     
 def get_gee_assets(aoi_io, io, output):
@@ -116,9 +117,9 @@ def get_gee_assets(aoi_io, io, output):
     alert_tmp_map      = basename + '_tmp_map.tif'
     alert_map          = basename + '_map.tif'
     
-    if os.path.isfile(alert_map):
+    if os.path.isfile(alert_tmp_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
-        return (alert_date_map, alert_map)
+        return (alert_date_tmp_map, alert_tmp_map)
     
     drive_handler = gdrive.gdrive()
     
@@ -141,13 +142,13 @@ def get_gee_assets(aoi_io, io, output):
         output.add_live_msg(ms.TASK_COMPLETED.format(filename_map), 'success') 
     
     # merge and compress them 
-    digest_tiles(filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
-    digest_tiles(filename_map, result_dir, output, alert_tmp_map, alert_map)
+    digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
+    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map, alert_map)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
     # return the obtained files
-    return (alert_date_map, alert_map)
+    return (alert_date_tmp_map, alert_tmp_map)
 
 
 def get_local_alerts(aoi_io, io, output):
@@ -194,7 +195,7 @@ def get_local_alerts(aoi_io, io, output):
     # return the obtained files
     return (alert_date_map, alert_map)
 
-def digest_tiles(filename, result_dir, output, tmp_file, comp_file):
+def digest_tiles(aoi_io, filename, result_dir, output, tmp_file, comp_file):
     
     drive_handler = gdrive.gdrive()
     files = drive_handler.get_files(filename)
@@ -208,15 +209,10 @@ def digest_tiles(filename, result_dir, output, tmp_file, comp_file):
     output.add_live_msg(ms.MERGE_TILE)
     time.sleep(2)
     io = sgdal.merge(files, out_filename=tmp_file, v=True, output=output)
+    #io = sgdal.merge(files, out_filename=comp_file, v=True, output=output)
     
     #delete local files
     [os.remove(file) for file in files]
     
-    #compress raster
-    output.add_live_msg(ms.COMPRESS_FILE)
-    gdal.Translate(comp_file, tmp_file, creationOptions=['COMPRESS=LZW'])
-    os.remove(tmp_file)
-    
     return
-    
     

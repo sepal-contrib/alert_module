@@ -11,6 +11,7 @@ from bqplot import *
 import matplotlib.pyplot as plt
 import gdal
 import pandas as pd
+from osgeo import gdalconst
 
 from utils import utils
 from utils import messages as ms
@@ -40,10 +41,18 @@ def sepal_process(aoi_io, alert_io, output):
     result_dir = utils.create_result_folder(aoi_io.assetId)
     
     #basename info are extracted from alert filename
-    basename = Path(alert_io.alert).stem.replace('_map', '') 
+    basename = Path(alert_io.alert).stem.replace('_tmp_map', '')
+    
+    output.add_live_msg('basename: {}'.format(basename))
+    time.sleep(10)
+    
     clump_tmp_map      = result_dir + basename + '_tmp_clump.tif'
     clump_map          = result_dir + basename + '_clump.tif'
     alert_stats        = result_dir + basename + '_stats.txt'
+    alert_date_tmp_map = result_dir + basename + '_tmp_date.tif'
+    alert_date_map     = result_dir + basename + '_date.tif'
+    alert_tmp_map      = result_dir + basename + '_tmp_map.tif'
+    alert_map          = result_dir + basename + '_map.tif'
         
     #check that the process is not already done
     if os.path.isfile(alert_stats):
@@ -55,18 +64,16 @@ def sepal_process(aoi_io, alert_io, output):
     time.sleep(2)
     oft.clump(alert_io.alert, clump_tmp_map, output=output)
     
-    #compress clump raster
+    #cut and compress all files 
     output.add_live_msg(ms.COMPRESS_FILE)
-    gdal.Translate(clump_map, clump_tmp_map, creationOptions=['COMPRESS=LZW'])
-    os.remove(clump_tmp_map)
+    cut_to_aoi(aoi_io, alert_date_tmp_map, alert_date_map)
+    cut_to_aoi(aoi_io, alert_tmp_map, alert_map)
+    cut_to_aoi(aoi_io, clump_tmp_map, clump_map)
     
     #create the histogram of the patches
     output.add_live_msg(ms.PATCH_SIZE)
     time.sleep(2)  #maxval=3 for glad alert
-    io = oft.his(alert_io.alert, alert_stats, maskfile=clump_map, maxval=3, output=output)
-    
-    #output.add_msg(io, 'error')
-    #return (None, None)
+    io = oft.his(alert_map, alert_stats, maskfile=clump_map, maxval=3, output=output)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -244,6 +251,23 @@ def display_alerts(aoi_name):
     #m.add_legend(legend_keys=legend_keys, legend_colors=legend_colors, position='topleft')
     
     return m
+
+def cut_to_aoi(aoi_io, tmp_file, comp_file):
+    
+    #cut to the aoi shape and compress
+    aoi_shp = aoi_io.get_aoi_shp(utils.create_result_folder(aoi_io.assetId))
+    
+    options = gdal.WarpOptions(
+        outputType = gdalconst.GDT_Byte,
+        creationOptions = ["COMPRESS=LZW"], 
+        cutlineDSName = aoi_shp,
+        cropToCutline   = True
+    )
+    
+    gdal.Warp(comp_file, tmp_file, options=options)
+    os.remove(tmp_file)
+    
+    return
                  
     
     

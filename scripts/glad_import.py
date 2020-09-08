@@ -21,7 +21,7 @@ def get_alerts_dates(aoi_name, year, date_range):
         all_alerts = ee.ImageCollection('projects/glad/alert/UpdResult')
         
     #create the composit band alert_date. cannot use the alertDateXX band directly because they are not all casted to the same type
-    dates = all_alerts.select('alertDate{}'.format(year%100)).map(lambda image: image.uint16()).mosaic().clip(aoi)
+    dates = all_alerts.select('alertDate{}'.format(year%100)).map(lambda image: image.uint16()).filterBounds(aoi).mosaic()
 
     #masked all the images that are not between the limits dates
     
@@ -52,7 +52,7 @@ def get_alerts(aoi_name, year, date_masked):
         all_alerts = ee.ImageCollection('projects/glad/alert/UpdResult')
     
         
-    alerts = all_alerts.select('conf' + str(year%100)).mosaic().clip(aoi);
+    alerts = all_alerts.select('conf' + str(year%100)).filterBounds(aoi).mosaic()
     
     #use the mask of the julian alerts 
     alerts = alerts.updateMask(date_masked.mask())
