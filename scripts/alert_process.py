@@ -58,7 +58,7 @@ def get_glad_alerts(aoi_io, io, output):
     alert_tmp_map      = basename + '_tmp_map.tif'
     alert_map          = basename + '_map.tif'
     
-    if os.path.isfile(alert_tmp_map):
+    if os.path.isfile(alert_tmp_map) or os.path.isfile(alert_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
         return (alert_date_tmp_map, alert_tmp_map)
     

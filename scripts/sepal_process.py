@@ -16,7 +16,7 @@ from osgeo import gdalconst
 from utils import utils
 from utils import messages as ms
 from utils import parameters as pm
-from sepal_ui.scripts import mapping
+from sepal_ui import mapping as sm
 from sepal_ui import oft 
 from sepal_ui import gdal as sgdal
 from sepal_ui import sepalwidgets as sw
@@ -60,15 +60,16 @@ def sepal_process(aoi_io, alert_io, output):
         return alert_stats
     
     #clump the patches together
-    output.add_live_msg(ms.IDENTIFY_PATCH)
-    time.sleep(2)
-    oft.clump(alert_io.alert, clump_tmp_map, output=output)
+    if not os.path.isfile(clump_tmp_map):
+        output.add_live_msg(ms.IDENTIFY_PATCH)
+        time.sleep(2)
+        oft.clump(alert_io.alert, clump_tmp_map, output=output)
     
     #cut and compress all files 
     output.add_live_msg(ms.COMPRESS_FILE)
-    cut_to_aoi(aoi_io, alert_date_tmp_map, alert_date_map)
-    cut_to_aoi(aoi_io, alert_tmp_map, alert_map)
-    cut_to_aoi(aoi_io, clump_tmp_map, clump_map)
+    if not os.path.isfile(alert_date_map): cut_to_aoi(aoi_io, alert_date_tmp_map, alert_date_map)
+    if not os.path.isfile(alert_map): cut_to_aoi(aoi_io, alert_tmp_map, alert_map)
+    if not os.path.isfile(clump_map): cut_to_aoi(aoi_io, clump_tmp_map, clump_map)
     
     #create the histogram of the patches
     output.add_live_msg(ms.PATCH_SIZE)
@@ -85,7 +86,7 @@ def display_results(aoi_io, alert_io, output, stats):
     result_dir = utils.create_result_folder(aoi_io.assetId)
     year = datetime.strptime(alert_io.start, '%Y-%m-%d').year
     
-    basename = result_dir + Path(alert_io.alert).stem.replace('_map', '')
+    basename = result_dir + Path(alert_io.alert).stem.replace('_tmp_map', '')
     alert_stats = basename + '_stats.txt'
     
     df = pd.read_csv(stats, header=None, sep=' ') 
@@ -100,7 +101,7 @@ def display_results(aoi_io, alert_io, output, stats):
     
     #csv file 
     alert_csv = create_csv(df, basename)
-    csv_btn = sw.DownloadBtn(ms.CSV_BTN, alert_csv)
+    csv_btn = sw.DownloadBtn(ms.CSV_BTN, basename + '_map.tif')
     
     
     #figs
@@ -151,7 +152,7 @@ def display_results(aoi_io, alert_io, output, stats):
     png_btn = sw.DownloadBtn(ms.PNG_BTN, png_link)
     
     #mapping of the results
-    m = display_alerts(aoi_io.assetId)
+    m = display_alerts(aoi_io.assetId, basename + '_map.tif', colors)
     
     #create a sum-up layout
     
@@ -215,40 +216,28 @@ def create_csv(df, basename):
     
     return filename
 
-def display_alerts(aoi_name):
+def display_alerts(aoi_name, raster, colors):
     """dipslay the selected alerts on the geemap
     currently re-computing the alerts on the fly because geemap is faster to use ee interface than reading a .tif file
     """
     
     #create the map
-    m = utils.init_result_map()
+    m = sm.SepalMap(['SATELLITE', 'CartoDB.DarkMatter'])
     
     #display a raster on the map 
-    
-    aoi = ee.FeatureCollection(aoi_name)
-    #alerts_date = gee_process.get_alerts_dates(aoi_name, year, date_range)
-    #alerts = gee_process.get_alerts(aoi_name, year, alerts_date)
-    #alertsMasked = alerts.updateMask(alerts.gt(0));
-    #
-    #palette = pm.getPalette()
-    #m.addLayer(alertsMasked, {
-    #    'bands':['conf' + str(year%100)], 
-    #    'min':2, 
-    #    'max':3, 
-    #    'palette': palette[::-1]
-    #}, 'alerts') 
+    m.add_raster(raster, layer_name='alerts', opacity=.7)
     
     #Create an empty image into which to paint the features, cast to byte.
+    aoi = ee.FeatureCollection(aoi_name)
     empty = ee.Image().byte()
     outline = empty.paint(**{'featureCollection': aoi, 'color': 1, 'width': 3})
     m.addLayer(outline, {'palette': '283593'}, 'aoi')
-                 
-    m.centerObject(aoi, zoom=mapping.update_zoom(aoi_name))
+    m.zoom_ee_object(aoi.geometry())
     
-    #legend_keys = ['potential alerts', 'confirmed alerts']
-    #legend_colors = palette[::-1]
+    legend_keys = ['potential alerts', 'confirmed alerts']
+    legend_colors = colors[::-1]
     
-    #m.add_legend(legend_keys=legend_keys, legend_colors=legend_colors, position='topleft')
+    m.add_legend(legend_keys=legend_keys, legend_colors=legend_colors, position='topleft')
     
     return m
 

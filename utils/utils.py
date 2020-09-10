@@ -7,6 +7,7 @@ import ipyvuetify as v
 import glob
 from pathlib import Path
 import geemap
+import string
 
 #initialize earth engine
 ee.Initialize()
