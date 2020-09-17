@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 import gdal
 import pandas as pd
 from osgeo import gdalconst
+import rasterio as rio
+from rasterio.warp import calculate_default_transform
+from scipy import ndimage as ndi
 
 from utils import utils
 from utils import messages as ms
@@ -63,7 +66,8 @@ def sepal_process(aoi_io, alert_io, output):
     if not os.path.isfile(clump_tmp_map):
         output.add_live_msg(ms.IDENTIFY_PATCH)
         time.sleep(2)
-        oft.clump(alert_io.alert, clump_tmp_map, output=output)
+        clump(alert_io.alert, clump_tmp_map)
+        #oft.clump(alert_io.alert, clump_tmp_map, output=output)
     
     #cut and compress all files 
     output.add_live_msg(ms.COMPRESS_FILE)
@@ -74,7 +78,8 @@ def sepal_process(aoi_io, alert_io, output):
     #create the histogram of the patches
     output.add_live_msg(ms.PATCH_SIZE)
     time.sleep(2)  #maxval=3 for glad alert
-    io = oft.his(alert_map, alert_stats, maskfile=clump_map, maxval=3, output=output)
+    #io = oft.his(alert_map, alert_stats, maskfile=clump_map, maxval=3, output=output)
+    hist(alert_map, clump_map, alert_stats)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -89,24 +94,18 @@ def display_results(aoi_io, alert_io, output, stats):
     basename = result_dir + Path(alert_io.alert).stem.replace('_tmp_map', '')
     alert_stats = basename + '_stats.txt'
     
-    df = pd.read_csv(stats, header=None, sep=' ') 
-    
-    if alert_io.alert_type == available_drivers[2]: #glad alerts
-        df.columns = ['patchId', 'nb_pixel', 'no_data', 'no_alerts', 'prob', 'conf']
-    elif alert_io.alert_type in [available_drivers[0], available_drivers[1]]: #gee and local alerts
-        df.columns = ['patchId', 'nb_pixel', 'no_data', 'no_alerts', 'conf']
+    df = pd.read_csv(stats)
     
     #tif link
     tif_btn = sw.DownloadBtn(ms.TIF_BTN, alert_io.alert)
     
     #csv file 
-    alert_csv = create_csv(df, basename)
+    alert_csv = create_csv(df, basename, alert_io.alert_type)
     csv_btn = sw.DownloadBtn(ms.CSV_BTN, basename + '_map.tif')
-    
     
     #figs
     figs = []
-    
+    colors = pm.getPalette()
     bins=30
     
     x_sc = LinearScale(min=1)
@@ -115,39 +114,44 @@ def display_results(aoi_io, alert_io, output, stats):
     ax_x = Axis(label='patch size (px)', scale=x_sc)
     ax_y = Axis(label='number of pixels', scale=y_sc, orientation='vertical') 
     
-    colors = pm.getPalette()
 
-    #load the confirm patches
-    y_conf = df[df['conf'] != 0]['conf'].to_numpy()
-    y_conf = np.append(y_conf, 0) #add the 0 to prevent bugs when there are no data (2017 for ex)
-    max_conf = np.amax(y_conf)
+    if alert_io.alert_type == available_drivers[2]: #glad alerts
+        values = {'confirmed alerts': 3, 'potential alerts': 2}
+    else:
+        values = {'confirmed alerts': 1}
     
-    #plot the bar chart
-    conf_y, conf_x = np.histogram(y_conf, bins=30, weights=y_conf)
-    bar = Bars(x=conf_x, y=conf_y, scales={'x': x_sc, 'y': y_sc}, colors=colors)
-    title ='Distribution of the confirmed GLAD alerts for {0} in {1}'.format(aoi_name, year)
+    max_ = 0
+    labels = []
+    data_hist = []
+    for index, name in enumerate(values): 
+        #load the patches
+        y_ = df[df['value'] == values[name]]['nb_pixel'].to_numpy()
+        y_ = np.append(y_, 0) #add the 0 to prevent bugs when there are no data (2017 for ex)
+        max_ = max(max_, np.amax(y_))
     
-    figs.append(Figure(
-        title= title,
-        marks=[bar], 
-        axes=[ax_x, ax_y] 
-    ))
+        #plot the bar chart
+        y_val, x_val = np.histogram(y_, bins=30, weights=y_)
+        bar = Bars(x=x_val, y=y_val, scales={'x': x_sc, 'y': y_sc}, colors=[colors[index]])
+        title ='Distribution of the {2} for {0} in {1}'.format(aoi_name, year, name)
     
-    labels = ['confirmed alert']
-    data_hist = [y_conf]
+        figs.append(Figure(
+            title= title,
+            marks=[bar], 
+            axes=[ax_x, ax_y] 
+        ))
     
-    #hist
-    png_link = basename + '_hist.png'
+        labels.append(name)
+        data_hist.append(y_val)
     
-    title = 'Distribution of the alerts \nfor {0} in {1}'.format(aoi_name, year)
+    #hist in png    
     png_link = create_png(
         data_hist, 
         labels, 
-        colors, 
+        colors[:len(values)], 
         bins, 
-        max_conf, 
-        title, 
-        png_link
+        max_, 
+        'Distribution of the alerts \nfor {0} in {1}'.format(aoi_name, year), 
+        basename + '_hist.png'
     )
     png_btn = sw.DownloadBtn(ms.PNG_BTN, png_link)
     
@@ -202,13 +206,21 @@ def create_png(data_hist, labels, colors, bins, max_, title, filepath):
     
     return filepath
     
-def create_csv(df, basename):
+def create_csv(df, basename, alert_type):
     
-    Y_conf = df[df['conf'] != 0]['conf'].to_numpy()
-    unique, counts = np.unique(Y_conf, return_counts=True)
-    conf_dict = dict(zip(unique, counts))
+    if alert_type == available_drivers[2]: #glad alerts
+        values = {'confirmed alerts': 3, 'potential alerts': 2}
+    else:
+        values = {'confirmed alerts': 1}
+        
+    dfs = []
+    for name in values:
+        Y_conf = df[df['value'] == values[name]]['nb_pixel'].to_numpy()
+        unique, counts = np.unique(Y_conf, return_counts=True)
+        
+        dfs.append(pd.DataFrame({name: counts}, index=[unique]))
     
-    df2 = pd.DataFrame([conf_dict], index=['confirmed alerts'])
+    df2 = pd.concat(dfs, axis=1).fillna(0).T
     
     filename = basename + '_distrib.csv'
     
@@ -234,6 +246,8 @@ def display_alerts(aoi_name, raster, colors):
     m.addLayer(outline, {'palette': '283593'}, 'aoi')
     m.zoom_ee_object(aoi.geometry())
     
+    
+    #TODO check the legend 
     legend_keys = ['potential alerts', 'confirmed alerts']
     legend_colors = colors[::-1]
     
@@ -247,7 +261,7 @@ def cut_to_aoi(aoi_io, tmp_file, comp_file):
     aoi_shp = aoi_io.get_aoi_shp(utils.create_result_folder(aoi_io.assetId))
     
     options = gdal.WarpOptions(
-        outputType = gdalconst.GDT_Byte,
+        #outputType = gdalconst.GDT_Byte,
         creationOptions = ["COMPRESS=LZW"], 
         cutlineDSName = aoi_shp,
         cropToCutline   = True
@@ -257,7 +271,55 @@ def cut_to_aoi(aoi_io, tmp_file, comp_file):
     os.remove(tmp_file)
     
     return
-                 
+ 
+def clump(src_f, dst_f):
+
+    with rio.open(src_f) as f:
+        raster = f.read(1)
+        dst_crs = 'EPSG:4326'
+        transform, _, _ =  calculate_default_transform(
+            f.crs, 
+            dst_crs, 
+            f.width, 
+            f.height, 
+            *f.bounds
+        )
     
+    struct = [
+        [1,1,1],
+        [1,1,1],
+        [1,1,1]
+    ]
+    raster_labeled = ndi.label(raster, structure = struct)[0]
     
+    dtype = rio.dtypes.get_minimum_dtype(raster_labeled)
+    height = raster_labeled.shape[0]
+    width = raster_labeled.shape[1]
+    raster_labeled = raster_labeled.astype(dtype)
     
+    with rio.open(dst_f, 'w', driver='GTiff', height=height, width=width, count=1, dtype=dtype, crs=dst_crs, transform=transform) as dst:
+        dst.write(raster_labeled, 1)
+    
+    return
+    
+def hist(src, mask, dst):
+
+    with rio.open(src) as src_f, rio.open(mask) as mask_f:
+        src_raster = src_f.read(1)
+        mask_raster = mask_f.read(1)
+
+
+        class_, indices, count = np.unique(mask_raster, return_index=True, return_counts=True) 
+
+        src_flat = src_raster.flatten()
+
+        values = [src_flat[index] for index in indices]
+
+        df = pd.DataFrame({'patchId': indices, 'nb_pixel': count, 'value': values})
+
+        #remove 255 and 0 (no-alert value)
+        df = df[(df['value'] != 255) & (df['value'] != 0)]
+        
+        df.to_csv(dst, index=False)
+        
+    return

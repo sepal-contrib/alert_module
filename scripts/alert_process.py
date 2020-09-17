@@ -26,7 +26,6 @@ def get_alerts(aoi_io, io, output):
     
     # if I'm here it means that the io_alert_type is not define 
     output.add_live_msg(io.alert_type, 'error')
-    #output.add_live_msg(ms.WRONG_DRIVER, 'error')
     return (None, None)
 
 def get_glad_alerts(aoi_io, io, output):
@@ -56,6 +55,7 @@ def get_glad_alerts(aoi_io, io, output):
     alert_date_tmp_map = basename + '_tmp_date.tif'
     alert_date_map     = basename + '_date.tif'
     alert_tmp_map      = basename + '_tmp_map.tif'
+    alert_raw_map      = basename + '_raw_map.tif'
     alert_map          = basename + '_map.tif'
     
     if os.path.isfile(alert_tmp_map) or os.path.isfile(alert_map):
@@ -82,8 +82,27 @@ def get_glad_alerts(aoi_io, io, output):
         output.add_live_msg(ms.TASK_COMPLETED.format(filename_map), 'success') 
     
     # merge and compress them 
-    digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
-    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map, alert_map)
+    digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map)
+    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map)
+    
+    #change values to put the confirmed lerts on 1 (as for all alert system)
+    # 3 -> 1 confirmed alerts 
+    # 2 -> 2 potential alerts
+    # 0 -> 0 no alerts
+    #calc = "(A==3)*1 + (A!=3)*A"
+    
+    #env gdal conflict that prevent me from using the sepal_io script
+    #sgdal.calc(calc, [io.date_file], alert_date_map, co='COMPRESS=LZW', type_='Byte')
+    
+    #command = [
+    #    'gdal_calc.py',
+    #    '--calc="{}"'.format(calc),
+    #    '-A', alert_raw_map,
+    #    '--outfile={}'.format(alert_tmp_map),
+    #    '--type=Byte'
+    #]
+    #os.system(' '.join(command))
+    #os.remove(alert_raw_map)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -115,6 +134,7 @@ def get_gee_assets(aoi_io, io, output):
     alert_date_tmp_map = basename + '_tmp_date.tif'
     alert_date_map     = basename + '_date.tif'
     alert_tmp_map      = basename + '_tmp_map.tif'
+    alert_raw_map      = basename + '_raw_map.tif'
     alert_map          = basename + '_map.tif'
     
     if os.path.isfile(alert_tmp_map):
@@ -143,7 +163,7 @@ def get_gee_assets(aoi_io, io, output):
     
     # merge and compress them 
     digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
-    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map, alert_map)
+    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map, alert_raw_map)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -163,7 +183,7 @@ def get_local_alerts(aoi_io, io, output):
     if not os.path.isfile(io.alert_file): return (None, None)
     
     #filename 
-    alert_name = Path(io.alerts_file).stem
+    alert_name = Path(io.alert_file).stem
     aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
     filename = aoi_name + '_{0}_{1}_{2}_alerts'.format(io.start, io.end, alert_name)
     
@@ -171,31 +191,54 @@ def get_local_alerts(aoi_io, io, output):
     result_dir = utils.create_result_folder(aoi_name)
     
     basename = result_dir + aoi_name + '_' + io.start + '_' + io.end + '_' + alert_name 
-    alert_date_map     = basename + '_date.tif'
-    alert_map          = basename + '_map.tif'
+    alert_date_map     = basename + '_tmp_date.tif'
+    alert_map          = basename + '_tmp_map.tif'
     
     if os.path.isfile(alert_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
         return (alert_date_map, alert_map)
     
     #mask the alert dates 
-    start = datetime.strptime(date_range[0], '%Y-%m-%d').toordinal()
-    end = datetime.strptime(date_range[1], '%Y-%m-%d').toordinal()
+    start = datetime.strptime(io.start, '%Y-%m-%d').toordinal()
+    end = datetime.strptime(io.end, '%Y-%m-%d').toordinal()
     
     
     calc = "(A>={0})*(A<={1})*A".format(start, end)
-    sgdal.calc(calc, [io.date_file], alert_date_map, Type_='Byte', co='COMPRESS=LZW')
+    #env gdal conflict that prevent me from using the sepal_io script
+    
+    #sgdal.calc(calc, [io.date_file], alert_date_map, co='COMPRESS=LZW', type_='Byte')
+    
+    command = [
+        'gdal_calc.py',
+        '--calc="{}"'.format(calc),
+        '-A', io.date_file,
+        '--outfile={}'.format(alert_date_map),
+        '--co=COMPRESS=LZW'
+        '--type=Byte'
+    ]
+    os.system(' '.join(command))
     
     #filter the alerts 
-    calc = "(A>0)*B"
-    sgdal.calc(calc, [alert_date_map, io.alert_file], alert_map, Type_='Byte', co='COMPRESS=LZW')
+    calc = "(A>0)*B+0"
+    #sgdal.calc(calc, [alert_date_map, io.alert_file], alert_map, co='COMPRESS=LZW', type_='Byte')
+    
+    command = [
+        'gdal_calc.py',
+        '--calc="{}"'.format(calc),
+        '-A', alert_date_map,
+        '-B', io.alert_file,
+        '--outfile={}'.format(alert_map),
+        '--co=COMPRESS=LZW', 
+        '--type=Byte'
+    ]
+    os.system(' '.join(command))
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
     # return the obtained files
     return (alert_date_map, alert_map)
 
-def digest_tiles(aoi_io, filename, result_dir, output, tmp_file, comp_file):
+def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
     
     drive_handler = gdrive.gdrive()
     files = drive_handler.get_files(filename)
@@ -209,7 +252,6 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file, comp_file):
     output.add_live_msg(ms.MERGE_TILE)
     time.sleep(2)
     io = sgdal.merge(files, out_filename=tmp_file, v=True, output=output)
-    #io = sgdal.merge(files, out_filename=comp_file, v=True, output=output)
     
     #delete local files
     [os.remove(file) for file in files]
