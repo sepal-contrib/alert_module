@@ -85,25 +85,6 @@ def get_glad_alerts(aoi_io, io, output):
     digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map)
     digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map)
     
-    #change values to put the confirmed lerts on 1 (as for all alert system)
-    # 3 -> 1 confirmed alerts 
-    # 2 -> 2 potential alerts
-    # 0 -> 0 no alerts
-    #calc = "(A==3)*1 + (A!=3)*A"
-    
-    #env gdal conflict that prevent me from using the sepal_io script
-    #sgdal.calc(calc, [io.date_file], alert_date_map, co='COMPRESS=LZW', type_='Byte')
-    
-    #command = [
-    #    'gdal_calc.py',
-    #    '--calc="{}"'.format(calc),
-    #    '-A', alert_raw_map,
-    #    '--outfile={}'.format(alert_tmp_map),
-    #    '--type=Byte'
-    #]
-    #os.system(' '.join(command))
-    #os.remove(alert_raw_map)
-    
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
     # return the obtained files
@@ -123,7 +104,7 @@ def get_gee_assets(aoi_io, io, output):
     # check that the asset exist 
     
     #filename 
-    asset_name = Path(io.alerts_asset).stem
+    asset_name = Path(io.alert_asset).stem
     aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
     filename = aoi_name + '_{0}_{1}_{2}_alerts'.format(io.start, io.end, asset_name)
     
@@ -134,7 +115,6 @@ def get_gee_assets(aoi_io, io, output):
     alert_date_tmp_map = basename + '_tmp_date.tif'
     alert_date_map     = basename + '_date.tif'
     alert_tmp_map      = basename + '_tmp_map.tif'
-    alert_raw_map      = basename + '_raw_map.tif'
     alert_map          = basename + '_map.tif'
     
     if os.path.isfile(alert_tmp_map):
@@ -143,16 +123,15 @@ def get_gee_assets(aoi_io, io, output):
     
     drive_handler = gdrive.gdrive()
     
-    
     # mask the appropriate alerts 
     filename_date = filename + '_dates'
-    alerts_date = gee_import.get_alerts_dates(aoi_io.assetId, [io.start, io.end], io.date_asset, io.asset_date_band)
-    download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io.assetId, output)
+    alerts_date = gee_import.get_alerts_dates([io.start, io.end], io.date_asset, io.asset_date_band)
+    download = drive_handler.download_to_disk(filename_date, alerts_date.unmask(0), aoi_io.assetId, output)
     
     #reteive alert date masked with date range 
     filename_map = filename + '_map'
-    alerts = glad_import.get_alerts(aoi_io.assetId, alerts_date, io.alerts_asset, io.asset_alerts_band)
-    download = drive_handler.download_to_disk(filename_map, alerts, aoi_io.assetId, output)
+    alerts = gee_import.get_alerts(alerts_date, io.alert_asset, io.asset_alerts_band)
+    download = drive_handler.download_to_disk(filename_map, alerts.unmask(0), aoi_io.assetId, output)
     
     #wait for completion 
     # I assume that there is 2 or 0 file to launch 
@@ -162,8 +141,8 @@ def get_gee_assets(aoi_io, io, output):
         output.add_live_msg(ms.TASK_COMPLETED.format(filename_map), 'success') 
     
     # merge and compress them 
-    digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map, alert_date_map)
-    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map, alert_raw_map)
+    digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map)
+    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     

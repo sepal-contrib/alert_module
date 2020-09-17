@@ -11,13 +11,13 @@ from utils import parameters as pm
 #initialize earth engine
 ee.Initialize()
 
-def get_alerts_dates(aoi_name, date_range, asset, band):
+def get_alerts_dates(date_range, asset, band):
     """return the alerts included between the two dates of date_range "band" must be a date in the proleptic Gregorian calendar (number of days since 01/01/01)"""
     
     all_alerts = ee.ImageCollection(asset)
         
     #clip the alert dates
-    dates = all_alerts.select(band).mosaic().clip(aoi)
+    dates = all_alerts.select(band).mosaic()
 
     #masked all the images that are not between the limits dates
     
@@ -29,7 +29,7 @@ def get_alerts_dates(aoi_name, date_range, asset, band):
     
     return date_masked    
 
-def get_alerts(aoi_name, date_masked, asset, band):
+def get_alerts(date_masked, asset, band):
     """ get the alerts from the user asset
     
     Args:
@@ -41,12 +41,10 @@ def get_alerts(aoi_name, date_masked, asset, band):
         alerts (ee.FeatureCollection): the alert clipped on the AOI
     """
     
-    aoi = ee.FeatureCollection(aoi_name)
-    
     all_alerts = ee.ImageCollection(asset)
     
         
-    alerts = all_alerts.select(band).mosaic().clip(aoi);
+    alerts = all_alerts.select(band).mosaic()
     
     #use the mask of the date alerts 
     alerts = alerts.updateMask(date_masked.mask())
