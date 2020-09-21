@@ -21,6 +21,9 @@ Follow the instructions provided by the command. You are now ready to go.
   1.3. [import shapefile](./select_aoi.md)  
   1.4. [use Google Earth Engine](./select_aoi.md)  
 2. [Retrieve the alerts](./retreive_alert.md)  
+  2.1 [GLAD alerts](./retreive_alert.md)  
+  2.2 [local alerts](./retreive_alert.md)  
+  2.3 [GEE asset alerts system](./retreive_alert.md)
 3. [Postprocess the alerts](./postprocess_alerts.md)  
 4. [Use the results](./results.md)  
 

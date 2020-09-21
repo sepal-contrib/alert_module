@@ -4,7 +4,7 @@ First you'll need to select the alert system you want to use. In the version 1.2
 
 ![retrieve alerts](./img/alert_driver.png) 
 
-## GLAD alerts
+## 2.1 GLAD alerts
 
 ### Description
 
@@ -26,7 +26,7 @@ Once the process is completed you should obtain the following message:
 
 ![retrieve alerts](./img/glad_driver_done.png) 
 
-## local alerts
+## 2.2 local alerts
 
 If you produce a locally derived alert system and you want to use it in this module you need to save it in a format compatible with the alert driver. You'll need to create to different files: 
 - the alert file : a .TIFF file with value 1 if an alert exist 0 elsewhere. You can use other value to described other type of alerts (likely etc...). Contact the contributors via the [issue panel](https://github.com/12rambau/alert_module/issues/new/choose) if help is needed.
@@ -38,7 +38,7 @@ By clicking on the “run process” `button`, you will launch the filtering of 
 
 ![retrieve alerts](./img/local_driver.png) 
 
-## GEE asset alerts system
+## 2.3 GEE asset alerts system
 
 If you produce or want to use a product existing on earthengine. Use the `gee asset` driver. 
 You'll require 2 assets :
