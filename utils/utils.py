@@ -93,31 +93,6 @@ def create_result_folder(aoiId):
     
     return pathname
 
-#def check_for_file(filename):
-#    """return the file corresponding to the pathname else False
-#    
-#    Args:
-#        filename (str): expected pathname of the file
-#      
-#    Returns:
-#        (str) : the pathname if found else False
-#    """
-#    return glob.glob(filename)
-
-
-def complete_dict(first_dict, second_dict):
-    """complete the first dict with the missing keys from the second dict. thos keys values are set to 0. return a sorted dict
-    """
-    for key in second_dict:
-            if not key in first_dict.keys():
-                first_dict[key] = 0 
-            
-    sorted_dict = {}
-    for key in sorted(first_dict):
-        sorted_dict[key] = first_dict[key]
-                        
-    return sorted_dict
-
 def init_result_map():
     """initialize a geemap to display the aggregated data"""
     
