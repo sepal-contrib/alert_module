@@ -4,11 +4,10 @@
 
 By clicking on `run postprocessing`, you will launch the analysis of the glad alerts on your SEPAL computer. The different steps are described here:
 
-- Retrieve the tiles from your google drive to the sepal `~/glad_results` folder
-- Merge the tiles to produce a single raster (.tif) with `oft-merge`
+- Merge the tiles to produce a single raster (.tif) 
 - Delete the downloaded tiles
-- Create patches of glad alerts in a tmp file with `oft-clump`
-- Produce a distribution of the glad alert patches using `oft-hist`
+- Create patches of glad alerts in a tmp file
+- Produce a distribution of the glad alert patches using 
 
 > :warning: This action is performed in your sepal computer, you don't want to close the Sepal module before it's finished.
 
