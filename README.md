@@ -1,4 +1,4 @@
-# GLAD alerts module
+# Alerts module
 
 ## about
 this module is a 3 steps process that retrieve and compute the alert system on a selected Aera of interest.
