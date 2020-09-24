@@ -97,11 +97,11 @@ def display_results(aoi_io, alert_io, output, stats):
     df = pd.read_csv(stats)
     
     #tif link
-    tif_btn = sw.DownloadBtn(ms.TIF_BTN, alert_io.alert)
+    tif_btn = sw.DownloadBtn(ms.TIF_BTN, basename + '_map.tif')
     
     #csv file 
     alert_csv = create_csv(df, basename, alert_io.alert_type)
-    csv_btn = sw.DownloadBtn(ms.CSV_BTN, basename + '_map.tif')
+    csv_btn = sw.DownloadBtn(ms.CSV_BTN, alert_csv)
     
     #figs
     figs = []
@@ -145,13 +145,12 @@ def display_results(aoi_io, alert_io, output, stats):
     
     #hist in png    
     png_link = create_png(
-        data_hist, 
+        df, 
         labels, 
-        colors[:len(values)], 
-        bins, 
-        max_, 
+        colors[:len(values)],  
         'Distribution of the alerts \nfor {0} in {1}'.format(aoi_name, year), 
-        basename + '_hist.png'
+        basename + '_hist.png',
+        alert_io.alert_type
     )
     png_btn = sw.DownloadBtn(ms.PNG_BTN, png_link)
     
@@ -183,18 +182,29 @@ def display_results(aoi_io, alert_io, output, stats):
     
     return children
 
-def create_png(data_hist, labels, colors, bins, max_, title, filepath):
+def create_png(df, labels, colors, title, filepath, alert_type):
     """useless function that create a matplotlib file because bqplot cannot yet export without a popup
     """
-    plt.hist(
-        data_hist, 
-        label=labels, 
-        weights=data_hist,
-        color=colors, 
-        bins=bins, 
-        histtype='bar', 
-        stacked=True
-    )
+    
+    if alert_type == available_drivers[2]: #glad alerts
+        values = {'confirmed alerts': 3, 'potential alerts': 2}
+    else:
+        values = {'confirmed alerts': 1}
+    
+    y_ = []
+    max_ = 0
+    for index, name in enumerate(values): 
+        
+        #load the patches
+        y_local = df[df['value'] == values[name]]['nb_pixel'].to_numpy()
+        y_local = np.append(y_local, 0) #add the 0 to prevent bugs when there are no data (2017 for ex)
+        max_ = max(max_, np.amax(y_local))
+        
+        #add them to the global y_
+        y_.append(y_local)
+    
+    plt.hist(y_, label=labels, weights=y_, color=colors, bins=30, histtype='bar', stacked=True)
+    
     plt.xlim(0, max_)
     plt.legend(loc='upper right')
     plt.title(title)
@@ -203,6 +213,7 @@ def create_png(data_hist, labels, colors, bins, max_, title, filepath):
     plt.ylabel('number of pixels')
 
     plt.savefig(filepath)   # save the figure to file
+    plt.close()
     
     return filepath
     
