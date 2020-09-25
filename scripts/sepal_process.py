@@ -202,17 +202,22 @@ def create_png(df, labels, colors, title, filepath, alert_type):
         
         #add them to the global y_
         y_.append(y_local)
+        
+    fig, ax = plt.subplots(figsize=(10,10))
     
-    plt.hist(y_, label=labels, weights=y_, color=colors, bins=30, histtype='bar', stacked=True)
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(which='both', linewidth=0.8, color='lightgrey')
     
-    plt.xlim(0, max_)
-    plt.legend(loc='upper right')
-    plt.title(title)
-    plt.yscale('log')
-    plt.xlabel('patch size (px)')
-    plt.ylabel('number of pixels')
+    ax.hist(y_, label=labels, weights=y_, color=colors, bins=30, histtype='bar', stacked=True, edgecolor='black', rwidth=0.8)
+    ax.set_xlim(0, max_)
+    ax.legend(loc='upper right')
+    ax.set_title(title, fontweight="bold")
+    ax.set_yscale('log')
+    ax.set_xlabel('patch size (px)')
+    ax.set_ylabel('number of pixels')
+    
 
-    plt.savefig(filepath)   # save the figure to file
+    fig.savefig(filepath)   # save the figure to file
     plt.close()
     
     return filepath
