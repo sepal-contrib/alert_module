@@ -35,6 +35,14 @@ MERGE_TILE = "Merge gee tiles"
 IDENTIFY_PATCH = "Identify all unique patch"
 PATCH_SIZE = "Compute patch size"
 COMPRESS_FILE= "Compress file"
+PROCESS_TXT = """
+Alert analysis process steps are:  
+
+- Merge the alert tiles and filter the alerts on the specified time range to produce a single raster (.tif)
+- Delete the downloaded tiles (if gee or glad alert system)
+- Create patches of glad alerts as a raster (.tif)
+- Compute the distribution of the alerts patches (.csv)
+"""
 
 #####################################
 ##           msg drivers           ##
