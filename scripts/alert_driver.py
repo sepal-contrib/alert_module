@@ -49,8 +49,10 @@ class DriverTile(sw.Tile):
         inputs = [
             self.select_type,
             self.picker_line,
+            self.local_txt,
             self.select_date_file,
             self.select_alerts_file,
+            self.gee_txt,
             self.asset_date_line,
             self.asset_alerts_line
         ]
@@ -88,6 +90,9 @@ class DriverTile(sw.Tile):
         
         self.picker_line = v.Layout(xs=12, row=True,  children=[self.start_picker, self.end_picker])
         
+        # local text 
+        self.local_txt = sw.Markdown(ms.LOCAL_TXT)
+        
         # date file
         raw_list = glob.glob(root_dir + "/**/*.tif*", recursive=True)
         self.select_date_file = v.Select(items=raw_list, label=ms.SELECT_DATE_FILE, v_model=None)
@@ -102,13 +107,16 @@ class DriverTile(sw.Tile):
             setattr(obj.io, variable, widget.v_model)
             obj.output.add_msg("You selected: {}".format(widget.v_model))
             
-            #read and add the bands to the dropdown
+            # read and add the bands to the dropdown
             try:
                 ee_image = ee.ImageCollection(widget.v_model).first()
                 dropdown.items = [band['id'] for band in ee_image.getInfo()['bands']]
             except Exception as e: 
                 obj.output.add_msg(str(e), 'error')
             return
+        
+        # gee text 
+        self.gee_txt = sw.Markdown(ms.GEE_TXT)
         
         # date asset
         self.select_date_asset = v.TextField(xs8=True, label=ms.SELECT_DATE_ASSET, placeholder='users/[username]/[asset_name]', v_model=None)
@@ -131,7 +139,7 @@ class DriverTile(sw.Tile):
     def show_inputs(self):
         
         #hide them all but select_type
-        inputs_list = [self.picker_line, self.select_date_file, self.select_alerts_file, self.asset_date_line, self.asset_alerts_line]
+        inputs_list = [self.picker_line, self.local_txt, self.select_date_file, self.select_alerts_file, self.gee_txt, self.asset_date_line, self.asset_alerts_line]
         self.toggle_inputs([], inputs_list)
         
         def on_change(widget, data, event, inputs_list, obj):
@@ -140,10 +148,10 @@ class DriverTile(sw.Tile):
             setattr(obj.io, 'alert_type', widget.v_model)
             
             if widget.v_model == available_drivers[0]: # gee assets
-                fields_2_show = base_list + [obj.asset_date_line, obj.asset_alerts_line]
+                fields_2_show = base_list + [obj.gee_txt, obj.asset_date_line, obj.asset_alerts_line]
                 obj.toggle_inputs(fields_2_show, inputs_list)
             elif widget.v_model == available_drivers[1]: #file
-                fields_2_show = base_list + [obj.select_date_file, obj.select_alerts_file]
+                fields_2_show = base_list + [obj.local_txt, obj.select_date_file, obj.select_alerts_file]
                 obj.toggle_inputs(fields_2_show, inputs_list)
             elif widget.v_model == available_drivers[2]: #glad alerts
                 obj.toggle_inputs(base_list, inputs_list)

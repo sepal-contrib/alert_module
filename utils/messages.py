@@ -6,6 +6,18 @@ GEE_INTRO = 'click on "Run GEE process" to launch the process on your GEE accoun
 GEE_BTN = "Run GEE process"
 NO_AOI = "The input are not correctly set up, please provide an asset in step 1"
 NO_YEAR = "The input are not correctly set up, please provide a year for your alerts"
+LOCAL_TXT ="""
+The locally produced files need to be in the following format:  
+  
+- the alert file : a **.TIF** file with value 1 if an alert exist 0 elsewhere. You can use other value to described other type of alerts (likely etc...). Contact the contributors via the issue panel if help is needed.
+- The date file : a **.TIF** file with the julian date of the alerts (number of days since 01/01/0001), 0 elsewhere. it will be used by the driver to filter the useful alerts. If you don't have this file and you want to consider every alerts in your alert file. duplicate it and replace all the non zero by a know date (21/09/2020 = 737689).
+"""
+GEE_TXT = """
+The alerts system coming from GEE need to be :  
+
+- the alerts : any gee **ImageCollection** with an alert band. 1 when there is an alert 0 elsewhere  
+- the alert dates : any gee **ImageCollection** with an date band. the julian date of the alerts (number of days since 01/01/0001), 0 elsewhere. it will be used by the driver to filter the useful alerts. If you don't have this file and you want to consider every alerts in your alert file. duplicate it and replace all the non zero by a know date (21/09/2020 = 737689).  
+"""
 
 ######################
 ##     sepal        ##
