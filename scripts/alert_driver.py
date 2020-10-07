@@ -94,13 +94,12 @@ class DriverTile(sw.Tile):
         self.local_txt = sw.Markdown(ms.LOCAL_TXT)
         
         # date file
-        raw_list = glob.glob(root_dir + "/**/*.tif*", recursive=True)
-        self.select_date_file = v.Select(items=raw_list, label=ms.SELECT_DATE_FILE, v_model=None)
-        self.output.bind(self.select_date_file, self.io, 'date_file')
+        self.select_date_file = sw.FileInput(['.tif', '.tiff'], label=ms.SELECT_DATE_FILE)
+        self.select_date_file.bind_io(self.output, self.io, 'date_file')
         
         # alert file 
-        self.select_alerts_file = v.Select(items=raw_list, label=ms.SELECT_ALERTS_FILE, v_model=None)
-        self.output.bind(self.select_alerts_file, self.io, 'alert_file')
+        self.select_alerts_file = sw.FileInput(['.tif', '.tiff'], label=ms.SELECT_ALERTS_FILE)
+        self.select_alerts_file.bind_io(self.output, self.io, 'alert_file')
         
         def update_asset_bands(widget, event, data, dropdown, obj, variable):
             
