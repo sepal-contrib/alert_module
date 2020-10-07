@@ -7,7 +7,7 @@ By clicking on `run postprocessing`, you will launch the analysis of the glad al
 - Merge the tiles to produce a single raster (.tif) 
 - Delete the downloaded tiles
 - Create patches of glad alerts in a tmp file
-- Produce a distribution of the glad alert patches using 
+- Produce a distribution of the glad alert patches 
 
 > :warning: This action is performed in your sepal computer, you don't want to close the Sepal module before it's finished.
 
