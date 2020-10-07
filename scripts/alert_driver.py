@@ -15,49 +15,6 @@ available_drivers = [
     'local_files',
     'glad_alerts'
 ]
-class DatePicker(v.Layout, sw.SepalWidget):
-    
-    def __init__(self, label="Date", **kwargs):
-        
-        date_picker = v.DatePicker(
-            no_title=True, 
-            v_model=None, 
-            scrollable=True
-        )
-
-        date_text =  v.TextField(
-            v_model=None,
-            label=label,
-            hint="YYYY-MM-DD format",
-            persistent_hint=True, 
-            prepend_icon="event",
-            readonly=True,
-            v_on='menuData.on'
-        )
-
-        menu = v.Menu(
-            transition="scale-transition",
-            offset_y=True,       
-            v_slots=[{
-                'name': 'activator',
-                'variable': 'menuData',
-                'children': date_text,
-            }], 
-            children=[date_picker]
-        )
-
-        super().__init__(
-            v_model=None,
-            row=True,
-            class_='pa-5',
-            align_center=True,
-            children=[v.Flex(xs10=True, children=[menu])],
-            **kwargs
-        )
-
-        jslink((date_picker, 'v_model'), (date_text, 'v_model'))
-        jslink((date_picker, 'v_model'), (self, 'v_model'))
-
 
 class AlertIo:
     
@@ -123,10 +80,10 @@ class DriverTile(sw.Tile):
         self.select_type = v.Select(items=available_drivers, label=ms.SELECT_TYPE, v_model=None)
         
         # start/end line
-        self.start_picker = DatePicker('Start', xs6=True)
+        self.start_picker = sw.DatePicker('Start', xs6=True)
         self.output.bind(self.start_picker.children[0].children[0].children[0], self.io, 'start')
         
-        self.end_picker = DatePicker('End', xs6=True)
+        self.end_picker = sw.DatePicker('End', xs6=True)
         self.output.bind(self.end_picker.children[0].children[0].children[0], self.io, 'end')
         
         self.picker_line = v.Layout(xs=12, row=True,  children=[self.start_picker, self.end_picker])
