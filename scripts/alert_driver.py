@@ -83,10 +83,12 @@ class DriverTile(sw.Tile):
         
         # start/end line
         self.start_picker = sw.DatePicker('Start', xs6=True)
-        self.output.bind(self.start_picker.children[0].children[0].children[0], self.io, 'start')
+        #self.output.bind(self.start_picker.children[0].children[0].children[0], self.io, 'start')
+        self.output.bind(self.start_picker, self.io, 'start')
         
         self.end_picker = sw.DatePicker('End', xs6=True)
-        self.output.bind(self.end_picker.children[0].children[0].children[0], self.io, 'end')
+        #self.output.bind(self.end_picker.children[0].children[0].children[0], self.io, 'end')
+        self.output.bind(self.end_picker, self.io, 'end')
         
         self.picker_line = v.Layout(xs=12, row=True,  children=[self.start_picker, self.end_picker])
         
@@ -95,11 +97,11 @@ class DriverTile(sw.Tile):
         
         # date file
         self.select_date_file = sw.FileInput(['.tif', '.tiff'], label=ms.SELECT_DATE_FILE)
-        self.select_date_file.bind_io(self.output, self.io, 'date_file')
+        self.output.bind(self.select_date_file, self.io, 'date_file')
         
         # alert file 
         self.select_alerts_file = sw.FileInput(['.tif', '.tiff'], label=ms.SELECT_ALERTS_FILE)
-        self.select_alerts_file.bind_io(self.output, self.io, 'alert_file')
+        self.output.bind(self.select_alerts_file, self.io, 'alert_file')
         
         def update_asset_bands(widget, event, data, dropdown, obj, variable):
             
