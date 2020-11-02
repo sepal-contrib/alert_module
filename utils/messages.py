@@ -2,7 +2,7 @@
 ##         GEE        ##
 ########################
 GEE_SELECT = 'Select a year'
-GEE_INTRO = 'click on "Run GEE process" to launch the process on your GEE account'
+GEE_INTRO = 'Click on "Run GEE process" to launch the process on your GEE account'
 GEE_BTN = "Run GEE process"
 NO_AOI = "The input are not correctly set up, please provide an asset in step 1"
 NO_YEAR = "The input are not correctly set up, please provide a year for your alerts"
@@ -47,8 +47,8 @@ Alert analysis process steps are:
 #####################################
 ##           msg drivers           ##
 #####################################
-WRONG_DRIVER = "the selected alert type is not supported by this module"
-SELECT_ALERTS = "select these alerts"
+WRONG_DRIVER = "The selected alert type is not supported by this module"
+SELECT_ALERTS = "Select these alerts"
 SELECT_TYPE = "Select the alert type"
 SELECT_DATE_FILE = "Select the date file"
 SELECT_ALERTS_FILE = "Select the alerts file"

@@ -29,10 +29,10 @@ Once the process is completed you should obtain the following message:
 ## 2.2 local alerts
 
 If you produce a locally derived alert system and you want to use it in this module you need to save it in a format compatible with the alert driver. You'll need to create to different files: 
-- the alert file : a .TIFF file with value 1 if an alert exist 0 elsewhere. You can use other value to described other type of alerts (likely etc...). Contact the contributors via the [issue panel](https://github.com/12rambau/alert_module/issues/new/choose) if help is needed.
-- The date file : a .TIFF file with the julian date of the alerts (number of days since 01/01/0001), 0 elsewhere. it will be used by the driver to filter the useful alerts. If you don't have this file and you want to consider every alerts in your alert file. duplicate it and replace all the non zero by a know date (21/09/2020 = 737689). 
+- the alert file: a .TIFF file with value 1 if an alert exist 0 elsewhere. You can use other value to described other type of alerts (likely etc...). Contact the contributors via the [issue panel](https://github.com/12rambau/alert_module/issues/new/choose) if help is needed.
+- The date file: a .TIFF file with the julian date of the alerts (number of days since 01/01/0001), 0 elsewhere. it will be used by the driver to filter the useful alerts. If you don't have this file and you want to consider every alerts in your alert file. duplicate it and replace all the non-zero by a known date (21/09/2020 = 737689). 
 
-Once your done, select the time range you want to study, and the two file you created.
+Once you're done, select the time range you want to study, and the two file you created.
 
 By clicking on the “run process” `button`, you will launch the filtering of your alert system. In the information banner, the module will give you insights on the progression of the process.
 
@@ -41,15 +41,15 @@ By clicking on the “run process” `button`, you will launch the filtering of 
 ## 2.3 GEE asset alerts system
 
 If you produce or want to use a product existing on earthengine. Use the `gee asset` driver. 
-You'll require 2 assets :
-- the alerts : any gee Image collection with an alert band. 1 when there is an alert 0 elsewhere 
-- the alert dates : any gee ImageCollection with an date band. the julian date of the alerts (number of days since 01/01/0001), 0 elsewhere. it will be used by the driver to filter the useful alerts. If you don't have this file and you want to consider every alerts in your alert file. duplicate it and replace all the non zero by a know date (21/09/2020 = 737689). 
+You'll require 2 assets:
+- the alerts: any gee Image collection with an alert band. 1 when there is an alert 0 elsewhere 
+- the alert dates: any gee ImageCollection with an date band. the julian date of the alerts (number of days since 01/01/0001), 0 elsewhere. it will be used by the driver to filter the useful alerts. If you don't have this file and you want to consider every alerts in your alert file. duplicate it and replace all the non-zero by a known date (21/09/2020 = 737689). 
 
-after selecting the file, you'll be ask to pick up the appropriate band.
+after selecting the file, you'll be asked to pick up the appropriate band.
 
 > if you require to analyse more exotic alert system available on GEE (ex. with several bands to analyse) raise a ticket on the [issue panel](https://github.com/12rambau/alert_module/issues/new/choose)
 
-Once your done, select the time range you want to study, and the two file you created.
+Once you're done, select the time range you want to study, and the two file you created.
 
 By clicking on the “run process” `button`, you will launch the filtering of your alert system. In the information banner, the module will give you insights on the progression of the process.
 
