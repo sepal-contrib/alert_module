@@ -41,7 +41,7 @@ def sepal_process(aoi_io, alert_io, output):
     """
         
     #define the files variables
-    result_dir = utils.create_result_folder(aoi_io.assetId)
+    result_dir = utils.create_result_folder(aoi_io)
     
     #basename info are extracted from alert filename
     basename = Path(alert_io.alert).stem.replace('_tmp_map', '')
@@ -87,8 +87,8 @@ def sepal_process(aoi_io, alert_io, output):
 
 def display_results(aoi_io, alert_io, output, stats):
     
-    aoi_name = Path(aoi_io.assetId).stem
-    result_dir = utils.create_result_folder(aoi_io.assetId)
+    aoi_name = aoi_io.get_aoi_name()
+    result_dir = utils.create_result_folder(aoi_io)
     year = datetime.strptime(alert_io.start, '%Y-%m-%d').year
     
     basename = result_dir + Path(alert_io.alert).stem.replace('_tmp_map', '')
@@ -155,7 +155,7 @@ def display_results(aoi_io, alert_io, output, stats):
     png_btn = sw.DownloadBtn(ms.PNG_BTN, png_link)
     
     #mapping of the results
-    m = display_alerts(aoi_io.assetId, basename + '_map.tif', colors)
+    m = display_alerts(aoi_io, basename + '_map.tif', colors)
     
     #create a sum-up layout
     
@@ -244,7 +244,7 @@ def create_csv(df, basename, alert_type):
     
     return filename
 
-def display_alerts(aoi_name, raster, colors):
+def display_alerts(aoi_io, raster, colors):
     """dipslay the selected alerts on the geemap
     currently re-computing the alerts on the fly because geemap is faster to use ee interface than reading a .tif file
     """
@@ -256,7 +256,7 @@ def display_alerts(aoi_name, raster, colors):
     m.add_raster(raster, layer_name='alerts', opacity=.7)
     
     #Create an empty image into which to paint the features, cast to byte.
-    aoi = ee.FeatureCollection(aoi_name)
+    aoi = aoi_io.get_aoi_ee()
     empty = ee.Image().byte()
     outline = empty.paint(**{'featureCollection': aoi, 'color': 1, 'width': 3})
     m.addLayer(outline, {'palette': '283593'}, 'aoi')
@@ -274,7 +274,7 @@ def display_alerts(aoi_name, raster, colors):
 def cut_to_aoi(aoi_io, tmp_file, comp_file):
     
     #cut to the aoi shape and compress
-    aoi_shp = aoi_io.get_aoi_shp(utils.create_result_folder(aoi_io.assetId))
+    aoi_shp = aoi_io.get_aoi_shp(utils.create_result_folder(aoi_io))
     
     options = gdal.WarpOptions(
         #outputType = gdalconst.GDT_Byte,

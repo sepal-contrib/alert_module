@@ -90,7 +90,7 @@ class gdrive(object):
         for fId in files_id:
             service.files().delete(fileId=fId).execute()
             
-    def download_to_disk(self, filename, image, aoi_name, output):
+    def download_to_disk(self, filename, image, aoi_io, output):
         """download the tile to the GEE disk
         
         Args:
@@ -102,7 +102,7 @@ class gdrive(object):
             download (bool) : True if a task is running, false if not
         """
         
-        def launch_task(filename, image, aoi_name, output):
+        def launch_task(filename, image, aoi_io, output):
             """check if file exist and launch the process if not"""
             
             download = False
@@ -114,7 +114,7 @@ class gdrive(object):
                     'image':image,
                     'description':filename,
                     'scale': 30,
-                    'region':ee.FeatureCollection(aoi_name).geometry(),
+                    'region':aoi_io.get_aoi_ee().geometry(),
                     'maxPixels': 1e13
                 }
                 
@@ -128,12 +128,12 @@ class gdrive(object):
         
         task = utils.search_task(filename)
         if not task:
-            download = launch_task(filename, image, aoi_name, output)
+            download = launch_task(filename, image, aoi_io, output)
         else:
             if task.state == 'RUNNING':
                 output.add_live_msg(ms.TASK_RUNNING.format(filename))
                 download = True
             else: 
-                download = launch_task(filename, image, aoi_name, output)
+                download = launch_task(filename, image, aoi_io, output)
                 
         return download

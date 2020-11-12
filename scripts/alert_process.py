@@ -45,18 +45,18 @@ def get_glad_alerts(aoi_io, io, output):
     year = start.year
     
     #filename 
-    aoi_name = Path(aoi_io.assetId).stem.replace('aoi_','')
-    filename = aoi_name + '_{0}_{1}_glad_alerts'.format(io.start, io.end)
+    aoi_name = aoi_io.get_aoi_name()
+    filename = aoi_name + f'_{io.start}_{io.end}_glad_alerts'
     
     #check if the file exist 
-    result_dir = utils.create_result_folder(aoi_name)
+    result_dir = utils.create_result_folder(aoi_io)
     
-    basename = result_dir + aoi_name + '_' + io.start + '_' + io.end + '_glad'
-    alert_date_tmp_map = basename + '_tmp_date.tif'
-    alert_date_map     = basename + '_date.tif'
-    alert_tmp_map      = basename + '_tmp_map.tif'
-    alert_raw_map      = basename + '_raw_map.tif'
-    alert_map          = basename + '_map.tif'
+    basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_glad'
+    alert_date_tmp_map = f'{basename}_tmp_date.tif'
+    alert_date_map     = f'{basename}_date.tif'
+    alert_tmp_map      = f'{basename}_tmp_map.tif'
+    alert_raw_map      = f'{basename}_raw_map.tif'
+    alert_map          = f'{basename}_map.tif'
     
     if os.path.isfile(alert_tmp_map) or os.path.isfile(alert_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
@@ -65,14 +65,14 @@ def get_glad_alerts(aoi_io, io, output):
     drive_handler = gdrive.gdrive()
     
     #check for the julian day task 
-    filename_date = filename + '_dates'
-    alerts_date = glad_import.get_alerts_dates(aoi_io.assetId, year, [io.start, io.end])
-    download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io.assetId, output)
+    filename_date = f'{filename}_dates'
+    alerts_date = glad_import.get_alerts_dates(aoi_io, year, [io.start, io.end])
+    download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io, output)
     
     #reteive alert date masked with date range 
     filename_map = filename + '_map'
-    alerts = glad_import.get_alerts(aoi_io.assetId, year, alerts_date)
-    download = drive_handler.download_to_disk(filename_map, alerts, aoi_io.assetId, output)
+    alerts = glad_import.get_alerts(aoi_io, year, alerts_date)
+    download = drive_handler.download_to_disk(filename_map, alerts, aoi_io, output)
     
     #wait for completion 
     # I assume that there is 2 or 0 file to launch 
@@ -105,17 +105,17 @@ def get_gee_assets(aoi_io, io, output):
     
     #filename 
     asset_name = Path(io.alert_asset).stem
-    aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
-    filename = aoi_name + '_{0}_{1}_{2}_alerts'.format(io.start, io.end, asset_name)
+    aoi_name = aoi_io.get_aoi_name()
+    filename = f'{aoi_name}_{io.start}_{io.end}_{asset_name}_alerts'
     
     #check if the file exist 
     result_dir = utils.create_result_folder(aoi_name)
     
-    basename = result_dir + aoi_name + '_' + io.start + '_' + io.end +'_' + asset_name
-    alert_date_tmp_map = basename + '_tmp_date.tif'
-    alert_date_map     = basename + '_date.tif'
-    alert_tmp_map      = basename + '_tmp_map.tif'
-    alert_map          = basename + '_map.tif'
+    basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_{asset_name}'
+    alert_date_tmp_map = f'{basename}_tmp_date.tif'
+    alert_date_map     = f'{basename}_date.tif'
+    alert_tmp_map      = f'{basename}_tmp_map.tif'
+    alert_map          = f'{basename}_map.tif'
     
     if os.path.isfile(alert_tmp_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
@@ -124,14 +124,14 @@ def get_gee_assets(aoi_io, io, output):
     drive_handler = gdrive.gdrive()
     
     # mask the appropriate alerts 
-    filename_date = filename + '_dates'
+    filename_date = f'{filename}_dates'
     alerts_date = gee_import.get_alerts_dates([io.start, io.end], io.date_asset, io.asset_date_band)
-    download = drive_handler.download_to_disk(filename_date, alerts_date.unmask(0), aoi_io.assetId, output)
+    download = drive_handler.download_to_disk(filename_date, alerts_date.unmask(0), aoi_io, output)
     
     #reteive alert date masked with date range 
-    filename_map = filename + '_map'
+    filename_map = f'{filename}_map'
     alerts = gee_import.get_alerts(alerts_date, io.alert_asset, io.asset_alerts_band)
-    download = drive_handler.download_to_disk(filename_map, alerts.unmask(0), aoi_io.assetId, output)
+    download = drive_handler.download_to_disk(filename_map, alerts.unmask(0), aoi_io, output)
     
     #wait for completion 
     # I assume that there is 2 or 0 file to launch 
@@ -163,15 +163,15 @@ def get_local_alerts(aoi_io, io, output):
     
     #filename 
     alert_name = Path(io.alert_file).stem
-    aoi_name = os.path.split(aoi_io.assetId)[1].replace('aoi_','')
-    filename = aoi_name + '_{0}_{1}_{2}_alerts'.format(io.start, io.end, alert_name)
+    aoi_name = aoi_io.get_aoi_name()
+    filename = f'{aoi_name}_{io.start}_{io.end}_{alert_name}_alerts'
     
     #check if the file exist 
     result_dir = utils.create_result_folder(aoi_name)
     
-    basename = result_dir + aoi_name + '_' + io.start + '_' + io.end + '_' + alert_name 
-    alert_date_map     = basename + '_tmp_date.tif'
-    alert_map          = basename + '_tmp_map.tif'
+    basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_{alert_name}' 
+    alert_date_map     = f'{basename}_tmp_date.tif'
+    alert_map          = f'{basename}_tmp_map.tif'
     
     if os.path.isfile(alert_map):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
@@ -182,10 +182,8 @@ def get_local_alerts(aoi_io, io, output):
     end = datetime.strptime(io.end, '%Y-%m-%d').toordinal()
     
     
-    calc = "(A>={0})*(A<={1})*A".format(start, end)
-    #env gdal conflict that prevent me from using the sepal_io script
-    
-    #sgdal.calc(calc, [io.date_file], alert_date_map, co='COMPRESS=LZW', type_='Byte')
+    calc = f"(A>={start})*(A<={end})*A"
+    #env gdal conflict that prevent me from using the sepal_ui script
     
     command = [
         'gdal_calc.py',
@@ -199,7 +197,6 @@ def get_local_alerts(aoi_io, io, output):
     
     #filter the alerts 
     calc = "(A>0)*B+0"
-    #sgdal.calc(calc, [alert_date_map, io.alert_file], alert_map, co='COMPRESS=LZW', type_='Byte')
     
     command = [
         'gdal_calc.py',
@@ -223,13 +220,14 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
     files = drive_handler.get_files(filename)
     drive_handler.download_files(files, result_dir)
     
-    pathname = filename + "*.tif"
+    pathname = f'{filename}*.tif'
     
     files = [file for file in glob.glob(result_dir + pathname)]
         
     #run the merge process
     output.add_live_msg(ms.MERGE_TILE)
     time.sleep(2)
+    # TODO use rasterio
     io = sgdal.merge(files, out_filename=tmp_file, v=True, output=output)
     
     #delete local files

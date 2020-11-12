@@ -157,7 +157,7 @@ class DriverTile(sw.Tile):
             elif widget.v_model == available_drivers[2]: #glad alerts
                 obj.toggle_inputs(base_list, inputs_list)
             else:  # the type is not suported
-                obj.toogle_inputs([], inputs_list)
+                obj.toggle_inputs([], inputs_list)
             
             return 
         

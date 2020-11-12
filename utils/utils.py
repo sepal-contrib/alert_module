@@ -37,11 +37,7 @@ def wait_for_completion(task_descripsion, output):
     
     return state
 
-def get_aoi_name(asset_name):
-    """Return the corresponding aoi_name from an assetId"""
-    return os.path.split(asset_name)[1].replace('aoi_','')
-
-def construct_filename(asset_name, date_range):
+def construct_filename(aoi_io, date_range):
     """return the filename associated with the current task
     
     Args:
@@ -51,8 +47,8 @@ def construct_filename(asset_name, date_range):
     Returns:
         filename (str): the filename to save the Tif files
     """
-    aoi_name = get_aoi_name(asset_name)
-    filename = aoi_name + '_{0}_{1}_alerts'.format(date_range[0], date_range[1]) 
+    aoi_name = aoi_io.get_aoi_name()
+    filename = f'{aoi_name}_{ate_range[0]}_{ate_range[1]}_alerts' 
     
     return filename
 
@@ -75,7 +71,7 @@ def search_task(task_descripsion):
             
     return current_task
 
-def create_result_folder(aoiId):
+def create_result_folder(aoi_io):
     """Create a folder to download the glad images
    
     Args:
@@ -84,7 +80,7 @@ def create_result_folder(aoiId):
     Returns:
         glad_dir (str): pathname to the glad_result folder
     """
-    aoi = get_aoi_name(aoiId)
+    aoi = aoi_io.get_aoi_name()
     glad_dir = os.path.join(os.path.expanduser('~'), 'alerts_results') + '/'
         
     pathname = glad_dir + aoi + '/'
