@@ -231,7 +231,7 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
     #manual open and close because I don't know how many file there are
     sources = [rio.open(file) for file in files]
 
-    data, output_transform = merge([sources])
+    data, output_transform = merge(sources)
     
     out_meta = sources[0].meta.copy()    
     out_meta.update(
@@ -242,7 +242,7 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
         compress  = 'lzw'
     )
     
-    with rasterio.open(tmp_file, "w", **out_meta) as dest:
+    with rio.open(tmp_file, "w", **out_meta) as dest:
         dest.write(data)
     
     #manually close the files
