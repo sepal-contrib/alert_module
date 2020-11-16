@@ -109,7 +109,7 @@ def get_gee_assets(aoi_io, io, output):
     filename = f'{aoi_name}_{io.start}_{io.end}_{asset_name}_alerts'
     
     #check if the file exist 
-    result_dir = utils.create_result_folder(aoi_name)
+    result_dir = utils.create_result_folder(aoi_io)
     
     basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_{asset_name}'
     alert_date_tmp_map = f'{basename}_tmp_date.tif'
@@ -167,7 +167,7 @@ def get_local_alerts(aoi_io, io, output):
     filename = f'{aoi_name}_{io.start}_{io.end}_{alert_name}_alerts'
     
     #check if the file exist 
-    result_dir = utils.create_result_folder(aoi_name)
+    result_dir = utils.create_result_folder(aoi_io)
     
     basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_{alert_name}' 
     alert_date_map     = f'{basename}_tmp_date.tif'
