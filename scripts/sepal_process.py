@@ -15,14 +15,12 @@ from osgeo import gdalconst
 import rasterio as rio
 from rasterio.warp import calculate_default_transform
 from scipy import ndimage as ndi
+from sepal_ui import mapping as sm
+from sepal_ui import sepalwidgets as sw
 
 from utils import utils
 from utils import messages as ms
 from utils import parameters as pm
-from sepal_ui import mapping as sm
-from sepal_ui import oft 
-from sepal_ui import gdal as sgdal
-from sepal_ui import sepalwidgets as sw
 from scripts.alert_driver import available_drivers 
 
 #initialize earth engine
@@ -67,7 +65,6 @@ def sepal_process(aoi_io, alert_io, output):
         output.add_live_msg(ms.IDENTIFY_PATCH)
         time.sleep(2)
         clump(alert_io.alert, clump_tmp_map)
-        #oft.clump(alert_io.alert, clump_tmp_map, output=output)
     
     #cut and compress all files 
     output.add_live_msg(ms.COMPRESS_FILE)
@@ -78,7 +75,6 @@ def sepal_process(aoi_io, alert_io, output):
     #create the histogram of the patches
     output.add_live_msg(ms.PATCH_SIZE)
     time.sleep(2)  #maxval=3 for glad alert
-    #io = oft.his(alert_map, alert_stats, maskfile=clump_map, maxval=3, output=output)
     hist(alert_map, clump_map, alert_stats)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')

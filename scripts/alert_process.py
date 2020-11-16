@@ -1,17 +1,18 @@
-from scripts import alert_driver as ad
-from datetime import datetime
-from utils import messages as ms
 import os
-from scripts import glad_import
-from scripts import gee_import
-from sepal_ui import gdal as sgdal
-from utils import utils
-from scripts import gdrive
+from datetime import datetime
 import glob
 import time
-import gdal
 from pathlib import Path
-from osgeo import gdalconst
+
+import rasterio as rio
+from rasterio.merge import merge
+
+from scripts import alert_driver as ad
+from scripts import glad_import
+from scripts import gee_import
+from scripts import gdrive
+from utils import messages as ms
+from utils import utils
 
 def get_alerts(aoi_io, io, output):
     
@@ -181,33 +182,32 @@ def get_local_alerts(aoi_io, io, output):
     start = datetime.strptime(io.start, '%Y-%m-%d').toordinal()
     end = datetime.strptime(io.end, '%Y-%m-%d').toordinal()
     
-    
-    calc = f"(A>={start})*(A<={end})*A"
-    #env gdal conflict that prevent me from using the sepal_ui script
-    
-    command = [
-        'gdal_calc.py',
-        '--calc="{}"'.format(calc),
-        '-A', io.date_file,
-        '--outfile={}'.format(alert_date_map),
-        '--co=COMPRESS=LZW'
-        '--type=Byte'
-    ]
-    os.system(' '.join(command))
+    with rio.open(io.date_file) as src:
+        
+        raw_data = src.read()
+        **out_meta = scr.meta.copy()
+        data = ((raw_data >= start)*(raw_data <= end)) * raw_data
+        
+        with rio.open(alert_date_map, 'w', **out_meta) as dest:
+            dest.write(data)
     
     #filter the alerts 
-    calc = "(A>0)*B+0"
-    
-    command = [
-        'gdal_calc.py',
-        '--calc="{}"'.format(calc),
-        '-A', alert_date_map,
-        '-B', io.alert_file,
-        '--outfile={}'.format(alert_map),
-        '--co=COMPRESS=LZW', 
-        '--type=Byte'
-    ]
-    os.system(' '.join(command))
+    with rio.open(alert_date_map) as date, rio.open(io.alert_file) as alert:
+        
+        date_data = date.read()
+        alert_data = alert.read() 
+        
+        # I assume that they both have the same extend, res, and transform
+        out_meta = date.meta.copy()
+        out_meta.update(
+            dtype=rasterio.uint8,
+            compress='lzw'
+        )
+        
+        data = (date_data > 0) * alert_data
+        
+        with rio.open(alert_map) as dest:
+            dest.write(data)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -227,8 +227,26 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
     #run the merge process
     output.add_live_msg(ms.MERGE_TILE)
     time.sleep(2)
-    # TODO use rasterio
-    io = sgdal.merge(files, out_filename=tmp_file, v=True, output=output)
+    
+    #manual open and close because I don't know how many file there are
+    sources = [rio.open(file) for file in files]
+
+    data, output_transform = merge([sources])
+    
+    out_meta = sources[0].meta.copy()    
+    out_meta.update(
+        driver    = "GTiff",
+        height    =  data.shape[1],
+        width     =  data.shape[2],
+        transform = output_transform,
+        compress  = 'lzw'
+    )
+    
+    with rasterio.open(tmp_file, "w", **out_meta) as dest:
+        dest.write(data)
+    
+    #manually close the files
+    [src.close() for src in sources]
     
     #delete local files
     [os.remove(file) for file in files]
