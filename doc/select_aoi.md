@@ -47,8 +47,8 @@ You should obtain a description of your local folder in Sepal (3). click on `upl
 
 > :question: It is strongly advised to put all your shapefile in a new folder such as `glad_input`
 
-Second step you can go back to glad_alerts module and select 'upload file' in the first dropdown menu.  
-Just write the pathname of your asset in your sepal folder which should look like this example or use the dropdown menu.
+alert moduleSecond step you can relaunch the alert module and select 'upload file' in the first dropdown menu.  
+It will show you a complete list of the full (with all the required .db, .shx, .shp ...) available shapefile in your sepal env.
 ![folder_struct](./img/filepath.png)
 ![shapefile_import](./img/shapefile.png)
 
