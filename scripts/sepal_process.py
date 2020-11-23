@@ -83,6 +83,8 @@ def sepal_process(aoi_io, alert_io, output):
 
 def display_results(aoi_io, alert_io, output, stats):
     
+    output.add_live_msg(ms.DISPLAY_RESULT)
+    
     aoi_name = aoi_io.get_aoi_name()
     result_dir = utils.create_result_folder(aoi_io)
     year = datetime.strptime(alert_io.start, '%Y-%m-%d').year
@@ -175,6 +177,8 @@ def display_results(aoi_io, alert_io, output, stats):
         ]),
         partial_layout
     ]
+    
+    output.add_live_msg(ms.DISPLAY_RESULT, 'success')
     
     return children
 

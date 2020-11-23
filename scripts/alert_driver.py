@@ -11,9 +11,9 @@ import ee
 ee.Initialize()
 
 available_drivers = [
-    'gee_assets',
-    'local_files',
-    'glad_alerts'
+    'Asset from Google Earth Engine',
+    'Local alert system',
+    'GLAD alerts'
 ]
 
 class AlertIo:
