@@ -83,11 +83,9 @@ class DriverTile(sw.Tile):
         
         # start/end line
         self.start_picker = sw.DatePicker('Start', xs6=True)
-        #self.output.bind(self.start_picker.children[0].children[0].children[0], self.io, 'start')
         self.output.bind(self.start_picker, self.io, 'start')
         
         self.end_picker = sw.DatePicker('End', xs6=True)
-        #self.output.bind(self.end_picker.children[0].children[0].children[0], self.io, 'end')
         self.output.bind(self.end_picker, self.io, 'end')
         
         self.picker_line = v.Layout(xs=12, row=True,  children=[self.start_picker, self.end_picker])
@@ -106,7 +104,7 @@ class DriverTile(sw.Tile):
         def update_asset_bands(widget, event, data, dropdown, obj, variable):
             
             setattr(obj.io, variable, widget.v_model)
-            obj.output.add_msg("You selected: {}".format(widget.v_model))
+            obj.output.add_msg(f"You selected: {widget.v_model}")
             
             # read and add the bands to the dropdown
             try:
