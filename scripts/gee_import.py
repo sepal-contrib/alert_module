@@ -42,7 +42,6 @@ def get_alerts(date_masked, asset, band):
     
     all_alerts = ee.ImageCollection(asset)
     
-        
     alerts = all_alerts.select(band).mosaic()
     
     # use the mask of the date alerts 

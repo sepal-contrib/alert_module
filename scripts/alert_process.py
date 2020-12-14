@@ -41,7 +41,7 @@ def get_glad_alerts(aoi_io, io, output):
     
     # check that the year is not prior to 2017
     if start.year < 2017:
-        outpu.add_live_msg(ms.TOO_EARLY, 'error')
+        output.add_live_msg(ms.TOO_EARLY, 'error')
         return (None, None)
     
     # verify the dates are in the same year
