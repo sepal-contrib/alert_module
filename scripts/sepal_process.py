@@ -3,6 +3,7 @@ import glob
 import os
 from pathlib import Path
 from datetime import datetime
+import itertools
 
 import ee
 import ipyvuetify as v
@@ -14,9 +15,12 @@ import pandas as pd
 from osgeo import gdalconst
 import rasterio as rio
 from rasterio.warp import calculate_default_transform
+from rasterio.mask import mask
 from scipy import ndimage as ndi
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
+from shapely.geometry import shape
+import geemap
 
 from utils import utils
 from utils import messages as ms
@@ -61,7 +65,7 @@ def sepal_process(aoi_io, alert_io, output):
         return alert_stats
     
     #clump the patches together
-    if not os.path.isfile(clump_tmp_map):
+    if not (os.path.isfile(clump_tmp_map) or os.path.isfile(clump_map)):
         output.add_live_msg(ms.IDENTIFY_PATCH)
         time.sleep(2)
         clump(alert_io.alert, clump_tmp_map)
@@ -74,8 +78,8 @@ def sepal_process(aoi_io, alert_io, output):
     
     #create the histogram of the patches
     output.add_live_msg(ms.PATCH_SIZE)
-    time.sleep(2)  #maxval=3 for glad alert
-    hist(alert_map, clump_map, alert_stats)
+    time.sleep(2)
+    hist(alert_map, clump_map, alert_stats, output)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -273,69 +277,86 @@ def display_alerts(aoi_io, raster, colors):
 
 def cut_to_aoi(aoi_io, tmp_file, comp_file):
     
-    #cut to the aoi shape and compress
-    aoi_shp = aoi_io.get_aoi_shp(utils.create_result_folder(aoi_io))
+    # create the country shape
+    aoi_json = geemap.ee_to_geojson(aoi_io.get_aoi_ee())
+    aoi_features = aoi_json['features']
+    aoi_shp = [shape(aoi_features[i]['geometry']) for i in range(len(aoi_features))]
     
-    options = gdal.WarpOptions(
-        #outputType = gdalconst.GDT_Byte,
-        creationOptions = ["COMPRESS=LZW"], 
-        cutlineDSName = aoi_shp,
-        cropToCutline   = True
-    )
+    with rio.open(tmp_file) as src:
+        
+        out_image, out_transform = mask(src, aoi_shp, all_touched=True)
     
-    gdal.Warp(comp_file, tmp_file, options=options)
+        # compress the image in the best possible dtype
+        dtype = rio.dtypes.get_minimum_dtype(out_image)
+        out_image = out_image.astype(dtype)
+    
+        out_meta = src.meta.copy()
+        out_meta.update(
+            dtype = dtype,
+            driver = 'GTiff',
+            height = out_image.shape[1],
+            width = out_image.shape[2],
+            transform = out_transform,
+            compress='lzw'
+        )
+    
+        with rio.open(comp_file, "w", **out_meta) as dest:
+            dest.write(out_image)
+        
     os.remove(tmp_file)
     
     return
  
 def clump(src_f, dst_f):
+    
+    # define neighbours structure
+    struct = ndi.generate_binary_structure(2,2)
 
     with rio.open(src_f) as f:
+        
         raster = f.read(1)
-        dst_crs = 'EPSG:4326'
-        transform, _, _ =  calculate_default_transform(
-            f.crs, 
-            dst_crs, 
-            f.width, 
-            f.height, 
-            *f.bounds
-        )
-    
-    struct = [
-        [1,1,1],
-        [1,1,1],
-        [1,1,1]
-    ]
+        meta = f.meta.copy()
+        raster = raster.astype(np.int8)
+        
     raster_labeled = ndi.label(raster, structure = struct)[0]
     
-    dtype = rio.dtypes.get_minimum_dtype(raster_labeled)
-    height = raster_labeled.shape[0]
-    width = raster_labeled.shape[1]
-    raster_labeled = raster_labeled.astype(dtype)
+    # free the memory occupied by the raster 
+    del raster
     
-    with rio.open(dst_f, 'w', driver='GTiff', height=height, width=width, count=1, dtype=dtype, crs=dst_crs, transform=transform) as dst:
+    # change the dtype of the destination file
+    dtype = rio.dtypes.get_minimum_dtype(raster_labeled)
+    raster_labeled = raster_labeled.astype(dtype)
+    meta.update(dtype = dtype)
+                         
+    # write the file in the tmp clump
+    with rio.open(dst_f, 'w', **meta) as dst:
         dst.write(raster_labeled, 1)
     
     return
     
-def hist(src, mask, dst):
+def hist(src, mask, dst, output):
+    
+    # identify the clumps
+    with rio.open(mask) as f:
+        mask_raster = f.read(1)
 
-    with rio.open(src) as src_f, rio.open(mask) as mask_f:
-        src_raster = src_f.read(1)
-        mask_raster = mask_f.read(1)
-
-
-        class_, indices, count = np.unique(mask_raster, return_index=True, return_counts=True) 
-
-        src_flat = src_raster.flatten()
-
-        values = [src_flat[index] for index in indices]
-
-        df = pd.DataFrame({'patchId': indices, 'nb_pixel': count, 'value': values})
-
-        #remove 255 and 0 (no-alert value)
-        df = df[(df['value'] != 255) & (df['value'] != 0)]
+    class_, indices, count = np.unique(mask_raster, return_index=True, return_counts=True) 
+    del mask_raster
         
-        df.to_csv(dst, index=False)
+    # identify the value
+    with rio.open(src) as f:
+        src_raster = f.read(1)
+
+    src_flat = src_raster.flatten()
+    del src_raster 
+    
+    values = [src_flat[index] for index in indices]
+    
+    df = pd.DataFrame({'patchId': indices, 'nb_pixel': count, 'value': values})
+
+    # remove 255 and 0 (no-alert value)
+    df = df[(df['value'] != 255) & (df['value'] != 0)]
+        
+    df.to_csv(dst, index=False)
         
     return

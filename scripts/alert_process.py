@@ -77,7 +77,7 @@ def get_glad_alerts(aoi_io, io, output):
     download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io, output)
     
     # reteive alert date masked with date range 
-    filename_map = filename + '_map'
+    filename_map = f'{filename}_map'
     alerts = glad_import.get_alerts(aoi_io, year, alerts_date)
     download = drive_handler.download_to_disk(filename_map, alerts, aoi_io, output)
     
