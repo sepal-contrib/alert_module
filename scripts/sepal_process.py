@@ -8,11 +8,8 @@ import itertools
 import ee
 import ipyvuetify as v
 import numpy as np
-from bqplot import *
 import matplotlib.pyplot as plt
-import gdal
 import pandas as pd
-from osgeo import gdalconst
 import rasterio as rio
 from rasterio.warp import calculate_default_transform
 from rasterio.mask import mask
@@ -21,6 +18,7 @@ from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 from shapely.geometry import shape
 import geemap
+from ipywidgets import Output
 
 from utils import utils
 from utils import messages as ms
@@ -104,62 +102,30 @@ def display_results(aoi_io, alert_io, output, stats):
     #csv file 
     alert_csv = create_csv(df, basename, alert_io.alert_type)
     csv_btn = sw.DownloadBtn(ms.CSV_BTN, alert_csv)
+     
+    #create matplotlib hist 
+    title = f'Distribution of the alerts \nfor {aoi_name} in {year}'
+    fig, ax = create_fig(df, title, alert_io.alert_type)
     
-    #figs
-    figs = []
-    colors = pm.getPalette()
-    bins=30
-    
-    x_sc = LinearScale(min=1)
-    y_sc = LinearScale()
-    
-    ax_x = Axis(label='patch size (px)', scale=x_sc)
-    ax_y = Axis(label='number of pixels', scale=y_sc, orientation='vertical') 
-    
-
-    if alert_io.alert_type == available_drivers[2]: #glad alerts
-        values = {'confirmed alerts': 3, 'potential alerts': 2}
-    else:
-        values = {'confirmed alerts': 1}
-    
-    max_ = 0
-    labels = []
-    data_hist = []
-    for index, name in enumerate(values): 
-        #load the patches
-        y_ = df[df['value'] == values[name]]['nb_pixel'].to_numpy()
-        y_ = np.append(y_, 0) #add the 0 to prevent bugs when there are no data (2017 for ex)
-        max_ = max(max_, np.amax(y_))
-    
-        #plot the bar chart
-        y_val, x_val = np.histogram(y_, bins=30, weights=y_)
-        bar = Bars(x=x_val, y=y_val, scales={'x': x_sc, 'y': y_sc}, colors=[colors[index]])
-        title ='Distribution of the {2} for {0} in {1}'.format(aoi_name, year, name)
-    
-        figs.append(Figure(
-            title= title,
-            marks=[bar], 
-            axes=[ax_x, ax_y] 
-        ))
-    
-        labels.append(name)
-        data_hist.append(y_val)
-    
-    #hist in png    
-    png_link = create_png(
-        df, 
-        labels, 
-        colors[:len(values)],  
-        'Distribution of the alerts \nfor {0} in {1}'.format(aoi_name, year), 
-        basename + '_hist.png',
-        alert_io.alert_type
-    )
+    png_link = f'{basename}_hist.png'
+    fig.savefig(png_link)   # save the figure to file
+    plt.close()
     png_btn = sw.DownloadBtn(ms.PNG_BTN, png_link)
     
-    #mapping of the results
-    m = display_alerts(aoi_io, basename + '_map.tif', colors)
+    #display the fig 
+    out = Output()
+    with plt.style.context('dark_background'):
+        with out:
+            fig, ax = create_fig(df, title, alert_io.alert_type)
+            fig.set_facecolor((0, 0, 0, 0))
+            plt.show()
     
-    #create a sum-up layout
+    #mapping of the results
+    m = display_alerts(aoi_io, basename + '_map.tif', pm.getPalette())
+    
+    ################################
+    ##   create a sum-up layout   ##
+    ################################
     
     #create the partial layout 
     partial_layout = v.Layout(
@@ -167,7 +133,7 @@ def display_results(aoi_io, alert_io, output, stats):
         align_center=True,
         class_='pa-0 mt-5', 
         children=[
-            v.Flex(xs12=True, md6=True, class_='pa-0', children=figs),
+            v.Flex(xs12=True, md6=True, class_='pa-0', children=[out]),
             v.Flex(xs12=True, md6=True, class_='pa-0', children=[m])
         ]
     )
@@ -186,7 +152,7 @@ def display_results(aoi_io, alert_io, output, stats):
     
     return children
 
-def create_png(df, labels, colors, title, filepath, alert_type):
+def create_fig(df, title, alert_type):
     """useless function that create a matplotlib file because bqplot cannot yet export without a popup
     """
     
@@ -212,7 +178,7 @@ def create_png(df, labels, colors, title, filepath, alert_type):
     ax.set_axisbelow(True)
     ax.yaxis.grid(which='both', linewidth=0.8, color='lightgrey')
     
-    ax.hist(y_, label=labels, weights=y_, color=colors, bins=30, histtype='bar', stacked=True, edgecolor='black', rwidth=0.8)
+    ax.hist(y_, label=[*values], weights=y_, color=pm.getPalette()[:len(values)], bins=30, histtype='bar', stacked=True, edgecolor='black', rwidth=0.8)
     ax.set_xlim(0, max_)
     ax.legend(loc='upper right')
     ax.set_title(title, fontweight="bold")
@@ -220,11 +186,7 @@ def create_png(df, labels, colors, title, filepath, alert_type):
     ax.set_xlabel('patch size (px)')
     ax.set_ylabel('number of pixels')
     
-
-    fig.savefig(filepath)   # save the figure to file
-    plt.close()
-    
-    return filepath
+    return (fig, ax)
     
 def create_csv(df, basename, alert_type):
     
@@ -256,8 +218,11 @@ def display_alerts(aoi_io, raster, colors):
     #create the map
     m = sm.SepalMap(['SATELLITE', 'CartoDB.DarkMatter'])
     
-    #display a raster on the map 
-    m.add_raster(raster, layer_name='alerts', opacity=.7)
+    #display a raster on the map (use try pass to avoid big files problems)
+    try:
+        m.add_raster(raster, layer_name='alerts', opacity=.7)
+    except:
+        pass
     
     #Create an empty image into which to paint the features, cast to byte.
     aoi = aoi_io.get_aoi_ee()
