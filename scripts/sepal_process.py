@@ -218,8 +218,11 @@ def display_alerts(aoi_io, raster, colors):
     #create the map
     m = sm.SepalMap(['SATELLITE', 'CartoDB.DarkMatter'])
     
-    #display a raster on the map 
-    m.add_raster(raster, layer_name='alerts', opacity=.7)
+    #display a raster on the map (use try pass to avoid big files problems)
+    try:
+        m.add_raster(raster, layer_name='alerts', opacity=.7)
+    except:
+        pass
     
     #Create an empty image into which to paint the features, cast to byte.
     aoi = aoi_io.get_aoi_ee()
