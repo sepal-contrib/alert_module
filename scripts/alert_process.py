@@ -31,7 +31,7 @@ def get_alerts(aoi_io, io, output):
 
 def get_glad_alerts(aoi_io, io, output):
     
-    #verify useful inputs 
+    # verify useful inputs 
     if not output.check_input(io.start): return (None, None)
     if not output.check_input(io.end): return (None, None)
     
@@ -39,17 +39,23 @@ def get_glad_alerts(aoi_io, io, output):
     start = datetime.strptime(io.start, '%Y-%m-%d')
     end = datetime.strptime(io.end, '%Y-%m-%d')
     
+    # check that the year is not prior to 2017
+    if start.year < 2017:
+        output.add_live_msg(ms.TOO_EARLY, 'error')
+        return (None, None)
+    
     # verify the dates are in the same year
     if start.year != end.year:
         output.add_live_msg(ms.WRONG_YEAR, 'error')
         return (None, None)
+    
     year = start.year
     
-    #filename 
+    # filename 
     aoi_name = aoi_io.get_aoi_name()
     filename = aoi_name + f'_{io.start}_{io.end}_glad_alerts'
     
-    #check if the file exist 
+    # check if the file exist 
     result_dir = utils.create_result_folder(aoi_io)
     
     basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_glad'
@@ -65,17 +71,17 @@ def get_glad_alerts(aoi_io, io, output):
     
     drive_handler = gdrive.gdrive()
     
-    #check for the julian day task 
+    # check for the julian day task 
     filename_date = f'{filename}_dates'
     alerts_date = glad_import.get_alerts_dates(aoi_io, year, [io.start, io.end])
     download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io, output)
     
-    #reteive alert date masked with date range 
-    filename_map = filename + '_map'
+    # reteive alert date masked with date range 
+    filename_map = f'{filename}_map'
     alerts = glad_import.get_alerts(aoi_io, year, alerts_date)
     download = drive_handler.download_to_disk(filename_map, alerts, aoi_io, output)
     
-    #wait for completion 
+    # wait for completion 
     # I assume that there is 2 or 0 file to launch 
     # if one of the 2 process have been launch individually it will crash
     if download:
@@ -94,7 +100,7 @@ def get_glad_alerts(aoi_io, io, output):
     
 def get_gee_assets(aoi_io, io, output):
     
-    #verify useful inputs 
+    # verify useful inputs 
     if not output.check_input(io.start): return (None, None)
     if not output.check_input(io.end): return (None, None)
     if not output.check_input(io.date_asset): return (None, None)
@@ -104,12 +110,12 @@ def get_gee_assets(aoi_io, io, output):
     
     # check that the asset exist 
     
-    #filename 
+    # filename 
     asset_name = Path(io.alert_asset).stem
     aoi_name = aoi_io.get_aoi_name()
     filename = f'{aoi_name}_{io.start}_{io.end}_{asset_name}_alerts'
     
-    #check if the file exist 
+    # check if the file exist 
     result_dir = utils.create_result_folder(aoi_io)
     
     basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_{asset_name}'
@@ -129,12 +135,12 @@ def get_gee_assets(aoi_io, io, output):
     alerts_date = gee_import.get_alerts_dates([io.start, io.end], io.date_asset, io.asset_date_band)
     download = drive_handler.download_to_disk(filename_date, alerts_date.unmask(0), aoi_io, output)
     
-    #reteive alert date masked with date range 
+    # reteive alert date masked with date range 
     filename_map = f'{filename}_map'
     alerts = gee_import.get_alerts(alerts_date, io.alert_asset, io.asset_alerts_band)
     download = drive_handler.download_to_disk(filename_map, alerts.unmask(0), aoi_io, output)
     
-    #wait for completion 
+    # wait for completion 
     # I assume that there is 2 or 0 file to launch 
     # if one of the 2 process have been launch individually it will crash
     if download:

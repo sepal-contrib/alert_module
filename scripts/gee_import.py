@@ -16,15 +16,14 @@ def get_alerts_dates(date_range, asset, band):
     
     all_alerts = ee.ImageCollection(asset)
         
-    #clip the alert dates
+    # clip the alert dates
     dates = all_alerts.select(band).mosaic()
-
-    #masked all the images that are not between the limits dates
     
-    #extract julian dates
+    # extract julian dates
     start = datetime.strptime(date_range[0], '%Y-%m-%d').toordinal()
     end = datetime.strptime(date_range[1], '%Y-%m-%d').toordinal()
     
+    # masked all the images that are not between the limits dates
     date_masked = dates.updateMask(dates.gt(start).And(dates.lt(end)))
     
     return date_masked    
@@ -43,10 +42,9 @@ def get_alerts(date_masked, asset, band):
     
     all_alerts = ee.ImageCollection(asset)
     
-        
     alerts = all_alerts.select(band).mosaic()
     
-    #use the mask of the date alerts 
+    # use the mask of the date alerts 
     alerts = alerts.updateMask(date_masked.mask())
     
     return alerts       
