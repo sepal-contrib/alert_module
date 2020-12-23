@@ -25,7 +25,7 @@ The alerts system coming from GEE need to be :
 SEPAL_BTN = "Run Sepal process"
 NO_PROCESS = "No process to display"
 NO_TASK = "The GEE process has not been completed, launch it or run a status check through step 2."
-ALREADY_DONE = "This computation has already been performed. You can find your results in the glad_result folder of your computer"
+ALREADY_DONE = "This computation has already been performed. You can find your results in the alert_result folder of your computer"
 COMPUTAION_COMPLETED = "Computation complete"
 START_SEPAL = "The process has been launch on your SEPAL account"
 CSV_BTN = "Download .csv distribution"
