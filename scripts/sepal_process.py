@@ -121,7 +121,7 @@ def display_results(aoi_io, alert_io, output, stats):
             plt.show()
     
     #mapping of the results
-    m = display_alerts(aoi_io, basename + '_map.tif', pm.getPalette())
+    m = display_alerts(aoi_io, basename + '_map.tif', pm.getPalette(), output)
     
     ################################
     ##   create a sum-up layout   ##
@@ -210,10 +210,8 @@ def create_csv(df, basename, alert_type):
     
     return filename
 
-def display_alerts(aoi_io, raster, colors):
-    """dipslay the selected alerts on the geemap
-    currently re-computing the alerts on the fly because geemap is faster to use ee interface than reading a .tif file
-    """
+def display_alerts(aoi_io, raster, colors, output):
+    """dipslay the selected alerts on the geemap. If the file is too big the clump will not be displayed"""
     
     #create the map
     m = sm.SepalMap(['SATELLITE', 'CartoDB.DarkMatter'])
@@ -222,7 +220,7 @@ def display_alerts(aoi_io, raster, colors):
     try:
         m.add_raster(raster, layer_name='alerts', opacity=.7)
     except:
-        pass
+        output.add_live_msg(ms.NO_DISPLAY, type_='warning')
     
     #Create an empty image into which to paint the features, cast to byte.
     aoi = aoi_io.get_aoi_ee()

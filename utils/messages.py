@@ -36,6 +36,7 @@ IDENTIFY_PATCH = "Identify all unique patch"
 PATCH_SIZE = "Compute patch size"
 COMPRESS_FILE= "Compress file"
 DISPLAY_RESULT = "Displaying the results"
+NO_DISPLAY = "The computation is completed but the file is to big to be open on the fly. Please download the .tif file and open it on your local GIS."
 PROCESS_TXT = """
 Alert analysis process steps are:  
 
