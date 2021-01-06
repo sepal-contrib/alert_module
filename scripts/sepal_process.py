@@ -303,21 +303,29 @@ def hist(src, mask, dst, output):
     
     # identify the clumps
     with rio.open(mask) as f:
-        mask_raster = f.read(1)
+        mask_raster_flat = f.read(1).flatten()
 
-    class_, indices, count = np.unique(mask_raster, return_index=True, return_counts=True) 
-    del mask_raster
+    num_features = np.max(mask_raster_flat)
+    count = np.bincount(mask_raster_flat, minlength = num_features + 1)
+    
+    del mask_raster_flat
         
     # identify the value
-    with rio.open(src) as f:
-        src_raster = f.read(1)
+    with rio.open(src) as f_src, rio.open(mask) as f_mask:
+        src_raster = f_src.read(1)
+        mask_raster = f_mask.read(1)
 
-    src_flat = src_raster.flatten()
-    del src_raster 
+    values = np.zeros(num_features + 1, dtype=src_raster.dtype)
+    values[mask_raster] = src_raster
     
-    values = [src_flat[index] for index in indices]
+    # free memory
+    del mask_raster
+    del src_raster
     
-    df = pd.DataFrame({'patchId': indices, 'nb_pixel': count, 'value': values})
+    # create the patchId list
+    index = [i for i in range(num_features + 1)]
+    
+    df = pd.DataFrame({'patchId': index, 'nb_pixel': count, 'value': values})
 
     # remove 255 and 0 (no-alert value)
     df = df[(df['value'] != 255) & (df['value'] != 0)]
