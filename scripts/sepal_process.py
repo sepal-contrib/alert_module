@@ -121,7 +121,7 @@ def display_results(aoi_io, alert_io, output, stats):
             plt.show()
     
     #mapping of the results
-    m = display_alerts(aoi_io, basename + '_map.tif', pm.getPalette())
+    m = display_alerts(aoi_io, basename + '_map.tif', pm.getPalette(), output)
     
     ################################
     ##   create a sum-up layout   ##
@@ -210,10 +210,8 @@ def create_csv(df, basename, alert_type):
     
     return filename
 
-def display_alerts(aoi_io, raster, colors):
-    """dipslay the selected alerts on the geemap
-    currently re-computing the alerts on the fly because geemap is faster to use ee interface than reading a .tif file
-    """
+def display_alerts(aoi_io, raster, colors, output):
+    """dipslay the selected alerts on the geemap. If the file is too big the clump will not be displayed"""
     
     #create the map
     m = sm.SepalMap(['SATELLITE', 'CartoDB.DarkMatter'])
@@ -222,7 +220,7 @@ def display_alerts(aoi_io, raster, colors):
     try:
         m.add_raster(raster, layer_name='alerts', opacity=.7)
     except:
-        pass
+        output.add_live_msg(ms.NO_DISPLAY, type_='warning')
     
     #Create an empty image into which to paint the features, cast to byte.
     aoi = aoi_io.get_aoi_ee()
@@ -303,21 +301,29 @@ def hist(src, mask, dst, output):
     
     # identify the clumps
     with rio.open(mask) as f:
-        mask_raster = f.read(1)
+        mask_raster_flat = f.read(1).flatten()
 
-    class_, indices, count = np.unique(mask_raster, return_index=True, return_counts=True) 
-    del mask_raster
+    num_features = np.max(mask_raster_flat)
+    count = np.bincount(mask_raster_flat, minlength = num_features + 1)
+    
+    del mask_raster_flat
         
     # identify the value
-    with rio.open(src) as f:
-        src_raster = f.read(1)
+    with rio.open(src) as f_src, rio.open(mask) as f_mask:
+        src_raster = f_src.read(1)
+        mask_raster = f_mask.read(1)
 
-    src_flat = src_raster.flatten()
-    del src_raster 
+    values = np.zeros(num_features + 1, dtype=src_raster.dtype)
+    values[mask_raster] = src_raster
     
-    values = [src_flat[index] for index in indices]
+    # free memory
+    del mask_raster
+    del src_raster
     
-    df = pd.DataFrame({'patchId': indices, 'nb_pixel': count, 'value': values})
+    # create the patchId list
+    index = [i for i in range(num_features + 1)]
+    
+    df = pd.DataFrame({'patchId': index, 'nb_pixel': count, 'value': values})
 
     # remove 255 and 0 (no-alert value)
     df = df[(df['value'] != 255) & (df['value'] != 0)]

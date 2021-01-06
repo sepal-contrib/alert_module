@@ -25,7 +25,7 @@ The alerts system coming from GEE need to be :
 SEPAL_BTN = "Run Sepal process"
 NO_PROCESS = "No process to display"
 NO_TASK = "The GEE process has not been completed, launch it or run a status check through step 2."
-ALREADY_DONE = "This computation has already been performed. You can find your results in the glad_result folder of your computer"
+ALREADY_DONE = "This computation has already been performed. You can find your results in the alert_result folder of your computer"
 COMPUTAION_COMPLETED = "Computation complete"
 START_SEPAL = "The process has been launch on your SEPAL account"
 CSV_BTN = "Download .csv distribution"
@@ -36,6 +36,7 @@ IDENTIFY_PATCH = "Identify all unique patch"
 PATCH_SIZE = "Compute patch size"
 COMPRESS_FILE= "Compress file"
 DISPLAY_RESULT = "Displaying the results"
+NO_DISPLAY = "The computation is completed but the file is to big to be open on the fly. Please download the .tif file and open it on your local GIS."
 PROCESS_TXT = """
 Alert analysis process steps are:  
 
