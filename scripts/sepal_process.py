@@ -9,6 +9,7 @@ import ee
 import ipyvuetify as v
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_rgba, ListedColormap
 import pandas as pd
 import rasterio as rio
 from rasterio.warp import calculate_default_transform
@@ -217,8 +218,24 @@ def display_alerts(aoi_io, raster, colors, output):
     m = sm.SepalMap(['SATELLITE', 'CartoDB.DarkMatter'])
     
     #display a raster on the map (use try pass to avoid big files problems)
-    try:
-        m.add_raster(raster, layer_name='alerts', opacity=.7)
+    try:    
+        with rio.open(raster) as f:
+            min_val = int(np.amin(f.read(1)))
+            max_val = int(np.amax(f.read(1)))
+
+        # create a color map 
+        color_map = []
+        for i in range(min_val, max_val+1):
+            if i == 3 or i == 1:
+                color_map.append(list(to_rgba(colors[0])))
+            elif i == 2:
+                color_map.append(list(to_rgba(colors[1])))
+            else:
+                color_map.append([.0, .0, .0, .0])
+
+        color_map = ListedColormap(color_map, N=max_val+1)
+    
+        m.add_raster(raster, layer_name='alerts', colormap=color_map)
     except:
         output.add_live_msg(ms.NO_DISPLAY, type_='warning')
     
@@ -229,12 +246,9 @@ def display_alerts(aoi_io, raster, colors, output):
     m.addLayer(outline, {'palette': '283593'}, 'aoi')
     m.zoom_ee_object(aoi.geometry())
     
-    
-    #TODO check the legend 
     legend_keys = ['potential alerts', 'confirmed alerts']
-    legend_colors = colors[::-1]
     
-    m.add_legend(legend_keys=legend_keys, legend_colors=legend_colors, position='topleft')
+    m.add_legend(legend_keys=legend_keys, legend_colors=colors[::-1], position='topleft')
     
     return m
 
@@ -276,24 +290,54 @@ def clump(src_f, dst_f):
     struct = ndi.generate_binary_structure(2,2)
 
     with rio.open(src_f) as f:
-        
         raster = f.read(1)
-        meta = f.meta.copy()
-        raster = raster.astype(np.int8)
         
-    raster_labeled = ndi.label(raster, structure = struct)[0]
-    
-    # free the memory occupied by the raster 
-    del raster
-    
-    # change the dtype of the destination file
-    dtype = rio.dtypes.get_minimum_dtype(raster_labeled)
-    raster_labeled = raster_labeled.astype(dtype)
-    meta.update(dtype = dtype)
-                         
-    # write the file in the tmp clump
-    with rio.open(dst_f, 'w', **meta) as dst:
-        dst.write(raster_labeled, 1)
+        # get metadata
+        meta = f.meta.copy()
+        shape = f.read(1).shape
+        
+        # identify the features 
+        count = np.bincount(f.read(1).flatten())
+        features = np.where(count!=0)[0]
+        
+        del count
+        
+    # init the result file 
+    meta.update(dtype=np.uint8)
+    with rio.open(dst_f, 'w', **meta) as f:
+        f.write(np.zeros(shape, dtype=np.uint8), 1)
+        
+    # loop in values
+    offset = 0
+    for feature in features[1:]: # skip the 0
+        
+        # label the filtered dataset
+        with rio.open(src_f) as f:
+            label = ndi.label(f.read(1) == feature, structure = struct)[0]
+        
+        # renumber the labeled data
+        label[label!=0] = offset + label[label!=0]
+        
+        # reduce label size to it's minimum 
+        dtype = rio.dtypes.get_minimum_dtype(label)
+        label = label.astype(dtype)
+        
+        # add the previously saved values 
+        with rio.open(dst_f) as f:
+            raster_labeled = f.read(1).astype(dtype)
+            raster_labeled += label
+            
+            del label
+            
+        # increase the offset
+        offset = np.amax(raster_labeled)
+            
+        # write the new data in the dst raster 
+        meta.update(dtype = dtype)
+        with rio.open(dst_f, 'w', **meta) as f:
+            f.write(raster_labeled, 1)
+            
+            del raster_labeled
     
     return
     
