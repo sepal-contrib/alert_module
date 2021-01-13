@@ -225,15 +225,15 @@ def display_alerts(aoi_io, raster, colors, output):
 
         # create a color map 
         color_map = []
-        for i in range(min_val, max_val):
+        for i in range(min_val, max_val+1):
             if i == 3 or i == 1:
-                color_map.append(list(to_rgba(colors[1])))
-            elif i == 2:
                 color_map.append(list(to_rgba(colors[0])))
+            elif i == 2:
+                color_map.append(list(to_rgba(colors[1])))
             else:
                 color_map.append([.0, .0, .0, .0])
 
-        color_map = ListedColormap(color_map, N=max_val)
+        color_map = ListedColormap(color_map, N=max_val+1)
     
         m.add_raster(raster, layer_name='alerts', colormap=color_map)
     except:
