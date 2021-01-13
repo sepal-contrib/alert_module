@@ -9,6 +9,7 @@ import ee
 import ipyvuetify as v
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_rgba, ListedColormap
 import pandas as pd
 import rasterio as rio
 from rasterio.warp import calculate_default_transform
@@ -217,8 +218,24 @@ def display_alerts(aoi_io, raster, colors, output):
     m = sm.SepalMap(['SATELLITE', 'CartoDB.DarkMatter'])
     
     #display a raster on the map (use try pass to avoid big files problems)
-    try:
-        m.add_raster(raster, layer_name='alerts', opacity=.7)
+    try:    
+        with rio.open(raster) as f:
+            min_val = int(np.amin(f.read(1)))
+            max_val = int(np.amax(f.read(1)))
+
+        # create a color map 
+        color_map = []
+        for i in range(min_val, max_val):
+            if i == 3 or i == 1:
+                color_map.append(list(to_rgba(colors[1])))
+            elif i == 2:
+                color_map.append(list(to_rgba(colors[0])))
+            else:
+                color_map.append([.0, .0, .0, .0])
+
+        color_map = ListedColormap(color_map, N=max_val)
+    
+        m.add_raster(raster, layer_name='alerts', colormap=color_map)
     except:
         output.add_live_msg(ms.NO_DISPLAY, type_='warning')
     
@@ -229,12 +246,9 @@ def display_alerts(aoi_io, raster, colors, output):
     m.addLayer(outline, {'palette': '283593'}, 'aoi')
     m.zoom_ee_object(aoi.geometry())
     
-    
-    #TODO check the legend 
     legend_keys = ['potential alerts', 'confirmed alerts']
-    legend_colors = colors[::-1]
     
-    m.add_legend(legend_keys=legend_keys, legend_colors=legend_colors, position='topleft')
+    m.add_legend(legend_keys=legend_keys, legend_colors=colors[::-1], position='topleft')
     
     return m
 
