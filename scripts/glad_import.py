@@ -51,7 +51,7 @@ def get_alerts(aoi_io, year, date_masked):
         all_alerts = ee.ImageCollection('projects/glad/alert/UpdResult')
     
         
-    alerts = all_alerts.select(f'conf{year%100}').filterBounds(aoi).mosaic()
+    alerts = all_alerts.select(f'conf{year%100}').filterBounds(aoi).mosaic().uint16()
     
     # use the mask of the julian alerts 
     alerts = alerts.updateMask(date_masked.mask())
