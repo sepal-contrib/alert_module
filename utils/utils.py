@@ -92,13 +92,13 @@ def create_result_folder(aoi_io):
 def init_result_map():
     """initialize a geemap to display the aggregated data"""
     
-    #init a map center in 0,0
+    # init a map center in 0,0
     m = geemap.Map(
         center=(0, 0),
         zoom=2
     )
     
-    #remove layers and controls
+    # remove layers and controls
     m.clear_layers()
     m.clear_controls()
     

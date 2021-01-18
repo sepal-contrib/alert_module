@@ -45,6 +45,7 @@ def get_alerts(aoi_io, year, date_masked):
     """
     
     aoi = aoi_io.get_aoi_ee()
+    
     if year < pm.getLastUpdatedYear():
         all_alerts = ee.ImageCollection(f'projects/glad/alert/{year}final')
     else:

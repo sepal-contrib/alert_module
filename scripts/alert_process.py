@@ -92,6 +92,10 @@ def get_glad_alerts(aoi_io, io, output):
     digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map)
     digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map)
     
+    # remove the files from gdrive 
+    drive_handler.delete_files(drive_handler.get_files(filename_date))
+    drive_handler.delete_files(drive_handler.get_files(filename_map))
+    
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
     # return the obtained files
@@ -150,6 +154,10 @@ def get_gee_assets(aoi_io, io, output):
     # merge and compress them 
     digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map)
     digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map)
+    
+    # remove the files from gdrive 
+    drive_handler.delete_files(drive_handler.get_files(filename_date))
+    drive_handler.delete_files(drive_handler.get_files(filename_map))
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -251,10 +259,10 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
     with rio.open(tmp_file, "w", **out_meta) as dest:
         dest.write(data)
     
-    #manually close the files
+    # manually close the files
     [src.close() for src in sources]
     
-    #delete local files
+    # delete local files
     [os.remove(file) for file in files]
     
     return
