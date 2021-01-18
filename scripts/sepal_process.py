@@ -157,7 +157,7 @@ def create_fig(df, title, alert_type):
     """useless function that create a matplotlib file because bqplot cannot yet export without a popup
     """
     
-    if alert_type == available_drivers[2]: #glad alerts
+    if alert_type == available_drivers[2] or alert_type == available_drivers[3]: # glad  and radd alerts
         values = {'confirmed alerts': 3, 'potential alerts': 2}
     else:
         values = {'confirmed alerts': 1}
@@ -191,7 +191,7 @@ def create_fig(df, title, alert_type):
     
 def create_csv(df, basename, alert_type):
     
-    if alert_type == available_drivers[2]: #glad alerts
+    if alert_type == available_drivers[2] or alert_type == available_drivers[3]: #glad and radd alerts
         values = {'confirmed alerts': 3, 'potential alerts': 2}
     else:
         values = {'confirmed alerts': 1}

@@ -24,6 +24,12 @@ The alerts system coming from GEE need to be :
 - the alert dates : any gee **ImageCollection** with an date band. the julian date of the alerts (number of days since 01/01/0001), 0 elsewhere. it will be used by the driver to filter the useful alerts. If you don't have this file and you want to consider every alerts in your alert file. duplicate it and replace all the non zero by a know date (21/09/2020 = 737689).  
 """
 
+RADD_TXT = """
+The RADD dataset (RAdar for Detecting Deforestation) developed by [Wageningen University](https://www.wur.nl/en/Research-Results/Chair-groups/Environmental-Sciences/Laboratory-of-Geo-information-Science-and-Remote-Sensing/Research/Sensing-measuring/RADD-Forest-Disturbance-Alert.htm) is a alert system based on sentinel-1 radar imagery.
+
+- Covering Primary humid tropical forest of Africa (25 countries)
+"""
+
 ######################
 ##     sepal        ##
 ######################
@@ -61,8 +67,9 @@ SELECT_DATE_FILE = "Select the date file"
 SELECT_ALERTS_FILE = "Select the alerts file"
 SELECT_DATE_ASSET = "Select date asset"
 SELECT_ALERTS_ASSET = "Select alerts asset"
-WRONG_YEAR = "The glad alert dataset is build to work only on one single year. Please provide two dates in the same year instead of your first choice"
-TOO_EARLY = 'The glad alert dataset has been released in 2017 no alerts are provided for previous years.'
+WRONG_YEAR = "The GLAD alert dataset is build to work only on one single year. Please provide two dates in the same year instead of your first choice"
+TOO_EARLY = 'The GLAD alert dataset has been released in 2017 no alerts are provided for previous years.'
+RADD_TOO_EARLY = 'The RADD alert dataset has been released in 2019 no alerts are provided for previous years.'
 TASK_COMPLETED = "The task {0} launched on your GEE account is now completed"
 ALREADY_COMPLETED = "The task {0} has already been completed on your GEE account"
 TASK_RUNNING = "The task {} is runnning on your GEE account"

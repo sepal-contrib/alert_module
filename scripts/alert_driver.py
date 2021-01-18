@@ -13,7 +13,8 @@ ee.Initialize()
 available_drivers = [
     'Asset from Google Earth Engine',
     'Local alert system',
-    'GLAD alerts'
+    'GLAD alerts',
+    'RADD alerts'
 ]
 
 class AlertIo:
@@ -51,6 +52,7 @@ class DriverTile(sw.Tile):
             self.local_txt,
             self.gee_txt,
             self.glad_txt,
+            self.radd_txt,
             self.picker_line,
             self.select_date_file,
             self.select_alerts_file,
@@ -82,14 +84,11 @@ class DriverTile(sw.Tile):
         # select type 
         self.select_type = v.Select(items=available_drivers, label=ms.SELECT_TYPE, v_model=None)
         
-        # local text 
+        # text for each driver 
         self.local_txt = sw.Markdown(ms.LOCAL_TXT)
-        
-        # gee text 
         self.gee_txt = sw.Markdown(ms.GEE_TXT)
-        
-        # glad text 
         self.glad_txt = sw.Markdown(ms.GLAD_TXT)
+        self.radd_txt = sw.Markdown(ms.RADD_TXT)
         
         # start/end line
         self.start_picker = sw.DatePicker('Start', xs6=True)
@@ -147,6 +146,7 @@ class DriverTile(sw.Tile):
             self.local_txt, 
             self.gee_txt, 
             self.glad_txt, 
+            self.radd_txt,
             self.select_date_file, 
             self.select_alerts_file, 
             self.asset_date_line, 
@@ -168,6 +168,9 @@ class DriverTile(sw.Tile):
                 obj.toggle_inputs(fields_2_show, inputs_list)
             elif widget.v_model == available_drivers[2]: #glad alerts
                 fields_2_show = base_list + [obj.glad_txt]
+                obj.toggle_inputs(fields_2_show, inputs_list)
+            elif widget.v_model == available_drivers[3]: #radd alerts
+                fields_2_show = base_list + [obj.radd_txt]
                 obj.toggle_inputs(fields_2_show, inputs_list)
             else:  # the type is not suported
                 obj.toggle_inputs([], inputs_list)
