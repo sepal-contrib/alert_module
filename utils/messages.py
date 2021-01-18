@@ -29,6 +29,7 @@ The RADD dataset (RAdar for Detecting Deforestation) developed by [Wageningen Un
 
 - Covering Primary humid tropical forest of Africa (25 countries)
 """
+NO_FILES = "The Downloading of your alerts on GEE has failed. Please see your GEE code editor for more information about the crash. It is usely because you are out of the geographic boundaries of your alert system."
 
 ######################
 ##     sepal        ##
@@ -54,6 +55,7 @@ Alert analysis process steps are:
 - Create patches of alerts as a raster (`.tif`)
 - Compute the distribution of the alerts patches (`.csv`)
 """
+NO_ALERTS = "the alert map is empty. There are no deforestation alerts on this area for the selected time period."
 
 #####################################
 ##           msg drivers           ##

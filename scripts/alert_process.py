@@ -305,6 +305,11 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
     
     drive_handler = gdrive.gdrive()
     files = drive_handler.get_files(filename)
+    
+    # if no file, it means that the download had failed
+    if not len(files):
+        raise Exception(ms.NO_FILES)
+        
     drive_handler.download_files(files, result_dir)
     
     pathname = f'{filename}*.tif'

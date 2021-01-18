@@ -58,24 +58,24 @@ def sepal_process(aoi_io, alert_io, output):
     alert_tmp_map      = result_dir + basename + '_tmp_map.tif'
     alert_map          = result_dir + basename + '_map.tif'
         
-    #check that the process is not already done
+    # check that the process is not already done
     if os.path.isfile(alert_stats):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
         return alert_stats
     
-    #clump the patches together
+    # clump the patches together
     if not (os.path.isfile(clump_tmp_map) or os.path.isfile(clump_map)):
         output.add_live_msg(ms.IDENTIFY_PATCH)
         time.sleep(2)
         clump(alert_io.alert, clump_tmp_map)
     
-    #cut and compress all files 
+    # cut and compress all files 
     output.add_live_msg(ms.COMPRESS_FILE)
     if not os.path.isfile(alert_date_map): cut_to_aoi(aoi_io, alert_date_tmp_map, alert_date_map)
     if not os.path.isfile(alert_map): cut_to_aoi(aoi_io, alert_tmp_map, alert_map)
     if not os.path.isfile(clump_map): cut_to_aoi(aoi_io, clump_tmp_map, clump_map)
     
-    #create the histogram of the patches
+    # create the histogram of the patches
     output.add_live_msg(ms.PATCH_SIZE)
     time.sleep(2)
     hist(alert_map, clump_map, alert_stats, output)
@@ -291,6 +291,9 @@ def clump(src_f, dst_f):
 
     with rio.open(src_f) as f:
         raster = f.read(1)
+        
+        if np.amax(raster) == 0:
+            raise Exception(ms.NO_ALERTS)
         
         # get metadata
         meta = f.meta.copy()
