@@ -6,6 +6,11 @@ GEE_INTRO = 'Click on "Run GEE process" to launch the process on your GEE accoun
 GEE_BTN = "Run GEE process"
 NO_AOI = "The input are not correctly set up, please provide an asset in step 1"
 NO_YEAR = "The input are not correctly set up, please provide a year for your alerts"
+GLAD_TXT = """
+This data set, created by the [GLAD](https://glad.geog.umd.edu) (Global Land Analysis & Discovery) lab at the University of Maryland is the first Landsat-based alert system for tree cover loss. To retreive the alert you just need to select the date range you're interested in.  
+
+- dates need to be in the same year
+"""
 LOCAL_TXT ="""
 The locally produced files need to be in the following format:  
   

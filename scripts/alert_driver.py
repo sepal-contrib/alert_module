@@ -48,11 +48,12 @@ class DriverTile(sw.Tile):
         self.set_inputs()
         inputs = [
             self.select_type,
-            self.picker_line,
             self.local_txt,
+            self.gee_txt,
+            self.glad_txt,
+            self.picker_line,
             self.select_date_file,
             self.select_alerts_file,
-            self.gee_txt,
             self.asset_date_line,
             self.asset_alerts_line
         ]
@@ -81,6 +82,15 @@ class DriverTile(sw.Tile):
         # select type 
         self.select_type = v.Select(items=available_drivers, label=ms.SELECT_TYPE, v_model=None)
         
+        # local text 
+        self.local_txt = sw.Markdown(ms.LOCAL_TXT)
+        
+        # gee text 
+        self.gee_txt = sw.Markdown(ms.GEE_TXT)
+        
+        # glad text 
+        self.glad_txt = sw.Markdown(ms.GLAD_TXT)
+        
         # start/end line
         self.start_picker = sw.DatePicker('Start', xs6=True)
         self.output.bind(self.start_picker, self.io, 'start')
@@ -89,9 +99,6 @@ class DriverTile(sw.Tile):
         self.output.bind(self.end_picker, self.io, 'end')
         
         self.picker_line = v.Layout(xs=12, row=True,  children=[self.start_picker, self.end_picker])
-        
-        # local text 
-        self.local_txt = sw.Markdown(ms.LOCAL_TXT)
         
         # date file
         self.select_date_file = sw.FileInput(['.tif', '.tiff'], label=ms.SELECT_DATE_FILE)
@@ -114,9 +121,6 @@ class DriverTile(sw.Tile):
                 obj.output.add_msg(str(e), 'error')
             return
         
-        # gee text 
-        self.gee_txt = sw.Markdown(ms.GEE_TXT)
-        
         # date asset
         self.select_date_asset = v.TextField(xs8=True, label=ms.SELECT_DATE_ASSET, placeholder='users/[username]/[asset_name]', v_model=None)
         self.select_date_asset_band = v.Select(xs4=True, class_='pl-5', label= 'band', items=None, v_model=None)
@@ -137,8 +141,18 @@ class DriverTile(sw.Tile):
     
     def show_inputs(self):
         
-        #hide them all but select_type
-        inputs_list = [self.picker_line, self.local_txt, self.select_date_file, self.select_alerts_file, self.gee_txt, self.asset_date_line, self.asset_alerts_line]
+        # hide them all but select_type
+        inputs_list = [
+            self.picker_line, 
+            self.local_txt, 
+            self.gee_txt, 
+            self.glad_txt, 
+            self.select_date_file, 
+            self.select_alerts_file, 
+            self.asset_date_line, 
+            self.asset_alerts_line
+        ]
+        
         self.toggle_inputs([], inputs_list)
         
         def on_change(widget, data, event, inputs_list, obj):
@@ -153,7 +167,8 @@ class DriverTile(sw.Tile):
                 fields_2_show = base_list + [obj.local_txt, obj.select_date_file, obj.select_alerts_file]
                 obj.toggle_inputs(fields_2_show, inputs_list)
             elif widget.v_model == available_drivers[2]: #glad alerts
-                obj.toggle_inputs(base_list, inputs_list)
+                fields_2_show = base_list + [obj.glad_txt]
+                obj.toggle_inputs(fields_2_show, inputs_list)
             else:  # the type is not suported
                 obj.toggle_inputs([], inputs_list)
             
