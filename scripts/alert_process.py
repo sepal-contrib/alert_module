@@ -77,7 +77,7 @@ def get_glad_alerts(aoi_io, io, output):
     
     # check for the julian day task 
     filename_date = f'{filename}_dates'
-    alerts_date = glad_import.get_alerts_dates(aoi_io, year, [io.start, io.end])
+    alerts_date = glad_import.get_alerts_dates(aoi_io, year, [start, end])
     download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io, output)
     
     # reteive alert date masked with date range 
@@ -111,7 +111,7 @@ def get_radd_alerts(aoi_io, io, output):
     if not output.check_input(io.start): return (None, None)
     if not output.check_input(io.end): return (None, None)
     
-    #convert to dates
+    # convert to dates
     start = datetime.strptime(io.start, '%Y-%m-%d')
     end = datetime.strptime(io.end, '%Y-%m-%d')
     
@@ -191,6 +191,10 @@ def get_gee_assets(aoi_io, io, output):
     # check if the file exist 
     result_dir = utils.create_result_folder(aoi_io)
     
+    # convert to dates
+    start = datetime.strptime(io.start, '%Y-%m-%d')
+    end = datetime.strptime(io.end, '%Y-%m-%d')
+    
     basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_{asset_name}'
     alert_date_tmp_map = f'{basename}_tmp_date.tif'
     alert_date_map     = f'{basename}_date.tif'
@@ -205,12 +209,12 @@ def get_gee_assets(aoi_io, io, output):
     
     # mask the appropriate alerts 
     filename_date = f'{filename}_dates'
-    alerts_date = gee_import.get_alerts_dates([io.start, io.end], io.date_asset, io.asset_date_band)
+    alerts_date = gee_import.get_alerts_dates([start, end], aoi_io, io.date_asset, io.asset_date_band)
     download = drive_handler.download_to_disk(filename_date, alerts_date.unmask(0), aoi_io, output)
     
     # reteive alert date masked with date range 
     filename_map = f'{filename}_map'
-    alerts = gee_import.get_alerts(alerts_date, io.alert_asset, io.asset_alerts_band)
+    alerts = gee_import.get_alerts(alerts_date, aoi_io, io.alert_asset, io.asset_alerts_band)
     download = drive_handler.download_to_disk(filename_map, alerts.unmask(0), aoi_io, output)
     
     # wait for completion 

@@ -51,9 +51,7 @@ NO_DISPLAY = "The computation is completed but the file is to big to be open on 
 PROCESS_TXT = """
 Alert analysis process steps are:  
 
-- Merge the alert tiles and filter the alerts on the specified time range to produce a single raster (`.tif`)
-- Delete the downloaded tiles (if gee or glad alert system)
-- Create patches of glad alerts as a raster (`.tif`)
+- Create patches of alerts as a raster (`.tif`)
 - Compute the distribution of the alerts patches (`.csv`)
 """
 
