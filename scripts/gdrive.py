@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from pathlib import Path
 import ee
 import io
 from googleapiclient.http import MediaIoBaseDownload
@@ -68,27 +68,35 @@ class gdrive(object):
         return files
                                 
     def download_files(self, files, local_path):
+        """download the files from gdrive to the local_path"""
+        
+        # create path object 
+        local_path = Path(local_path)
+        
+        #open the gdrive service
         service = self.service
         
-        for fId in files:
-            request = service.files().get_media(fileId=fId['id'])
+        # request the files from gdrvie in chunks
+        for file in files:
+            request = service.files().get_media(fileId=file['id'])
             fh = io.BytesIO()
             downloader = MediaIoBaseDownload(fh, request)
             done = False
             while done is False:
                 status, done = downloader.next_chunk()
-                #print('Download %d%%.' % int(status.progress() * 100))
+            # write them in a local based file
+            with local_path.joinpath(file['name']).open('wb') as f:
+                f.write(fh.getvalue())
             
-            fo = open(local_path+fId['name'], 'wb')
-            fo.write(fh.getvalue())
-            fo.close()
-
-    def delete_files(self, files_id):
-
+    def delete_files(self, files):
+        """ delete files from gdrive disk"""
+        
+        # open gdrive service
         service = self.service
         
-        for fId in files_id:
-            service.files().delete(fileId=fId).execute()
+        # remove the files
+        for file in files:
+            service.files().delete(fileId=file['id']).execute()
             
     def download_to_disk(self, filename, image, aoi_io, output):
         """download the tile to the GEE disk

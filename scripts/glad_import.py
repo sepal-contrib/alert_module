@@ -24,8 +24,8 @@ def get_alerts_dates(aoi_io, year, date_range):
     dates = all_alerts.select(f'alertDate{year%100}').map(lambda image: image.uint16()).filterBounds(aoi).mosaic()
 
     # extract julian dates
-    start = datetime.strptime(date_range[0], '%Y-%m-%d').timetuple().tm_yday
-    end = datetime.strptime(date_range[1], '%Y-%m-%d').timetuple().tm_yday
+    start = date_range[0].timetuple().tm_yday
+    end = date_range[1].timetuple().tm_yday
     
     # masked all the images that are not between the limits dates
     date_masked = dates.updateMask(dates.gt(start).And(dates.lt(end)))
@@ -45,6 +45,7 @@ def get_alerts(aoi_io, year, date_masked):
     """
     
     aoi = aoi_io.get_aoi_ee()
+    
     if year < pm.getLastUpdatedYear():
         all_alerts = ee.ImageCollection(f'projects/glad/alert/{year}final')
     else:

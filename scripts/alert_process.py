@@ -10,6 +10,7 @@ from rasterio.merge import merge
 from scripts import alert_driver as ad
 from scripts import glad_import
 from scripts import gee_import
+from scripts import radd_import
 from scripts import gdrive
 from utils import messages as ms
 from utils import utils
@@ -24,6 +25,9 @@ def get_alerts(aoi_io, io, output):
     
     if io.alert_type == ad.available_drivers[2]: # glad alerts
         return get_glad_alerts(aoi_io, io, output)
+    
+    if io.alert_type == ad.available_drivers[3]: # radd alerts
+        return get_radd_alerts(aoi_io, io, output)
     
     # if I'm here it means that the io_alert_type is not define 
     output.add_live_msg(io.alert_type, 'error')
@@ -73,7 +77,7 @@ def get_glad_alerts(aoi_io, io, output):
     
     # check for the julian day task 
     filename_date = f'{filename}_dates'
-    alerts_date = glad_import.get_alerts_dates(aoi_io, year, [io.start, io.end])
+    alerts_date = glad_import.get_alerts_dates(aoi_io, year, [start, end])
     download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io, output)
     
     # reteive alert date masked with date range 
@@ -91,6 +95,75 @@ def get_glad_alerts(aoi_io, io, output):
     # merge and compress them 
     digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map)
     digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map)
+    
+    # remove the files from gdrive 
+    drive_handler.delete_files(drive_handler.get_files(filename_date))
+    drive_handler.delete_files(drive_handler.get_files(filename_map))
+    
+    output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
+    
+    # return the obtained files
+    return (alert_date_tmp_map, alert_tmp_map)
+
+def get_radd_alerts(aoi_io, io, output):
+    
+    # verify useful inputs 
+    if not output.check_input(io.start): return (None, None)
+    if not output.check_input(io.end): return (None, None)
+    
+    # convert to dates
+    start = datetime.strptime(io.start, '%Y-%m-%d')
+    end = datetime.strptime(io.end, '%Y-%m-%d')
+    
+    # check that the year is not prior to 2019
+    if start.year < 2019:
+        output.add_live_msg(ms.RADD_TOO_EARLY, 'error')
+        return (None, None)
+    
+    # filename 
+    aoi_name = aoi_io.get_aoi_name()
+    filename = aoi_name + f'_{io.start}_{io.end}_radd_alerts'
+    
+    # check if the file exist 
+    result_dir = utils.create_result_folder(aoi_io)
+    
+    basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_radd'
+    alert_date_tmp_map = f'{basename}_tmp_date.tif'
+    alert_date_map     = f'{basename}_date.tif'
+    alert_tmp_map      = f'{basename}_tmp_map.tif'
+    alert_raw_map      = f'{basename}_raw_map.tif'
+    alert_map          = f'{basename}_map.tif'
+    
+    if os.path.isfile(alert_tmp_map) or os.path.isfile(alert_map):
+        output.add_live_msg(ms.ALREADY_DONE, 'success')
+        return (alert_date_tmp_map, alert_tmp_map)
+    
+    drive_handler = gdrive.gdrive()
+    
+    # check for the julian day task 
+    filename_date = f'{filename}_dates'
+    alerts_date = radd_import.get_alerts_dates(aoi_io, [start, end])
+    download = drive_handler.download_to_disk(filename_date, alerts_date, aoi_io, output)
+    
+    # reteive alert date masked with date range 
+    filename_map = f'{filename}_map'
+    alerts = radd_import.get_alerts(aoi_io, alerts_date)
+    download = drive_handler.download_to_disk(filename_map, alerts, aoi_io, output)
+    
+    # wait for completion 
+    # I assume that there is 2 or 0 file to launch 
+    # if one of the 2 process have been launch individually it will crash
+    if download:
+        utils.wait_for_completion([filename_map, filename_date], output)
+        output.add_live_msg(ms.TASK_COMPLETED.format(filename_map), 'success') 
+    
+    # merge and compress them 
+    digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map)
+    digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map)
+    
+    # remove the files from gdrive 
+    drive_handler.delete_files(drive_handler.get_files(filename_date))
+    drive_handler.delete_files(drive_handler.get_files(filename_map))
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -118,6 +191,10 @@ def get_gee_assets(aoi_io, io, output):
     # check if the file exist 
     result_dir = utils.create_result_folder(aoi_io)
     
+    # convert to dates
+    start = datetime.strptime(io.start, '%Y-%m-%d')
+    end = datetime.strptime(io.end, '%Y-%m-%d')
+    
     basename = f'{result_dir}{aoi_name}_{io.start}_{io.end}_{asset_name}'
     alert_date_tmp_map = f'{basename}_tmp_date.tif'
     alert_date_map     = f'{basename}_date.tif'
@@ -132,12 +209,12 @@ def get_gee_assets(aoi_io, io, output):
     
     # mask the appropriate alerts 
     filename_date = f'{filename}_dates'
-    alerts_date = gee_import.get_alerts_dates([io.start, io.end], io.date_asset, io.asset_date_band)
+    alerts_date = gee_import.get_alerts_dates([start, end], aoi_io, io.date_asset, io.asset_date_band)
     download = drive_handler.download_to_disk(filename_date, alerts_date.unmask(0), aoi_io, output)
     
     # reteive alert date masked with date range 
     filename_map = f'{filename}_map'
-    alerts = gee_import.get_alerts(alerts_date, io.alert_asset, io.asset_alerts_band)
+    alerts = gee_import.get_alerts(alerts_date, aoi_io, io.alert_asset, io.asset_alerts_band)
     download = drive_handler.download_to_disk(filename_map, alerts.unmask(0), aoi_io, output)
     
     # wait for completion 
@@ -150,6 +227,10 @@ def get_gee_assets(aoi_io, io, output):
     # merge and compress them 
     digest_tiles(aoi_io, filename_date, result_dir, output, alert_date_tmp_map)
     digest_tiles(aoi_io, filename_map, result_dir, output, alert_tmp_map)
+    
+    # remove the files from gdrive 
+    drive_handler.delete_files(drive_handler.get_files(filename_date))
+    drive_handler.delete_files(drive_handler.get_files(filename_map))
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -224,6 +305,11 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
     
     drive_handler = gdrive.gdrive()
     files = drive_handler.get_files(filename)
+    
+    # if no file, it means that the download had failed
+    if not len(files):
+        raise Exception(ms.NO_FILES)
+        
     drive_handler.download_files(files, result_dir)
     
     pathname = f'{filename}*.tif'
@@ -251,10 +337,10 @@ def digest_tiles(aoi_io, filename, result_dir, output, tmp_file):
     with rio.open(tmp_file, "w", **out_meta) as dest:
         dest.write(data)
     
-    #manually close the files
+    # manually close the files
     [src.close() for src in sources]
     
-    #delete local files
+    # delete local files
     [os.remove(file) for file in files]
     
     return
