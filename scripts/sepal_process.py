@@ -53,13 +53,14 @@ def sepal_process(aoi_io, alert_io, output):
     clump_tmp_map      = result_dir + basename + '_tmp_clump.tif'
     clump_map          = result_dir + basename + '_clump.tif'
     alert_stats        = result_dir + basename + '_stats.txt'
+    alert_stats_legacy = result_dir + basename + '_stats_legacy.txt'
     alert_date_tmp_map = result_dir + basename + '_tmp_date.tif'
     alert_date_map     = result_dir + basename + '_date.tif'
     alert_tmp_map      = result_dir + basename + '_tmp_map.tif'
     alert_map          = result_dir + basename + '_map.tif'
         
     # check that the process is not already done
-    if os.path.isfile(alert_stats):
+    if os.path.isfile(alert_stats) and os.path.isfile(alert_stats_legacy):
         output.add_live_msg(ms.ALREADY_DONE, 'success')
         return alert_stats
     
@@ -79,6 +80,7 @@ def sepal_process(aoi_io, alert_io, output):
     output.add_live_msg(ms.PATCH_SIZE)
     time.sleep(2)
     hist(alert_map, clump_map, alert_stats, output)
+    legacy_hist(alert_stats, alert_stats_legacy)
     
     output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
     
@@ -377,4 +379,37 @@ def hist(src, mask, dst, output):
         
     df.to_csv(dst, index=False)
         
+    return
+
+def legacy_hist(src, dst):
+    
+    # read the file 
+    df = pd.read_csv(src)
+    
+    # write the new file 
+    data = {
+        'id': [],
+        'size': [],
+        'nodata': [],
+        'val1': [],
+        'potential': [],
+        'confirmed': []
+    }
+    for index, row in df.iterrows():
+        
+        potential = row.nb_pixel if row.value == 2 else 0
+        confirmed = row.nb_pixel if row.value == 3 else 0
+        
+        data['id'].append(row.patchId)
+        data['size'].append(row.nb_pixel)
+        data['nodata'].append(0)
+        data['val1'].append(0)
+        data['potential'].append(potential)
+        data['confirmed'].append(confirmed)
+        
+    df = pd.DataFrame(data)
+    
+    np_array = df.to_numpy()
+    np.savetxt(dst, np_array, fmt = "%d")
+    
     return
