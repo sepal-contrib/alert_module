@@ -27,7 +27,7 @@ The alerts system coming from GEE need to be :
 RADD_TXT = """
 The RADD dataset (RAdar for Detecting Deforestation) developed by [Wageningen University](https://www.wur.nl/en/Research-Results/Chair-groups/Environmental-Sciences/Laboratory-of-Geo-information-Science-and-Remote-Sensing/Research/Sensing-measuring/RADD-Forest-Disturbance-Alert.htm) is a alert system based on sentinel-1 radar imagery.
 
-- Covering Primary humid tropical forest of Africa (25 countries)
+- Covering Primary humid tropical forest over Africa and South-East Asia
 """
 NO_FILES = "The Downloading of your alerts on GEE has failed. Please see your GEE code editor for more information about the crash. It is usely because you are out of the geographic boundaries of your alert system."
 
