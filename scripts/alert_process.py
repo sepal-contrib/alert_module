@@ -272,7 +272,7 @@ def get_local_alerts(aoi_io, io, output):
     with rio.open(io.date_file) as src:
         
         raw_data = src.read()
-        out_meta = scr.meta.copy()
+        out_meta = src.meta.copy()
         data = ((raw_data >= start)*(raw_data <= end)) * raw_data
         
         with rio.open(alert_date_map, 'w', **out_meta) as dest:
