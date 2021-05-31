@@ -287,7 +287,7 @@ def get_local_alerts(aoi_io, io, output):
         # I assume that they both have the same extend, res, and transform
         out_meta = date.meta.copy()
         out_meta.update(
-            dtype=rasterio.uint8,
+            dtype=rio.uint8,
             compress='lzw'
         )
         
