@@ -1,5 +1,7 @@
 # Alerts module
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 ## about
 this module is a 3 steps process that retrieve and compute the alert system on a selected Aera of interest.
 
