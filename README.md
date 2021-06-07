@@ -25,7 +25,7 @@ The module allows you to display an histogram of the alerts patches, download th
 
 ![results](./doc/img/full_results.png)
 
-for more information about usage please read the [documentation](doc/doc.md)
+for more information about usage please read the [documentation](https://raw.githubusercontent.com/openforis/alert_module/master/doc/en.rst)
 
 ## contribute
 to install the project on your SEPAL account 
