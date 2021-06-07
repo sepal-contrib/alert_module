@@ -1,21 +1,18 @@
-import os
-import ee
 import time
-import sys
 from datetime import datetime
-sys.path.append("..") # Adds higher directory to python modules path
+
+import ee
+
 from utils import utils
-from scripts import gdrive
-from utils import parameters as pm
+from component import parameter as cp
 
 #initialize earth engine
 ee.Initialize()
 
-def get_alerts_dates(aoi_io, year, date_range):
+def get_alerts_dates(aoi, year, date_range):
     """return the julian day map of the glad alerts included between the two dates of date_range"""
     
-    aoi = aoi_io.get_aoi_ee()
-    if year < pm.getLastUpdatedYear():
+    if year < cp.last_updated_year:
         all_alerts = ee.ImageCollection(f'projects/glad/alert/{year}final')
     else:
         all_alerts = ee.ImageCollection('projects/glad/alert/UpdResult')
@@ -32,7 +29,7 @@ def get_alerts_dates(aoi_io, year, date_range):
     
     return date_masked    
 
-def get_alerts(aoi_io, year, date_masked):
+def get_alerts(aoi, year, date_masked):
     """ get the alerts from the GLAD project
     
     Args:
@@ -44,9 +41,7 @@ def get_alerts(aoi_io, year, date_masked):
         alerts (ee.FeatureCollection): the Glad alert clipped on the AOI
     """
     
-    aoi = aoi_io.get_aoi_ee()
-    
-    if year < pm.getLastUpdatedYear():
+    if year < cp.last_updated_year:
         all_alerts = ee.ImageCollection(f'projects/glad/alert/{year}final')
     else:
         all_alerts = ee.ImageCollection('projects/glad/alert/UpdResult')
