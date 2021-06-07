@@ -8,7 +8,7 @@ Select an AOI
 
 Using the provided AOI selector, select an AOI of your choice between the different methods available in the tool. We provide 3 administration descriptions (from level 0 to 2) and 3 custom shapes (drawn directly on the map, asset or shapefile). 
 
-.. figure:: https://raw.githubusercontent.com/openforis/alert_module/master/doc/img/aoi_select.png 
+.. figure:: https://raw.githubusercontent.com/openforis/alert_module/master/doc/img/select_aoi.png 
     
     aoi selector 
     
