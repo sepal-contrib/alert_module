@@ -1,130 +1,121 @@
 import time
-import glob
-import os
-from pathlib import Path
 from datetime import datetime
-import itertools
 
-import ee
-import ipyvuetify as v
-import numpy as np
+import pandas as pd
+from sepal_ui import sepalwidgets as sw
+from sepal_ui import mapping as sm
+from ipywidgets import Output
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba, ListedColormap
-import pandas as pd
+import ipyvuetify as v
+import numpy as np
 import rasterio as rio
-from rasterio.warp import calculate_default_transform
 from rasterio.mask import mask
 from scipy import ndimage as ndi
-from sepal_ui import mapping as sm
-from sepal_ui import sepalwidgets as sw
+import ee
 from shapely.geometry import shape
-import geemap
-from ipywidgets import Output
 
-from utils import utils
-from utils import messages as ms
-from utils import parameters as pm
-from scripts.alert_driver import available_drivers 
+from component import parameter as cp
+from component.message import cm
 
 #initialize earth engine
 ee.Initialize()
 
-def sepal_process(aoi_io, alert_io, output):
+def sepal_process(aoi_model, alert_model, alert):
     """execute the 2 different operations of the computation successively: clump and compute
     
     Args:
-        aoi_io (object): the aoiIo object that contains the aoi informations
-        alert_io (object): the AlertIO object that contains all the current alerts information
-        output (sw.Alert) the alert that display the output of the process
+        aoi_model (object): the aoiIo object that contains the aoi informations
+        alert_model (object): the AlertIO object that contains all the current alerts information
+        alert (sw.Alert) the alert that display the alert of the process
         
     Returns:
         (str,str): the links to the .tif (res. .txt) file 
     """
         
     #define the files variables
-    result_dir = utils.create_result_folder(aoi_io)
+    result_dir = cp.create_result_folder(aoi_model)
     
     #basename info are extracted from alert filename
-    basename = Path(alert_io.alert).stem.replace('_tmp_map', '')
+    basename = f"{alert_model.alert.stem.replace('_tmp_map', '')}_" + "{}"
     
-    output.add_live_msg('basename: {}'.format(basename))
-    time.sleep(10)
+    alert.add_live_msg('basename: {}'.format(basename))
+    time.sleep(5)
     
-    clump_tmp_map      = result_dir + basename + '_tmp_clump.tif'
-    clump_map          = result_dir + basename + '_clump.tif'
-    alert_stats        = result_dir + basename + '_stats.txt'
-    alert_stats_legacy = result_dir + basename + '_stats_legacy.txt'
-    alert_date_tmp_map = result_dir + basename + '_tmp_date.tif'
-    alert_date_map     = result_dir + basename + '_date.tif'
-    alert_tmp_map      = result_dir + basename + '_tmp_map.tif'
-    alert_map          = result_dir + basename + '_map.tif'
+    clump_tmp_map      = result_dir/basename.format('tmp_clump.tif')
+    clump_map          = result_dir/basename.format('clump.tif')
+    alert_stats        = result_dir/basename.format('stats.txt')
+    alert_stats_legacy = result_dir/basename.format('stats_legacy.txt')
+    alert_date_tmp_map = result_dir/basename.format('tmp_date.tif')
+    alert_date_map     = result_dir/basename.format('date.tif')
+    alert_tmp_map      = result_dir/basename.format('tmp_map.tif')
+    alert_map          = result_dir/basename.format('map.tif')
         
     # check that the process is not already done
-    if os.path.isfile(alert_stats) and os.path.isfile(alert_stats_legacy):
-        output.add_live_msg(ms.ALREADY_DONE, 'success')
+    if alert_stats.is_file() and alert_stats_legacy.is_file():
+        alert.add_live_msg(cm.sepal.already_done, 'success')
         return alert_stats
     
     # clump the patches together
-    if not (os.path.isfile(clump_tmp_map) or os.path.isfile(clump_map)):
-        output.add_live_msg(ms.IDENTIFY_PATCH)
+    if not (clump_tmp_map.is_file() or clump_map.is_file()):
+        alert.add_live_msg(cm.sepal.identify_patch)
         time.sleep(2)
-        clump(alert_io.alert, clump_tmp_map)
+        clump(alert_model.alert, clump_tmp_map)
     
     # cut and compress all files 
-    output.add_live_msg(ms.COMPRESS_FILE)
-    if not os.path.isfile(alert_date_map): cut_to_aoi(aoi_io, alert_date_tmp_map, alert_date_map)
-    if not os.path.isfile(alert_map): cut_to_aoi(aoi_io, alert_tmp_map, alert_map)
-    if not os.path.isfile(clump_map): cut_to_aoi(aoi_io, clump_tmp_map, clump_map)
+    alert.add_live_msg(cm.sepal.compress_file)
+    if not alert_date_map.is_file(): cut_to_aoi(aoi_model, alert_date_tmp_map, alert_date_map)
+    if not alert_map.is_file(): cut_to_aoi(aoi_model, alert_tmp_map, alert_map)
+    if not clump_map.is_file(): cut_to_aoi(aoi_model, clump_tmp_map, clump_map)
     
     # create the histogram of the patches
-    output.add_live_msg(ms.PATCH_SIZE)
+    alert.add_live_msg(cm.sepal.patch_size)
     time.sleep(2)
-    hist(alert_map, clump_map, alert_stats, output)
-    legacy_hist(alert_stats, alert_stats_legacy)
+    hist(alert_map, clump_map, alert_stats, alert)
     
-    output.add_live_msg(ms.COMPUTAION_COMPLETED, 'success')
+    alert.add_live_msg(cm.sepal.computation_completed, 'success')
     
     return alert_stats
 
-def display_results(aoi_io, alert_io, output, stats):
+def display_results(aoi_model, alert_model, alert, stats):
     
-    output.add_live_msg(ms.DISPLAY_RESULT)
+    alert.add_live_msg(cm.sepal.display_result)
     
-    aoi_name = aoi_io.get_aoi_name()
-    result_dir = utils.create_result_folder(aoi_io)
-    year = datetime.strptime(alert_io.start, '%Y-%m-%d').year
+    aoi_name = aoi_model.name
+    result_dir = cp.create_result_folder(aoi_model)
+    year = datetime.strptime(alert_model.start, '%Y-%m-%d').year
     
-    basename = result_dir + Path(alert_io.alert).stem.replace('_tmp_map', '')
-    alert_stats = basename + '_stats.txt'
+    basename = alert_model.alert.stem.replace('_tmp_map', '')
+    alert_stats = result_dir/f"{basename}_stats.txt"
     
     df = pd.read_csv(stats)
     
-    #tif link
-    tif_btn = sw.DownloadBtn(ms.TIF_BTN, basename + '_map.tif')
+    # tif link
+    tif_btn = sw.DownloadBtn(cm.sepal.tif_btn, result_dir/f"{basename}_map.tif")
     
-    #csv file 
-    alert_csv = create_csv(df, basename, alert_io.alert_type)
-    csv_btn = sw.DownloadBtn(ms.CSV_BTN, alert_csv)
+    # csv file 
+    alert_csv = create_csv(df, result_dir, basename, alert_model.alert_type)
+    csv_btn = sw.DownloadBtn(cm.sepal.csv_btn, alert_csv)
      
-    #create matplotlib hist 
+    # create matplotlib hist 
     title = f'Distribution of the alerts \nfor {aoi_name} in {year}'
-    fig, ax = create_fig(df, title, alert_io.alert_type)
+    fig, ax = create_fig(df, title, alert_model.alert_type)
     
-    png_link = f'{basename}_hist.png'
+    png_link = result_dir/f"{basename}_hist.png"
     fig.savefig(png_link)   # save the figure to file
     plt.close()
-    png_btn = sw.DownloadBtn(ms.PNG_BTN, png_link)
+    png_btn = sw.DownloadBtn(cm.sepal.png_btn, png_link)
     
-    #display the fig 
+    # display the fig 
     out = Output()
     with plt.style.context('dark_background'):
         with out:
-            fig, ax = create_fig(df, title, alert_io.alert_type)
+            fig, ax = create_fig(df, title, alert_model.alert_type)
             fig.set_facecolor((0, 0, 0, 0))
             plt.show()
     
     #mapping of the results
-    m = display_alerts(aoi_io, basename + '_map.tif', pm.getPalette(), output)
+    m = display_alerts(aoi_model, result_dir/f"{basename}_map.tif", cp.color_palette, alert)
     
     ################################
     ##   create a sum-up layout   ##
@@ -151,7 +142,7 @@ def display_results(aoi_io, alert_io, output, stats):
         partial_layout
     ]
     
-    output.add_live_msg(ms.DISPLAY_RESULT, 'success')
+    alert.add_live_msg(cm.sepal.display_result, 'success')
     
     return children
 
@@ -159,7 +150,7 @@ def create_fig(df, title, alert_type):
     """useless function that create a matplotlib file because bqplot cannot yet export without a popup
     """
     
-    if alert_type == available_drivers[2] or alert_type == available_drivers[3]: # glad  and radd alerts
+    if alert_type in ['GLAD', 'RADD']: # glad  and radd alerts
         values = {'confirmed alerts': 3, 'potential alerts': 2}
     else:
         values = {'confirmed alerts': 1}
@@ -170,7 +161,7 @@ def create_fig(df, title, alert_type):
         
         #load the patches
         y_local = df[df['value'] == values[name]]['nb_pixel'].to_numpy()
-        y_local = np.append(y_local, 0) #add the 0 to prevent bugs when there are no data (2017 for ex)
+        y_local = np.append(y_local, 0) # add the 0 to prevent bugs when there are no data (2017 for ex)
         max_ = max(max_, np.amax(y_local))
         
         #add them to the global y_
@@ -181,7 +172,7 @@ def create_fig(df, title, alert_type):
     ax.set_axisbelow(True)
     ax.yaxis.grid(which='both', linewidth=0.8, color='lightgrey')
     
-    ax.hist(y_, label=[*values], weights=y_, color=pm.getPalette()[:len(values)], bins=30, histtype='bar', stacked=True, edgecolor='black', rwidth=0.8)
+    ax.hist(y_, label=[*values], weights=y_, color=cp.color_palette[:len(values)], bins=30, histtype='bar', stacked=True, edgecolor='black', rwidth=0.8)
     ax.set_xlim(0, max_)
     ax.legend(loc='upper right')
     ax.set_title(title, fontweight="bold")
@@ -191,9 +182,9 @@ def create_fig(df, title, alert_type):
     
     return (fig, ax)
     
-def create_csv(df, basename, alert_type):
+def create_csv(df, result_dir, basename, alert_type):
     
-    if alert_type == available_drivers[2] or alert_type == available_drivers[3]: #glad and radd alerts
+    if alert_type in ['GLAD', 'RADD']: #glad and radd alerts
         values = {'confirmed alerts': 3, 'potential alerts': 2}
     else:
         values = {'confirmed alerts': 1}
@@ -207,19 +198,19 @@ def create_csv(df, basename, alert_type):
     
     df2 = pd.concat(dfs, axis=1).fillna(0).T
     
-    filename = basename + '_distrib.csv'
+    filename = result_dir/f"{basename}_distrib.csv"
     
     df2.to_csv(filename)
     
     return filename
 
-def display_alerts(aoi_io, raster, colors, output):
+def display_alerts(aoi_model, raster, colors, alert):
     """dipslay the selected alerts on the geemap. If the file is too big the clump will not be displayed"""
     
-    #create the map
+    # create the map
     m = sm.SepalMap(['SATELLITE', 'CartoDB.DarkMatter'])
     
-    #display a raster on the map (use try pass to avoid big files problems)
+    # display a raster on the map (use try pass to avoid big files problems)
     try:    
         with rio.open(raster) as f:
             min_val = int(np.amin(f.read(1)))
@@ -236,13 +227,13 @@ def display_alerts(aoi_io, raster, colors, output):
                 color_map.append([.0, .0, .0, .0])
 
         color_map = ListedColormap(color_map, N=max_val+1)
-    
+
         m.add_raster(raster, layer_name='alerts', colormap=color_map)
     except:
-        output.add_live_msg(ms.NO_DISPLAY, type_='warning')
+        alert.add_live_msg(cm.sepal.no_display, 'warning')
     
-    #Create an empty image into which to paint the features, cast to byte.
-    aoi = aoi_io.get_aoi_ee()
+    # Create an empty image into which to paint the features, cast to byte.
+    aoi = aoi_model.feature_collection
     empty = ee.Image().byte()
     outline = empty.paint(**{'featureCollection': aoi, 'color': 1, 'width': 3})
     m.addLayer(outline, {'palette': '283593'}, 'aoi')
@@ -254,10 +245,10 @@ def display_alerts(aoi_io, raster, colors, output):
     
     return m
 
-def cut_to_aoi(aoi_io, tmp_file, comp_file):
+def cut_to_aoi(aoi_model, tmp_file, comp_file):
     
     # create the country shape
-    aoi_json = geemap.ee_to_geojson(aoi_io.get_aoi_ee())
+    aoi_json = aoi_model.gdf.__geo_interface__
     aoi_features = aoi_json['features']
     aoi_shp = [shape(aoi_features[i]['geometry']) for i in range(len(aoi_features))]
     
@@ -282,7 +273,7 @@ def cut_to_aoi(aoi_io, tmp_file, comp_file):
         with rio.open(comp_file, "w", **out_meta) as dest:
             dest.write(out_image)
         
-    os.remove(tmp_file)
+    tmp_file.unlink()
     
     return
  
@@ -295,7 +286,7 @@ def clump(src_f, dst_f):
         raster = f.read(1)
         
         if np.amax(raster) == 0:
-            raise Exception(ms.NO_ALERTS)
+            raise Exception(cm.sepal.no_alerts)
         
         # get metadata
         meta = f.meta.copy()
@@ -346,7 +337,7 @@ def clump(src_f, dst_f):
     
     return
     
-def hist(src, mask, dst, output):
+def hist(src, mask, dst, alert):
     
     # identify the clumps
     with rio.open(mask) as f:
@@ -379,37 +370,4 @@ def hist(src, mask, dst, output):
         
     df.to_csv(dst, index=False)
         
-    return
-
-def legacy_hist(src, dst):
-    
-    # read the file 
-    df = pd.read_csv(src)
-    
-    # write the new file 
-    data = {
-        'id': [],
-        'size': [],
-        'nodata': [],
-        'val1': [],
-        'potential': [],
-        'confirmed': []
-    }
-    for index, row in df.iterrows():
-        
-        potential = row.nb_pixel if row.value == 2 else 0
-        confirmed = row.nb_pixel if row.value == 3 else 0
-        
-        data['id'].append(row.patchId)
-        data['size'].append(row.nb_pixel)
-        data['nodata'].append(0)
-        data['val1'].append(0)
-        data['potential'].append(potential)
-        data['confirmed'].append(confirmed)
-        
-    df = pd.DataFrame(data)
-    
-    np_array = df.to_numpy()
-    np.savetxt(dst, np_array, fmt = "%d")
-    
     return

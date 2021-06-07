@@ -3,7 +3,6 @@ from datetime import datetime
 
 import ee
 
-from utils import utils
 from component import parameter as cp
 
 #initialize earth engine

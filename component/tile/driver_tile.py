@@ -1,13 +1,8 @@
 #singleton object to get the alerts images (dates and alerts)
-from utils import messages as ms 
 import ipyvuetify as v
-from ipywidgets import jslink
 from sepal_ui import sepalwidgets as sw
-import glob
-import os
-from functools import partial
-import ee 
 from sepal_ui.scripts import utils as su
+import ee 
 
 from component import parameter as cp
 from component import scripts as cs
@@ -82,7 +77,7 @@ class DriverTile(sw.Tile):
         super().__init__(
             "driver_tile",
             "Select your alerts",
-            btn=sw.Btn(ms.SELECT_ALERTS, 'mdi-map-marker-check'),
+            btn=sw.Btn(cm.driver.select_alerts, 'mdi-map-marker-check'),
             alert=sw.Alert(),
             inputs=[
                 self.select_type,
@@ -141,7 +136,7 @@ class DriverTile(sw.Tile):
             
         return
 
-    @su.loading_button(debug=True)
+    @su.loading_button(debug=False)
     def process_start (self, widget, event, data):
         
         self.model.date, self.model.alert = cs.get_alerts(self.aoi_model, self.model, self.alert) 
