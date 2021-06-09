@@ -1,20 +1,13 @@
-import os
-import ee
 import time
-import sys
 from datetime import datetime
-sys.path.append("..") # Adds higher directory to python modules path
-from utils import utils
-from scripts import gdrive
-from utils import parameters as pm
+
+import ee
 
 #initialize earth engine
 ee.Initialize()
 
-def get_alerts_dates(aoi_io, date_range):
+def get_alerts_dates(aoi, date_range):
     """return the julian day map of the radd alerts included between the two dates of date_range"""
-    
-    aoi = aoi_io.get_aoi_ee()
     
     # get all the alerts
     all_alerts =  ee.ImageCollection('projects/radar-wur/raddalert/v1')
@@ -31,7 +24,7 @@ def get_alerts_dates(aoi_io, date_range):
     
     return date_masked    
 
-def get_alerts(aoi_io, date_masked):
+def get_alerts(aoi, date_masked):
     """ get the alerts from the GLAD project
     
     Args:
@@ -42,8 +35,6 @@ def get_alerts(aoi_io, date_masked):
     Returns:
         alerts (ee.FeatureCollection): the Glad alert clipped on the AOI
     """
-    
-    aoi = aoi_io.get_aoi_ee()
     
     # get all the alerts
     all_alerts =  ee.ImageCollection('projects/radar-wur/raddalert/v1')

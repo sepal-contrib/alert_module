@@ -1,21 +1,13 @@
-import os
-import ee
 import time
-import sys
 from datetime import datetime
-sys.path.append("..") # Adds higher directory to python modules path
-from utils import utils
-from scripts import gdrive
-from utils import parameters as pm
+
+import ee
 
 #initialize earth engine
 ee.Initialize()
 
-def get_alerts_dates(date_range, aoi_io, asset, band):
+def get_alerts_dates(date_range, aoi, asset, band):
     """return the alerts included between the two dates of date_range "band" must be a date in the proleptic Gregorian calendar (number of days since 01/01/01)"""
-    
-    # get the aoi 
-    aoi = aoi_io.get_aoi_ee()
     
     # get the alert asset
     all_alerts = ee.ImageCollection(asset)
@@ -32,7 +24,7 @@ def get_alerts_dates(date_range, aoi_io, asset, band):
     
     return date_masked    
 
-def get_alerts(date_masked, aoi_io, asset, band):
+def get_alerts(date_masked, aoi, asset, band):
     """ get the alerts from the user asset
     
     Args:
@@ -43,9 +35,6 @@ def get_alerts(date_masked, aoi_io, asset, band):
     Returns:
         alerts (ee.FeatureCollection): the alert clipped on the AOI
     """
-    
-    # get the aoi 
-    aoi = aoi_io.get_aoi_ee()
     
     # get the alert asset
     all_alerts = ee.ImageCollection(asset)

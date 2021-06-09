@@ -1,11 +1,14 @@
-#!/usr/bin/env python3
 from pathlib import Path
-import ee
 import io
 from googleapiclient.http import MediaIoBaseDownload
 from apiclient import discovery
-from utils import utils
-from utils import messages as ms
+
+import ee
+from sepal_ui.scripts import gee
+
+from component.message import cm
+
+
 
 import logging
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
@@ -98,13 +101,13 @@ class gdrive(object):
         for file in files:
             service.files().delete(fileId=file['id']).execute()
             
-    def download_to_disk(self, filename, image, aoi_io, output):
+    def download_to_disk(self, filename, image, aoi_model, output):
         """download the tile to the GEE disk
         
         Args:
             filename (str): descripsion of the file
             image (ee.FeatureCollection): image to export
-            aoi_name (str): Id of the aoi used to clip the image
+            aoi_model (AoiModel): the aoi used to clip the image
             
         Returns:
             download (bool) : True if a task is running, false if not
@@ -122,7 +125,7 @@ class gdrive(object):
                     'image':image,
                     'description':filename,
                     'scale': 30,
-                    'region':aoi_io.get_aoi_ee().geometry(),
+                    'region':aoi_model.feature_collection.geometry(),
                     'maxPixels': 1e13
                 }
                 
@@ -130,18 +133,18 @@ class gdrive(object):
                 task.start()
                 download = True
             else:
-                output.add_live_msg(ms.ALREADY_COMPLETED.format(filename), 'success')
+                output.add_live_msg(cm.driver.already_completed.format(filename), 'success')
             
             return download
         
-        task = utils.search_task(filename)
+        task = gee.is_task(filename)
         if not task:
-            download = launch_task(filename, image, aoi_io, output)
+            download = launch_task(filename, image, aoi_model, output)
         else:
             if task.state == 'RUNNING':
-                output.add_live_msg(ms.TASK_RUNNING.format(filename))
+                output.add_live_msg(cm.driver.task_running.format(filename))
                 download = True
             else: 
-                download = launch_task(filename, image, aoi_io, output)
+                download = launch_task(filename, image, aoi_model, output)
                 
         return download
