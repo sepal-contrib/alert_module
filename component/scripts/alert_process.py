@@ -246,11 +246,11 @@ def get_local_alerts(aoi_model, model, alert):
     filename = f'{aoi_name}_{model.start}_{model.end}_{alert_name}_alerts'
     
     # check if the file exist 
-    result_dir = gee.create_result_folder(aoi_model)
+    result_dir = cp.create_result_folder(aoi_model)
     
-    basename = f'{result_dir}{aoi_name}_{model.start}_{model.end}_{alert_name}' 
-    alert_date_map     = f'{basename}_tmp_date.tif'
-    alert_map          = f'{basename}_tmp_map.tif'
+    basename = f'{aoi_name}_{model.start}_{model.end}_{alert_name}' 
+    alert_date_map     = result_dir/f'{basename}_tmp_date.tif'
+    alert_map          = result_dir/f'{basename}_tmp_map.tif'
     
     if Path(alert_map).is_file():
         alert.add_live_msg(cm.sepal.already_done, 'success')
@@ -270,13 +270,13 @@ def get_local_alerts(aoi_model, model, alert):
             dest.write(data)
     
     # filter the alerts 
-    with rio.open(alert_date_map) as date, rio.open(model.alert_file) as alert:
+    with rio.open(alert_date_map) as date_f, rio.open(model.alert_file) as alert_f:
         
-        date_data = date.read()
-        alert_data = alert.read() 
+        date_data = date_f.read()
+        alert_data = alert_f.read() 
         
         # I assume that they both have the same extend, res, and transform
-        out_meta = date.meta.copy()
+        out_meta = date_f.meta.copy()
         out_meta.update(
             dtype=rio.uint8,
             compress='lzw'
@@ -284,8 +284,8 @@ def get_local_alerts(aoi_model, model, alert):
         
         data = (date_data > 0) * alert_data
         
-        with rio.open(alert_map) as dest:
-            dest.write(data)
+        with rio.open(alert_map, 'w', **out_meta) as dest:
+            dest.write(data.astype(rio.uint8))
     
     alert.add_live_msg(cm.sepal.computation_completed, 'success')
     
