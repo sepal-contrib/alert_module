@@ -25,7 +25,7 @@ class SepalTile(sw.Tile):
         
         self.btn.on_event('click', self._on_click)
     
-    @su.loading_button(debug=True)
+    @su.loading_button(debug=False)
     def _on_click(self, widget, event, data):
         
         # check inputs

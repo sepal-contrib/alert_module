@@ -1,5 +1,6 @@
 import time 
 
+from sepal_ui.scripts.gee import is_task
 import ee 
 
 ee.Initialize()
@@ -23,7 +24,7 @@ def custom_wait_for_completion(task_descripsion, output):
                     
         #search for the task in task_list
         for task in task_descripsion:
-            current_task = search_task(task)
+            current_task = is_task(task)
             state = current_task.state
             if state == 'RUNNING': break
     

@@ -136,7 +136,7 @@ class DriverTile(sw.Tile):
             
         return
 
-    @su.loading_button(debug=False)
+    @su.loading_button(debug=True)
     def process_start (self, widget, event, data):
         
         self.model.date, self.model.alert = cs.get_alerts(self.aoi_model, self.model, self.alert) 

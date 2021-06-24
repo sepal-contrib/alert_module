@@ -286,7 +286,7 @@ def clump(src_f, dst_f):
         raster = f.read(1)
         
         if np.amax(raster) == 0:
-            raise Exception(cm.sepal.no_alerts)
+            raise Exception(cm.sepal.no_alert)
         
         # get metadata
         meta = f.meta.copy()
