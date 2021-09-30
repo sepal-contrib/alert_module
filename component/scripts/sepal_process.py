@@ -40,8 +40,7 @@ def sepal_process(aoi_model, alert_model, alert):
     # basename info are extracted from alert filename
     basename = f"{alert_model.alert.stem.replace('_tmp_map', '')}_" + "{}"
 
-    alert.add_live_msg("basename: {}".format(basename))
-    time.sleep(5)
+    alert.add_live_msg(f"basename: {basename.replace('_{}','')}")
 
     clump_tmp_map = result_dir / basename.format("tmp_clump.tif")
     clump_map = result_dir / basename.format("clump.tif")
@@ -60,7 +59,6 @@ def sepal_process(aoi_model, alert_model, alert):
     # clump the patches together
     if not (clump_tmp_map.is_file() or clump_map.is_file()):
         alert.add_live_msg(cm.sepal.identify_patch)
-        time.sleep(2)
         clump(alert_model.alert, clump_tmp_map)
 
     # cut and compress all files
@@ -74,7 +72,6 @@ def sepal_process(aoi_model, alert_model, alert):
 
     # create the histogram of the patches
     alert.add_live_msg(cm.sepal.patch_size)
-    time.sleep(2)
     hist(alert_map, clump_map, alert_stats, alert)
 
     alert.add_live_msg(cm.sepal.computation_completed, "success")
@@ -160,14 +157,15 @@ def create_fig(df, title, alert_type):
 
     y_ = []
     max_ = 0
-    for index, name in enumerate(values):
+    for name in values:
 
         # load the patches
-        y_local = df[df["value"] == values[name]]["nb_pixel"].to_numpy()
-        y_local = np.append(
-            y_local, 0
-        )  # add the 0 to prevent bugs when there are no data (2017 for ex)
-        max_ = max(max_, np.amax(y_local))
+        y_local = df[df["value"] == values[name]]["nb_pixel"].tolist()
+
+        # add the 0 to prevent bugs when there are no data (2017 for ex)
+        y_local = y_local + [0]
+
+        max_ = max(max_, max(y_local))
 
         # add them to the global y_
         y_.append(y_local)
@@ -176,6 +174,8 @@ def create_fig(df, title, alert_type):
 
     ax.set_axisbelow(True)
     ax.yaxis.grid(which="both", linewidth=0.8, color="lightgrey")
+
+    y_ = np.array(y_, dtype=object)
 
     ax.hist(
         y_,
