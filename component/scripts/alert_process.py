@@ -137,7 +137,7 @@ def get_radd_alerts(aoi_model, model, alert):
     alert_map = result_dir / f"{basename}_map.tif"
 
     if alert_tmp_map.is_file() or alert_map.is_file():
-        alert.add_live_msg(ms.ALREADY_DONE, "success")
+        alert.add_live_msg(cm.sepal.already_done, "success")
         return (alert_date_tmp_map, alert_tmp_map)
 
     drive_handler = gdrive.gdrive()
@@ -161,7 +161,7 @@ def get_radd_alerts(aoi_model, model, alert):
     # if one of the 2 process have been launch individually it will crash
     if download:
         gee.custom_wait_for_completion([filename_map, filename_date], alert)
-        alert.add_live_msg(ms.TASK_COMPLETED.format(filename_map), "success")
+        alert.add_live_msg(cm.driver.task_completed.format(filename_map), "success")
 
     # merge and compress them
     digest_tiles(filename_date, result_dir, alert, alert_date_tmp_map)
@@ -214,7 +214,7 @@ def get_gee_assets(aoi_model, model, alert):
     alert_map = result_dir / f"{basename}_map.tif"
 
     if alert_tmp_map.is_file():
-        alert.add_live_msg(ms.ALREADY_DONE, "success")
+        alert.add_live_msg(cm.sepal.already_done, "success")
         return (alert_date_tmp_map, alert_tmp_map)
 
     drive_handler = gdrive.gdrive()
@@ -248,7 +248,7 @@ def get_gee_assets(aoi_model, model, alert):
     # if one of the 2 process have been launch individually it will crash
     if download:
         gee.custom_wait_for_completion([filename_map, filename_date], alert)
-        alert.add_live_msg(ms.TASK_COMPLETED.format(filename_map), "success")
+        alert.add_live_msg(cm.driver.task_completed.format(filename_map), "success")
 
     # merge and compress them
     digest_tiles(filename_date, result_dir, alert, alert_date_tmp_map)
@@ -258,7 +258,7 @@ def get_gee_assets(aoi_model, model, alert):
     drive_handler.delete_files(drive_handler.get_files(filename_date))
     drive_handler.delete_files(drive_handler.get_files(filename_map))
 
-    alert.add_live_msg(ms.COMPUTAION_COMPLETED, "success")
+    alert.add_live_msg(cm.driver.task_completed, "success")
 
     # return the obtained files
     return (alert_date_tmp_map, alert_tmp_map)
