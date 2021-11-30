@@ -153,7 +153,7 @@ def create_fig(df, title, alert_type):
     if alert_type in ["GLAD", "RADD"]:  # glad  and radd alerts
         values = {"confirmed alerts": 3, "potential alerts": 2}
     else:
-        values = {"confirmed alerts": 1}
+        values = {"confirmed alerts": 1, "potential alerts": 2}
 
     y_ = []
     max_ = 0
@@ -203,7 +203,7 @@ def create_csv(df, result_dir, basename, alert_type):
     if alert_type in ["GLAD", "RADD"]:  # glad and radd alerts
         values = {"confirmed alerts": 3, "potential alerts": 2}
     else:
-        values = {"confirmed alerts": 1}
+        values = {"confirmed alerts": 1, "potential alerts": 2}
 
     dfs = []
     for name in values:
