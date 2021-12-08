@@ -1,6 +1,7 @@
 # Alerts module
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Black badge](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## about
 this module is a 3 steps process that retrieve and compute the alert system on a selected Aera of interest.
