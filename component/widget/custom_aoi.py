@@ -12,6 +12,9 @@ class CustomAoiView(aoi.AoiView):
         # create the map
         super().__init__(methods=["-DRAW", "-POINTS"], **kwargs)
 
+        # nest the tile
+        self.elevation = False
+
     @su.loading_button(debug=False)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
