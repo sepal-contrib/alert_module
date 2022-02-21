@@ -1,7 +1,7 @@
 from sepal_ui import sepalwidgets as sw
-from sepal_ui import aoi
 
 from component import widget as cw
+from component import parameter as cp
 
 
 class MapTile(sw.Tile):
@@ -13,7 +13,7 @@ class MapTile(sw.Tile):
         # I decided to set the widgets here instead of in the map to avoid
         # complexity with model sharing
         self.select = cw.DynamicSelect()
-        self.aoi_selector = aoi.AoiView(methods=["-DRAW", "-POINTS"], map_=self.map)
+        self.aoi_selector = cw.CustomAoiView(map_=self.map)
 
         # place them in the map
         self.map.add_widget_as_control(self.select, "topright", True)
