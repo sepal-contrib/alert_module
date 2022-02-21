@@ -17,7 +17,9 @@ class CButton(Button):
 class AlertMap(sm.SepalMap):
     def __init__(self):
 
-        super().__init__()
+        super().__init__(dc=True)
+
+        self.hide_dc()
 
         # add the fullscreen button
         self.add_control(FullScreenControl(position="topright"))
