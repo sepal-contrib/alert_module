@@ -1,0 +1,86 @@
+from sepal_ui import sepalwidgets as sw
+
+from component import parameter as cp
+from component import widget as cw
+
+
+class AlertView(sw.Card):
+    def __init__(self):
+
+        # select the alert collection that will be used
+        self.w_alert = sw.Select(
+            v_model=None, items=[*cp.alert_drivers], label="alert collection"
+        )
+
+        # select the type of alert to use in the computation
+        # recent will be defined from now - X days in the past
+        # historical will provide 2 date pickers
+        self.w_alert_type = sw.RadioGroup(
+            label="type of alerts",
+            v_model="RECENT",
+            row=True,
+            children=[
+                sw.Radio(label="recente", value="RECENT"),
+                sw.Radio(label="Historical", value="HISTORICAL"),
+            ],
+        )
+
+        # dropdown to select the lenght of the "recent" period
+        self.w_recent = sw.Select(
+            v_model=None, items=cp.time_delta, label="In the last"
+        )
+
+        # create a datepickers row to select the 2 historical dates
+        self.w_historic = cw.DateLine().disable().hide()
+
+        # select the minimal size of the alerts
+        self.w_size = cw.SurfaceSelect()
+
+        # set a btn to validate and load the alerts
+        self.btn = sw.Btn("select Alerts")
+
+        # set an alert to display information to the end user
+        self.alert = sw.Alert()
+
+        super().__init__(
+            children=[
+                self.w_alert,
+                self.w_alert_type,
+                self.w_recent,
+                self.w_historic,
+                self.w_size,
+                self.btn,
+                self.alert,
+            ],
+            class_="mt-5",
+        )
+
+        # add js behaviours
+        self.w_alert_type.observe(self._change_alert_type, "v_model")
+        self.w_alert.observe(self._set_alert_collection, "v_model")
+
+    def _set_alert_collection(self, change):
+        """set the min and max year based on the selected data collection"""
+
+        # init the datepicker with appropriate min and max values
+        year_list = cp.alert_drivers[change["new"]]["avalaible_years"]
+        self.w_historic.init(min(year_list), max(year_list))
+
+        # unable it
+        self.w_historic.unable()
+
+        return self
+
+    def _change_alert_type(self, change):
+        """change how the end user select the time period"""
+
+        # delete all previous values
+        self.w_recent.reset()
+        self.w_historic.w_start.reset()
+        self.w_historic.w_end.reset()
+
+        # exchange component visibility
+        self.w_historic.toggle_viz()
+        self.w_recent.toggle_viz()
+
+        return self

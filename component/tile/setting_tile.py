@@ -2,6 +2,7 @@ from sepal_ui import sepalwidgets as sw
 from ipywidgets import link
 
 from component import widget as cw
+from .alert_view import AlertView
 
 
 class SettingTile(sw.Card):
@@ -9,14 +10,24 @@ class SettingTile(sw.Card):
 
         # create the 2 subtiles
         self.aoi_view = cw.CustomAoiView(map_=map_)
+        self.alert_view = AlertView()
 
         # set them into a tab widget
-        tabs = sw.Tabs(v_model=0, children=[sw.Tab(children=["AOI"], key=0)])
+        tabs = sw.Tabs(
+            v_model=0,
+            children=[
+                sw.Tab(children=["AOI"], key=0),
+                sw.Tab(children=["Alerts"], key=1),
+            ],
+        )
 
         contents = sw.TabsItems(
             class_="mt-5",
             v_model=0,
-            children=[sw.TabItem(children=[self.aoi_view], key=0)],
+            children=[
+                sw.TabItem(children=[self.aoi_view], key=0),
+                sw.TabItem(children=[self.alert_view], key=1),
+            ],
         )
 
         # add parameter to close the widget
