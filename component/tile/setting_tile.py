@@ -10,7 +10,7 @@ class SettingTile(sw.Card):
 
         # create the 2 subtiles
         self.aoi_view = cw.CustomAoiView(map_=map_)
-        self.alert_view = AlertView()
+        self.alert_view = AlertView(self.aoi_view.model)
 
         # set them into a tab widget
         tabs = sw.Tabs(
