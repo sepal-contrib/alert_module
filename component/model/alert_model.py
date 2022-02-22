@@ -10,3 +10,6 @@ class AlertModel(model.Model):
     start = Any(None).tag(sync=True)
     end = Any(None).tag(sync=True)
     min_size = Any(0).tag(sync=True)
+
+    # output
+    feature_collection = Any(None).tag(sync=True)

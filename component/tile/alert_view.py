@@ -7,14 +7,18 @@ from sepal_ui.scripts import utils as su
 from component import parameter as cp
 from component import widget as cw
 from component import model as cm
+from component import scripts as cs
 
 
 class AlertView(sw.Card):
-    def __init__(self, aoi_model):
+    def __init__(self, aoi_model, map_):
 
         # init the models
         self.alert_model = cm.AlertModel()
         self.aoi_model = aoi_model
+
+        # wire the map object
+        self.map = map_
 
         # select the alert collection that will be used
         self.w_alert = sw.Select(
@@ -109,8 +113,25 @@ class AlertView(sw.Card):
         ):
             return
 
-        self.alert.add_msg(self.aoi_model.name)
-        # self.alert.add_live_msg(dumps(self.alert_model.export_data()))
+        self.alert.add_msg("Computation starting")
+
+        # load the alerts in the system
+        all_alerts = cs.get_alerts(
+            collection=self.alert_model.alert_collection,
+            start=self.alert_model.start,
+            end=self.alert_model.end,
+            aoi=self.aoi_model.feature_collection,
+        )
+
+        # debug #
+        # print the alerts on the map
+        self.map.addLayer(
+            all_alerts.clip(self.aoi_model.feature_collection),
+            {"bands": "alert", "palette": ["yellow", "red"], "min": 1, "max": 2},
+            "alert",
+        )
+
+        self.alert.add_msg("Computation finished", "success")
 
         return self
 
