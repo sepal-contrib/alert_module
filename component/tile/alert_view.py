@@ -147,12 +147,24 @@ class AlertView(sw.Card):
         )
 
         # add the layer on the map
-        self.map.add_layer(self.alert_model.get_ipygeojson())
+        layer = self.alert_model.get_ipygeojson()
+        layer.on_click(self.on_alert_click)
+        self.map.add_layer(layer)
 
         # reset in cas an error was displayed
         self.alert.reset()
 
         return self
+
+    def on_alert_click(self, feature, **kwargs):
+        """
+        change the current id on click on a specif alert feature
+        This change will trigger the modification of the metadata and the map zoom
+        """
+
+        self.alert_model.current_id = feature["properties"]["id"]
+
+        return
 
     def _set_recent_period(self, change):
         """

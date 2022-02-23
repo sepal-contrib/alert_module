@@ -78,6 +78,18 @@ class MetadataTile(sw.Card):
         self.w_id.observe(self._on_id_change, "v_model")
         self.w_review.observe(self._on_review_change, "v_model")
         self.btn.on_event("click", self.export)
+        self.alert_model.observe(self._id_click, "current_id")
+
+    def _id_click(self, change):
+        """
+        reflect the current id change in the metadata
+        this change is triggered when an feature is clicked on the map
+        """
+
+        if change["new"] is not None:
+            self.w_id.v_model = change["new"]
+
+        return
 
     def _on_review_change(self, change):
         """adapt the value of review in the model dataframe"""
@@ -135,6 +147,9 @@ class MetadataTile(sw.Card):
 
             # zoom the map on the geometry
             self.map.zoom_bounds(feat.geometry.bounds)
+
+            # change the id in the model
+            self.alert_model.current_id = change["new"]
 
             return
 

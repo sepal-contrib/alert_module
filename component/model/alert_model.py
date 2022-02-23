@@ -25,6 +25,9 @@ class AlertModel(model.Model):
     min_size = Any(0).tag(sync=True)
     "the minimal size of an alert in ha"
 
+    current_id = Any(None).tag(sync=True)
+    "the id of the feature currently displayed on the map"
+
     ############################################################################
     # output
     ############################################################################
