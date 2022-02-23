@@ -15,17 +15,19 @@ class MapTile(sw.Tile):
         # I decided to set the widgets here instead of in the map to avoid
         # complexity with model sharing
         self.select = cw.DynamicSelect()
-        self.metadata = MetadataTile()
         self.settings = SettingTile(map_=self.map)
+        self.metadata = MetadataTile(
+            alert_model=self.settings.alert_view.alert_model, map_=self.map
+        )
 
         # place them in the map
         self.map.add_widget_as_control(self.select, "topright", True)
-        self.map.add_widget_as_control(self.metadata, "bottomleft")
         self.map.add_widget_as_control(self.settings, "bottomright")
+        self.map.add_widget_as_control(self.metadata, "bottomleft")
 
         # link to the btn for activation
         self.map.navigate_btn.on_click(lambda *args: self.select.toggle_viz())
-        self.map.metadata_btn.on_click(lambda *args: self.metadata.toggle_viz())
         self.map.parameters_btn.on_click(lambda *args: self.settings.toggle_viz())
+        self.map.metadata_btn.on_click(lambda *args: self.metadata.toggle_viz())
 
         super().__init__(id_="map_tile", title="Map tile", inputs=[self.map])

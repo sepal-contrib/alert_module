@@ -66,6 +66,9 @@ def get_alerts_clump(alerts, aoi, min_size):
         lambda feat: feat.set("id", id_by_index.get(feat.get("system:index")))
     )
 
+    # create an empty valued review column
+    alert_collection = alert_collection.map(lambda feat: feat.set("review", "unset"))
+
     return alert_collection
 
 

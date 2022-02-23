@@ -53,6 +53,7 @@ class DynamicSelect(sw.Layout):
         """Change the value of the items of the select"""
 
         self.select.items = items
+        self.unable()
 
         return self
 

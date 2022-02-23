@@ -1,3 +1,6 @@
+import math
+from datetime import datetime, timedelta
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
 
@@ -9,7 +12,13 @@ class MetadataTile(sw.Card):
     A card to display the metadata information relative to an alert
     """
 
-    def __init__(self):
+    def __init__(self, alert_model, map_):
+
+        # listen the alert_model
+        self.alert_model = alert_model
+
+        # get the map as a member
+        self.map = map_
 
         # add the base widgets
         self.close = sw.Icon(children=["mdi-close"], small=True)
@@ -17,22 +26,21 @@ class MetadataTile(sw.Card):
             class_="pa-0 ma-0", children=[sw.Spacer(), self.close]
         )
         self.w_id = cw.DynamicSelect()
-        self.w_alert = sw.TextField(
-            small=True, readonly=True, children=[""], v_model=None
-        )
-        self.w_date = sw.TextField(
-            small=True, readonly=True, children=[""], v_model=None
-        )
+        self.w_alert = sw.TextField(small=True, readonly=True, v_model="")
+        self.w_date = sw.TextField(small=True, readonly=True, v_model="")
         self.w_surface = sw.TextField(
-            small=True, readonly=True, children=[""], v_model=None, suffix="ha"
+            small=True, readonly=True, v_model="", suffix="ha"
         )
+        self.w_coords = sw.TextField(small=True, readonly=True, v_model="")
         self.w_review = sw.RadioGroup(
+            disabled=True,
             small=True,
             row=True,
-            v_model=None,
+            v_model="unset",
             children=[
-                sw.Radio(label="yes", value=1, color=sc.success),
-                sw.Radio(label="no", value=0, color=sc.error),
+                sw.Radio(label="yes", value="yes", color=sc.success),
+                sw.Radio(label="no", value="no", color=sc.error),
+                sw.Radio(label="unset", value="unset", color=sc.info),
             ],
         )
 
@@ -47,17 +55,84 @@ class MetadataTile(sw.Card):
                 self.row("alert", self.w_alert),
                 self.row("date", self.w_date),
                 self.row("surface", self.w_surface),
+                self.row("coords", self.w_coords),
                 self.row("review", self.w_review),
             ],
         )
 
         # create the table
         super().__init__(
-            class_="pa-1", children=[self.title, self.w_id, table, self.btn, self.alert]
+            class_="pa-1",
+            children=[self.title, self.w_id, table, self.btn, self.alert],
+            viz=False,
         )
 
         # add javascript events
         self.close.on_event("click", lambda *args: self.hide())
+        self.alert_model.observe(self._on_alerts_change, "gdf")
+        self.w_id.observe(self._on_id_change, "v_model")
+
+    def _on_id_change(self, change):
+        """
+        set the table values according to the selected id data
+        zoom on the alert geometry
+        """
+
+        if change["new"] is None:
+            self.w_alert.v_model = ""
+            self.w_date.v_model = ""
+            self.w_surface.v_model = ""
+            self.w_coords.v_model = ""
+            self.w_review.v_model = "unset"
+            self.w_review.disabled = True
+        else:
+
+            # select the geoseries
+            feat = self.alert_model.gdf.loc[
+                self.alert_model.gdf.id == change["new"]
+            ].squeeze()
+
+            # set the alert type
+            alert_types = ["undefined", "confirmed", "potential"]
+            self.w_alert.v_model = alert_types[feat.alert]
+
+            # read back the date in a readable format
+            julian, year = math.modf(feat.date)
+            julian = int(julian * 100)
+            date = datetime(int(year), 1, 1) + timedelta(days=julian - 1)
+            self.w_date.v_model = date.strftime("%Y-%m-%d")
+
+            # read the surface
+            self.w_surface.v_model = feat.surface
+
+            # get the center coordinates
+            coords = list(feat.geometry.centroid.coords)[0]
+            self.w_coords.v_model = f"({coords[0]:.5f}, {coords[1]:.5f})"
+
+            # get the review value
+            self.w_review.v_model = feat.review
+            self.w_review.disabled = False
+
+            # zoom the map on the geometry
+            self.map.zoom_bounds(feat.geometry.bounds)
+
+            return
+
+    def _on_alerts_change(self, change):
+
+        self.w_id.v_model = None
+
+        if self.alert_model.gdf is None:
+            return
+
+        # update the dynamic select
+        id_list = self.alert_model.gdf.id.tolist()
+        self.w_id.set_items(id_list)
+
+        # show the table
+        self.show()
+
+        return self
 
     @staticmethod
     def row(header, widget):

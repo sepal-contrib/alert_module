@@ -2,6 +2,7 @@ from datetime import timedelta, date
 from json import dumps
 import ee
 from pathlib import Path
+import geopandas as gpd
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -125,8 +126,6 @@ class AlertView(sw.Card):
             self.alert_model.min_size = 0
             self.map.zoom_ee_object(self.aoi_model.feature_collection.geometry())
 
-        self.alert.add_msg("Computation starting")
-
         # load the alerts in the system
         all_alerts = cs.get_alerts(
             collection=self.alert_model.alert_collection,
@@ -142,13 +141,15 @@ class AlertView(sw.Card):
         )
 
         # save the clumps as a geoJson dict in the model
-        self.alert_model.features = alert_clump.getInfo()
-        print(dumps(self.alert_model.features, indent=2))
+        self.alert_model.gdf = gpd.GeoDataFrame.from_features(
+            alert_clump.getInfo(), crs="EPSG:4326"
+        )
 
         # add the layer on the map
         self.map.add_layer(self.alert_model.get_ipygeojson())
 
-        self.alert.add_msg("Computation finished", "success")
+        # reset in cas an error was displayed
+        self.alert.reset()
 
         return self
 

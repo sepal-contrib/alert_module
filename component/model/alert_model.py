@@ -28,8 +28,8 @@ class AlertModel(model.Model):
     ############################################################################
     # output
     ############################################################################
-    features = Any(None).tag(sync=True)
-    "the alerts as a geojson dataset (GEOJSON)"
+    gdf = Any(None).tag(sync=True)
+    "the alerts as a geopandas dataframe"
 
     ############################################################################
     # methods
@@ -37,12 +37,12 @@ class AlertModel(model.Model):
     def get_ipygeojson(self):
         """return a ipygeojson layer ready to be displayed on the map"""
 
-        if self.features is None:
+        if self.gdf is None:
             raise Exception("Impossible to load layer without he json data")
 
         # create a GeoJSON object
         ipygeojson = GeoJSON(
-            data=self.features,
+            data=self.gdf.__geo_interface__,
             style=cp.alert_style,
             hover_style={**cp.alert_style, "weight": 3, "fillOpacity": 0.4},
             name="alerts",
