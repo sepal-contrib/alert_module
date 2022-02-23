@@ -3,8 +3,11 @@ from datetime import datetime, timedelta
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
+from sepal_ui.scripts import utils as su
+import pandas as pd
 
 from component import widget as cw
+from component import parameter as cp
 
 
 class MetadataTile(sw.Card):
@@ -12,10 +15,11 @@ class MetadataTile(sw.Card):
     A card to display the metadata information relative to an alert
     """
 
-    def __init__(self, alert_model, map_):
+    def __init__(self, alert_model, map_, aoi_model):
 
         # listen the alert_model
         self.alert_model = alert_model
+        self.aoi_model = aoi_model
 
         # get the map as a member
         self.map = map_
@@ -72,6 +76,7 @@ class MetadataTile(sw.Card):
         self.alert_model.observe(self._on_alerts_change, "gdf")
         self.w_id.observe(self._on_id_change, "v_model")
         self.w_review.observe(self._on_review_change, "v_model")
+        self.btn.on_event("click", self.export)
 
     def _on_review_change(self, change):
         """adapt the value of review in the model dataframe"""
@@ -147,6 +152,29 @@ class MetadataTile(sw.Card):
         self.show()
 
         return self
+
+    @su.loading_button(debug=True)
+    def export(self, widget, event, data):
+        """export the datapoint to a specific file location"""
+
+        # copy the gdf locally
+        gdf = self.alert_model.gdf.copy()
+
+        # add the lat and long column
+        gdf["lat"] = gdf.apply(lambda r: list(r.geometry.centroid.coords)[0][0], axis=1)
+        gdf["lng"] = gdf.apply(lambda r: list(r.geometry.centroid.coords)[0][1], axis=1)
+
+        # remove the geometries
+        df = pd.DataFrame(gdf.drop(columns="geometry"))
+
+        # create the name of the output from the paramters
+        name = f"{self.aoi_model.name}_{self.alert_model.start}_{self.alert_model.end}_{self.alert_model.min_size}"
+        path = cp.result_dir / f"{name}.csv"
+
+        # export the file
+        df.to_csv(path, index=False)
+
+        return
 
     @staticmethod
     def row(header, widget):

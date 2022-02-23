@@ -17,7 +17,9 @@ class MapTile(sw.Tile):
         self.select = cw.DynamicSelect()
         self.settings = SettingTile(map_=self.map)
         self.metadata = MetadataTile(
-            alert_model=self.settings.alert_view.alert_model, map_=self.map
+            alert_model=self.settings.alert_view.alert_model,
+            map_=self.map,
+            aoi_model=self.settings.aoi_view.model,
         )
 
         # place them in the map
