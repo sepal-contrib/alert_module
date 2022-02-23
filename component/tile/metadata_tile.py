@@ -71,6 +71,20 @@ class MetadataTile(sw.Card):
         self.close.on_event("click", lambda *args: self.hide())
         self.alert_model.observe(self._on_alerts_change, "gdf")
         self.w_id.observe(self._on_id_change, "v_model")
+        self.w_review.observe(self._on_review_change, "v_model")
+
+    def _on_review_change(self, change):
+        """adapt the value of review in the model dataframe"""
+
+        # exit if id is not set
+        # replacing the alerts will trigger it
+        if self.w_id.v_model is None:
+            return
+
+        # set the value in the dataframe
+        self.alert_model.gdf.at[self.w_id.v_model - 1, "review"] = change["new"]
+
+        return
 
     def _on_id_change(self, change):
         """
