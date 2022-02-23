@@ -7,5 +7,5 @@ alert_style = {  # default styling of the layer
     "opacity": 1,
     "fill": True,
     "fillColor": sc.error,
-    "fillOpacity": 0.05,
+    "fillOpacity": 0,
 }

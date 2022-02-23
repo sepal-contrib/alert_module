@@ -79,6 +79,7 @@ class AlertView(sw.Card):
                 self.alert,
             ],
             class_="mt-5",
+            elevation=False,
         )
 
         # add js behaviours

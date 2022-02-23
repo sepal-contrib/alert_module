@@ -14,6 +14,7 @@ class SettingTile(sw.Card):
 
         # set them into a tab widget
         tabs = sw.Tabs(
+            fixed_tabs=True,
             v_model=0,
             children=[
                 sw.Tab(children=["AOI"], key=0),
@@ -31,8 +32,8 @@ class SettingTile(sw.Card):
         )
 
         # add parameter to close the widget
-        self.close = sw.Icon(children=["mdi-close"])
-        title = sw.CardTitle(children=["Settings", sw.Spacer(), self.close])
+        self.close = sw.Icon(children=["mdi-close"], small=True)
+        title = sw.CardTitle(class_="pa-0 ma-0", children=[sw.Spacer(), self.close])
 
         # create the card
         super().__init__(

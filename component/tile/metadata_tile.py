@@ -50,6 +50,7 @@ class MetadataTile(sw.Card):
 
         # add the default card buton and alert
         self.btn = sw.Btn("export", small=True)
+        btn_list = sw.Row(children=[sw.Spacer(), self.btn, sw.Spacer()])
         self.alert = sw.Alert(small=True)
 
         # create a table out of the widgets
@@ -67,7 +68,7 @@ class MetadataTile(sw.Card):
         # create the table
         super().__init__(
             class_="pa-1",
-            children=[self.title, self.w_id, table, self.btn, self.alert],
+            children=[self.title, self.w_id, table, btn_list, self.alert],
             viz=False,
         )
 

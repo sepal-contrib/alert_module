@@ -44,7 +44,7 @@ class AlertModel(model.Model):
         ipygeojson = GeoJSON(
             data=self.gdf.__geo_interface__,
             style=cp.alert_style,
-            hover_style={**cp.alert_style, "weight": 3, "fillOpacity": 0.4},
+            hover_style={**cp.alert_style, "weight": 5},
             name="alerts",
         )
 
