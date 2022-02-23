@@ -12,20 +12,26 @@ class DynamicSelect(sw.Layout):
         self.prev = v.Btn(
             _metadata={"increm": -1},
             x_small=True,
-            class_="ml-2 mr-2",
+            class_="ml-1 mr-1",
             color=sc.secondary,
-            children=[sw.Icon(children=["mdi-chevron-left"]), "prev"],
+            children=[sw.Icon(children=["fas fa-chevron-left"], x_small=True)],
         )
 
         self.next = v.Btn(
             _metadata={"increm": 1},
             x_small=True,
-            class_="ml-2 mr-2",
+            class_="ml-1 mr-1",
             color=sc.secondary,
-            children=["next", sw.Icon(children=["mdi-chevron-right"])],
+            children=[sw.Icon(children=["fas fa-chevron-right"], x_small=True)],
         )
 
-        self.select = sw.Select(dense=True, label="select alert", v_model=None)
+        self.select = sw.Select(
+            dense=True,
+            label="select alert",
+            v_model=None,
+            items=[],
+            prepend_icon="mdi-pound",
+        )
 
         super().__init__(
             v_model=None,

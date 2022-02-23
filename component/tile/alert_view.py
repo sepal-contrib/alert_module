@@ -135,14 +135,18 @@ class AlertView(sw.Card):
             aoi=self.aoi_model.feature_collection,
         )
 
-        alert_clumps = cs.get_alerts_clump(
+        alert_clump = cs.get_alerts_clump(
             alerts=all_alerts,
             aoi=self.aoi_model.feature_collection,
             min_size=self.alert_model.min_size,
         )
 
-        print(alert_clumps.size().getInfo())
-        self.map.addLayer(alert_clumps, {"color": "red"}, "alerts")
+        # save the clumps as a geoJson dict in the model
+        self.alert_model.features = alert_clump.getInfo()
+        print(dumps(self.alert_model.features, indent=2))
+
+        # add the layer on the map
+        self.map.add_layer(self.alert_model.get_ipygeojson())
 
         self.alert.add_msg("Computation finished", "success")
 

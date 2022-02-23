@@ -124,10 +124,6 @@ def _from_glad(start, end, aoi):
         start = period[0].timetuple().tm_yday
         end = period[1].timetuple().tm_yday
 
-        print(year)
-        print(start)
-        print(end)
-
         if year < cp.alert_drivers["GLAD"]["last_updated"]:
             source = f"projects/glad/alert/{year}final"
         else:
