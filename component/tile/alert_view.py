@@ -1,5 +1,7 @@
 from datetime import timedelta, date
 from json import dumps
+import ee
+from pathlib import Path
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -111,7 +113,17 @@ class AlertView(sw.Card):
                 ),
             ]
         ):
-            return
+            # debug #
+            # set default paramters
+            self.alert.add_msg("Use default variables", "warning")
+            self.aoi_model.method = "ADMIN0"
+            self.aoi_model.admin = 222  # singapore
+            self.aoi_model.set_object()
+            self.alert_model.alert_collection = "GLAD"
+            self.alert_model.start = "2021-01-01"
+            self.alert_model.end = "2021-12-31"
+            self.alert_model.min_size = 0
+            self.map.zoom_ee_object(self.aoi_model.feature_collection.geometry())
 
         self.alert.add_msg("Computation starting")
 
@@ -123,13 +135,14 @@ class AlertView(sw.Card):
             aoi=self.aoi_model.feature_collection,
         )
 
-        # debug #
-        # print the alerts on the map
-        self.map.addLayer(
-            all_alerts.clip(self.aoi_model.feature_collection),
-            {"bands": "alert", "palette": ["yellow", "red"], "min": 1, "max": 2},
-            "alert",
+        alert_clumps = cs.get_alerts_clump(
+            alerts=all_alerts,
+            aoi=self.aoi_model.feature_collection,
+            min_size=self.alert_model.min_size,
         )
+
+        print(alert_clumps.size().getInfo())
+        self.map.addLayer(alert_clumps, {"color": "red"}, "alerts")
 
         self.alert.add_msg("Computation finished", "success")
 

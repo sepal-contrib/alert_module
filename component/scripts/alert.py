@@ -4,6 +4,71 @@ import ee
 from component import parameter as cp
 
 
+def get_alerts_clump(alerts, aoi, min_size):
+    """
+    Transform the Image into a featureCollection of agregated alert
+    Import it into SEPAL as a GeoJson dict.
+
+    Args:
+        alerts (ee.Image): the refactored alerts with an adapted masked to the requested dates
+        aoi (ee.FeatureCollection): the featureCollection of the selected AOI
+        min_size (int): the minimal size of the events in ha
+
+    Return:
+        (dict): a geojson dict
+    """
+
+    # connectedComponent will analysie all pixels, masked included so it's important
+    # to cut the image before starting the object based analysis.
+    # clip is not sufficient as it doesn't change the footprint of the image
+    alerts = alerts.clipToBoundsAndScale(
+        geometry=aoi.geometry(),
+        scale=30,  # alerts.select('alert').projection().nominalScale().getInfo()
+    )
+
+    # Uniquely label the alert image objects.
+    object_id = alerts.connectedComponents(
+        connectedness=ee.Kernel.square(1), maxSize=1024  # 8 neighbors
+    )
+
+    # Compute the number of pixels in each object defined by the "labels" band.
+    object_size = object_id.select("labels").connectedPixelCount(
+        eightConnected=True, maxSize=1024
+    )
+
+    # Multiply pixel area by the number of pixels in an object to calculate
+    # the object area. The result is an image where each pixel
+    # of an object relates the area of the object in ha.
+    pixel_area = ee.Image.pixelArea()
+    object_area = object_size.multiply(pixel_area).divide(10000).rename("surface")
+    image = object_id.addBands(object_area.select("surface"))
+
+    # reduce to vector
+    alert_collection = image.reduceToVectors(
+        reducer=ee.Reducer.min(),  # confirmed are 1, and potential 2
+        scale=20,  # force scale < nominalScale to obtain correct results
+        eightConnected=True,
+        bestEffort=True,
+        labelProperty="labels",
+        geometry=aoi.geometry(),
+    )
+
+    # filter and sort the colection by size
+    alert_collection = alert_collection.filter(ee.Filter.gte("surface", min_size)).sort(
+        "surface", False
+    )
+
+    # create 0 index numerotation
+    indexes = ee.List(alert_collection.aggregate_array("system:index"))
+    ids = ee.List.sequence(1, indexes.size())
+    id_by_index = ee.Dictionary.fromLists(indexes, ids)
+    alert_collection = alert_collection.map(
+        lambda feat: feat.set("id", id_by_index.get(feat.get("system:index")))
+    )
+
+    return alert_collection
+
+
 def get_alerts(collection, start, end, aoi):
     """
     get the alerts restricted to the aoi and the specified dates.
@@ -76,6 +141,7 @@ def _from_glad(start, end, aoi):
             .map(lambda image: image.uint16())
             .filterBounds(aoi)
             .mosaic()
+            .clip(aoi)
         )
         alerts = alerts.updateMask(
             alerts.select(f"alertDate{year%100}")
