@@ -65,7 +65,7 @@ class MetadataTile(sw.Card):
             ],
         )
 
-        # create the table
+        # create the metadata object
         super().__init__(
             class_="pa-1",
             children=[self.title, self.w_id, table, btn_list, self.alert],
