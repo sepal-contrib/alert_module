@@ -2,6 +2,8 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
 import ipyvuetify as v
 
+from component import widget as cw
+
 
 class PlanetTile(sw.Card):
     """
@@ -23,34 +25,18 @@ class PlanetTile(sw.Card):
         )
 
         # create the control widgets
-        self.w_color = v.Btn(
-            children=[sw.Icon(children=["mdi-palette"], small=True)],
-            color=sc.secondary,
-            x_small=True,
-            class_="ma-1",
-        )
+        self.w_color = cw.MapBtn("fas fa-palette")
+        self.w_prev = cw.MapBtn("fas fa-chevron-left", class_="ma-0")
+        self.w_now = cw.MapBtn("far fa-circle", class_="ma-0")
+        self.w_next = cw.MapBtn("fas fa-chevron-right", class_="ma-0")
         self.w_date = sw.Select(
-            label="dates", items=[], v_model=None, dense=True, class_="ma-1"
-        )
-        self.w_prev = v.Btn(
-            children=[sw.Icon(children=["mdi-chevron-left"], small=True)],
-            color=sc.secondary,
-            x_small=True,
-        )
-        self.w_now = v.Btn(
-            children=[sw.Icon(children=["mdi-circle-outline"], x_small=True)],
-            color=sc.secondary,
-            x_small=True,
-        )
-        self.w_next = v.Btn(
-            children=[sw.Icon(children=["mdi-chevron-right"], small=True)],
-            color=sc.secondary,
-            x_small=True,
+            label="dates", items=[], v_model=None, dense=True, class_="ml-1 mr-1"
         )
 
         # agregate the btns
-        btn_list = sw.BtnToggle(
-            class_="ma-1", children=[self.w_prev, self.w_now, self.w_next]
+        btn_list = sw.ItemGroup(
+            class_="mr-1 ml-1 v-btn-toggle",
+            children=[self.w_prev, self.w_now, self.w_next],
         )
 
         # create a line with all the widgets

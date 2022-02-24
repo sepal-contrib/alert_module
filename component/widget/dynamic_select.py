@@ -4,26 +4,14 @@ from ipywidgets import jslink
 import ipyvuetify as v
 
 from component.message import cm
+from .map_btn import *
 
 
 class DynamicSelect(sw.Layout):
     def __init__(self):
 
-        self.prev = v.Btn(
-            _metadata={"increm": -1},
-            x_small=True,
-            class_="ml-1 mr-1",
-            color=sc.secondary,
-            children=[sw.Icon(children=["fas fa-chevron-left"], x_small=True)],
-        )
-
-        self.next = v.Btn(
-            _metadata={"increm": 1},
-            x_small=True,
-            class_="ml-1 mr-1",
-            color=sc.secondary,
-            children=[sw.Icon(children=["fas fa-chevron-right"], x_small=True)],
-        )
+        self.prev = MapBtn("fas fa-chevron-left", value=-1)
+        self.next = MapBtn("fas fa-chevron-right", value=1)
 
         self.select = sw.Select(
             dense=True,
@@ -60,7 +48,7 @@ class DynamicSelect(sw.Layout):
     def _on_click(self, widget, event, data):
         """go to the next value. loop to the first or last one if we reach the end"""
 
-        increm = widget._metadata["increm"]
+        increm = widget.value
 
         # get the current position in the list
         val = self.select.v_model

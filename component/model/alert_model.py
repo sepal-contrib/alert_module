@@ -11,7 +11,7 @@ class AlertModel(model.Model):
     # input
     ############################################################################
     alert_collection = Any(None).tag(sync=True)
-    "the alert collection to use as entry source, not everythin is supported"
+    "the alert collection to use as entry source, not everything is supported"
 
     alert_type = Any("RECENT").tag(sync=True)
     "if the alert is using recent or historical source"
