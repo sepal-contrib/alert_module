@@ -5,6 +5,8 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
 from sepal_ui.scripts import utils as su
 import pandas as pd
+from ipyleaflet import GeoJSON
+import geopandas as gpd
 
 from component import widget as cw
 from component import parameter as cp
@@ -117,12 +119,15 @@ class MetadataTile(sw.Card):
             self.w_coords.v_model = ""
             self.w_review.v_model = "unset"
             self.w_review.disabled = True
+
+            # remove the current layer
+            self.remove_curent_layer()
+
         else:
 
             # select the geoseries
-            feat = self.alert_model.gdf.loc[
-                self.alert_model.gdf.id == change["new"]
-            ].squeeze()
+            gdf = self.alert_model.gdf.loc[[change["new"] - 1]]
+            feat = gdf.squeeze()
 
             # set the alert type
             alert_types = ["undefined", "confirmed", "potential"]
@@ -148,8 +153,19 @@ class MetadataTile(sw.Card):
             # zoom the map on the geometry
             self.map.zoom_bounds(feat.geometry.bounds)
 
+            # change the data of the "current layer" object
+            self.remove_curent_layer()
+            layer = GeoJSON(
+                data=gdf.__geo_interface__,
+                style=cp.current_alert_style,
+                name="current alert",
+            )
+            self.map.add_layer(layer)
+
             # change the id in the model
+            # to trigger the other processes
             self.alert_model.current_id = change["new"]
+            self.alert_model.id_loaded = change["new"]
 
             return
 
@@ -189,6 +205,17 @@ class MetadataTile(sw.Card):
 
         # export the file
         df.to_csv(path, index=False)
+
+        return
+
+    def remove_curent_layer(self):
+        """remove the current layer if existing"""
+
+        try:
+            layer = next(l for l in self.map.layers if l.name == "current alert")
+            self.map.remove_layer(layer)
+        except StopIteration:
+            pass
 
         return
 

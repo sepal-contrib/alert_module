@@ -28,6 +28,9 @@ class AlertModel(model.Model):
     current_id = Any(None).tag(sync=True)
     "the id of the feature currently displayed on the map"
 
+    id_loaded = Any(None).tag(sync=True)
+    "trigger to notify the app that the metadata tile have finished loading it's layers"
+
     ############################################################################
     # output
     ############################################################################

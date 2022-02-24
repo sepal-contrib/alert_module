@@ -1,8 +1,10 @@
 from datetime import timedelta, date
 from json import dumps
+
 import ee
 from pathlib import Path
 import geopandas as gpd
+from ipyleaflet import GeoJSON
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -150,6 +152,8 @@ class AlertView(sw.Card):
         layer = self.alert_model.get_ipygeojson()
         layer.on_click(self.on_alert_click)
         self.map.add_layer(layer)
+
+        # generate an empty geojson to the map to display the current alert
 
         # reset in cas an error was displayed
         self.alert.reset()
