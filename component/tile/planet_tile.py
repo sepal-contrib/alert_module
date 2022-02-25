@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
+from sepal_ui.scripts import utils as su
 import ipyvuetify as v
 from traitlets import Bool, Any
 import ee
@@ -53,7 +54,12 @@ class PlanetTile(sw.Card):
         self.w_now = cw.MapBtn("far fa-circle", class_="ma-0")
         self.w_next = cw.MapBtn("fas fa-chevron-right", class_="ma-0")
         self.w_date = sw.Select(
-            label="dates", items=[], v_model=None, dense=True, class_="ml-1 mr-1"
+            label="dates",
+            items=[],
+            v_model=None,
+            dense=True,
+            class_="ml-1 mr-1",
+            clearable=True,
         )
 
         # agregate the btns
@@ -104,8 +110,10 @@ class PlanetTile(sw.Card):
 
         # remove the previous layer
         self.remove_planet_layer()
+        self.free_btn(None)
 
         # exit if nothing is selected
+        # and enable all the btns
         if self.w_date.v_model is None:
             return
 
@@ -224,14 +232,14 @@ class PlanetTile(sw.Card):
         """got to next items in the list"""
 
         if self.w_date.v_model is None:
-            index = len(self.w_date.items)
+            index = len(self.w_date.items) - 1
         else:
             index = next(
                 i
                 for i, v in enumerate(self.w_date.items)
                 if v["value"] == self.w_date.v_model
             )
-            index = min(len(self.w_date.items), index + 1)
+            index = min(len(self.w_date.items) - 1, index + 1)
 
         # change the dates widget value
         self.w_date.v_model = self.w_date.items[index]["value"]
@@ -270,7 +278,7 @@ class PlanetTile(sw.Card):
 
         if index == 0:
             self.w_prev.disabled = True
-        elif index == len(self.w_date.items):
+        elif index == len(self.w_date.items) - 1:
             self.w_next.disabled = True
 
         return
