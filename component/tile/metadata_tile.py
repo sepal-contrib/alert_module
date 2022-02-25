@@ -51,8 +51,17 @@ class MetadataTile(sw.Card):
         )
 
         # add the default card buton and alert
-        self.btn = sw.Btn("export", small=True)
-        btn_list = sw.Row(children=[sw.Spacer(), self.btn, sw.Spacer()])
+        self.btn_csv = sw.Btn("to csv", small=True, disabled=True)
+        self.btn_gpkg = sw.Btn("to gpkg", small=True, disabled=True)
+        btn_list = sw.Row(
+            children=[
+                sw.Spacer(),
+                self.btn_csv,
+                sw.Spacer(),
+                self.btn_gpkg,
+                sw.Spacer(),
+            ]
+        )
         self.alert = sw.Alert(small=True)
 
         # create a table out of the widgets
@@ -67,6 +76,14 @@ class MetadataTile(sw.Card):
             ],
         )
 
+        # manually decorate the btn
+        self.to_csv = su.loading_button(alert=self.alert, button=self.btn_csv)(
+            self.to_csv
+        )
+        self.to_gpkg = su.loading_button(alert=self.alert, button=self.btn_gpkg)(
+            self.to_gpkg
+        )
+
         # create the metadata object
         super().__init__(
             class_="pa-1",
@@ -79,7 +96,8 @@ class MetadataTile(sw.Card):
         self.alert_model.observe(self._on_alerts_change, "gdf")
         self.w_id.observe(self._on_id_change, "v_model")
         self.w_review.observe(self._on_review_change, "v_model")
-        self.btn.on_event("click", self.export)
+        self.btn_csv.on_event("click", self.to_csv)
+        self.btn_gpkg.on_event("click", self.to_gpkg)
         self.alert_model.observe(self._id_click, "current_id")
 
     def _id_click(self, change):
@@ -179,14 +197,17 @@ class MetadataTile(sw.Card):
         id_list = self.alert_model.gdf.id.tolist()
         self.w_id.set_items(id_list)
 
+        # unable the export btns
+        self.btn_csv.disabled = False
+        self.btn_gpkg.disabled = False
+
         # show the table
         self.show()
 
         return self
 
-    @su.loading_button(debug=True)
-    def export(self, widget, event, data):
-        """export the datapoint to a specific file location"""
+    def to_csv(self, widget, event, data):
+        """export the datapoint to a specific file location in csv"""
 
         # copy the gdf locally
         gdf = self.alert_model.gdf.copy()
@@ -204,6 +225,21 @@ class MetadataTile(sw.Card):
 
         # export the file
         df.to_csv(path, index=False)
+
+        return
+
+    def to_gpkg(self, widget, event, data):
+        """export the datapoint to a specific file location in geojson"""
+
+        # copy the gdf locally
+        gdf = self.alert_model.gdf.copy()
+
+        # create the name of the output from the paramters
+        name = f"{self.aoi_model.name}_{self.alert_model.start}_{self.alert_model.end}_{self.alert_model.min_size}"
+        path = cp.result_dir / f"{name}.gpkg"
+
+        # export the file
+        gdf.to_file(path, layer="alerts", driver="GPKG")
 
         return
 

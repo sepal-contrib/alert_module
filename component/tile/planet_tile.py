@@ -69,6 +69,9 @@ class PlanetTile(sw.Card):
             children=[self.w_color, btn_list, self.w_date],
         )
 
+        # disable before any point is selected
+        self.disable()
+
         # create the planet control widgets
         super().__init__(
             class_="pa-1",
@@ -102,6 +105,10 @@ class PlanetTile(sw.Card):
         # remove the previous layer
         self.remove_planet_layer()
 
+        # exit if nothing is selected
+        if self.w_date.v_model is None:
+            return
+
         # check if the btn need to be hidden
         index = next(
             i
@@ -133,6 +140,14 @@ class PlanetTile(sw.Card):
         """
         load the available image date for the custom feature
         """
+
+        # unable the widget
+        self.unable()
+
+        # reset date values
+        # to triger a reload if we change point without changing date
+        self.w_date.items = []
+        self.w_date.v_model = None
 
         # extract the geometry
         feat = self.alert_model.gdf.loc[[change["new"] - 1]].squeeze()
@@ -259,3 +274,25 @@ class PlanetTile(sw.Card):
             self.w_next.disabled = True
 
         return
+
+    def unable(self):
+        """unable the whole widget"""
+
+        self.w_color.disabled = False
+        self.w_prev.disabled = False
+        self.w_now.disabled = False
+        self.w_next.disabled = False
+        self.w_date.disabled = False
+
+        return self
+
+    def disable(self):
+        """disable the whole widget"""
+
+        self.w_color.disabled = True
+        self.w_prev.disabled = True
+        self.w_now.disabled = True
+        self.w_next.disabled = True
+        self.w_date.disabled = True
+
+        return self

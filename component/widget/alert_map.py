@@ -26,7 +26,7 @@ class AlertMap(sm.SepalMap):
 
         # add the buttons on the topleft side of the map
         self.parameters_btn = CButton("Toggle parameters", "navicon")
-        self.navigate_btn = CButton("Navigate through Alerts", "tree")
+        self.navigate_btn = CButton("Navigate through Alerts", "globe")
         self.metadata_btn = CButton("Fire alert metadata", "info")
 
         self.add_widget_as_control(self.parameters_btn, "topleft")
