@@ -141,6 +141,9 @@ class MetadataTile(sw.Card):
             # remove the current layer
             self.remove_current_layer()
 
+            # unset the current_id
+            self.alert_model.current_id = None
+
         else:
 
             # select the geoseries

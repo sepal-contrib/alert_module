@@ -157,6 +157,11 @@ class PlanetTile(sw.Card):
         self.w_date.items = []
         self.w_date.v_model = None
 
+        if change["new"] is None:
+            self.disable()
+            self.hide()
+            return
+
         # extract the geometry
         feat = self.alert_model.gdf.loc[[change["new"] - 1]].squeeze()
 

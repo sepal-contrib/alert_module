@@ -19,6 +19,7 @@ class DynamicSelect(sw.Layout):
             v_model=None,
             items=[],
             prepend_icon="mdi-pound",
+            clearable=True,
         )
 
         super().__init__(
