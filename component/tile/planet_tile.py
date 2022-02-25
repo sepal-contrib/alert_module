@@ -6,6 +6,7 @@ from sepal_ui import color as sc
 import ipyvuetify as v
 from traitlets import Bool, Any
 import ee
+from ipyleaflet import GeoJSON
 
 from component import widget as cw
 from component import parameter as cp
@@ -77,10 +78,13 @@ class PlanetTile(sw.Card):
 
         # add javascript events
         self.close.on_event("click", lambda *args: self.hide())
-        self.alert_model.observe(self.load_dates, "id_loaded")
+        self.alert_model.observe(self.load_dates, "current_id")
         self.w_prev.on_event("click", self.prev_)
         self.w_next.on_event("click", self.next_)
         self.w_now.on_event("click", self.now_)
+        self.w_date.observe(self.update_layer, "v_model")
+        self.observe(self.update_layer, "color")
+        self.w_color.on_event("click", self._on_palette_change)
 
     def _on_palette_change(self, widget, event, data):
         """switch the value of the palette choice"""
@@ -95,27 +99,51 @@ class PlanetTile(sw.Card):
         can be triggered by the color change or the date change
         """
 
-        pass
+        # remove the previous layer
+        self.remove_planet_layer()
+
+        # check if the btn need to be hidden
+        index = next(
+            i
+            for i, v in enumerate(self.w_date.items)
+            if v["value"] == self.w_date.v_model
+        )
+        self.free_btn(index)
+
+        # retreive the layer from GEE
+        start = self.w_date.v_model[0]
+        planet_image = self.nicfi.filter(
+            ee.Filter.eq("system:time_start", start)
+        ).first()
+
+        # cut it to the buffer boundaries
+        planet_image = planet_image.clipToBoundsAndScale(
+            geometry=self.buffer, scale=4.77
+        )
+
+        # get the color
+        viz_params = {**cp.planet_viz, "bands": self.BANDS[self.color]}
+
+        # display the layer on the map
+        self.map.addLayer(planet_image, viz_params, "planet")
+
+        return
 
     def load_dates(self, change):
         """
         load the available image date for the custom feature
         """
 
-        # remove the exisiting planet layer
-        self.remove_planet_layer()
-
         # extract the geometry
         feat = self.alert_model.gdf.loc[[change["new"] - 1]].squeeze()
 
         # we buffer on a 10% bigger surface than the observed alert
+        # minimal size is 1 km
         size = math.sqrt(feat.surface * 10000 / math.pi) * 0.1
+        size = max(200, size)
 
         # create a buffer geometry
         self.buffer = ee.Geometry(feat.geometry.__geo_interface__).buffer(size).bounds()
-
-        # display it on the map
-        self.map.addLayer(self.buffer, {"color": "green"}, "buffer")
 
         # create the planet Image collection member
         self.nicfi = (
@@ -163,15 +191,14 @@ class PlanetTile(sw.Card):
             index = 0
         else:
             index = next(
-                i for i, v in enumerate(self.w_date.items) if v == self.w_date.v_model
+                i
+                for i, v in enumerate(self.w_date.items)
+                if v["value"] == self.w_date.v_model
             )
             index = max(0, index - 1)
 
-        # block the btn if needed
-        self.free_btn(index)
-
         # change the dates widget value
-        self.w_date.v_model = self.w_date.items[index]
+        self.w_date.v_model = self.w_date.items[index]["value"]
 
         return
 
@@ -182,15 +209,14 @@ class PlanetTile(sw.Card):
             index = len(self.w_date.items)
         else:
             index = next(
-                i for i, v in enumerate(self.w_date.items) if v == self.w_date.v_model
+                i
+                for i, v in enumerate(self.w_date.items)
+                if v["value"] == self.w_date.v_model
             )
             index = min(len(self.w_date.items), index + 1)
 
-        # block the btn if needed
-        self.free_btn(index)
-
         # change the dates widget value
-        self.w_date.v_model = self.w_date.items[index]
+        self.w_date.v_model = self.w_date.items[index]["value"]
 
         return
 
@@ -213,11 +239,8 @@ class PlanetTile(sw.Card):
             if v["value"][0] <= date <= v["value"][1]
         )
 
-        # block the buttons if needed
-        self.free_btn(index)
-
         # change the dates widget value
-        self.w_date.v_model = self.w_date.items[index]
+        self.w_date.v_model = self.w_date.items[index]["value"]
 
         return
 
@@ -230,6 +253,6 @@ class PlanetTile(sw.Card):
         if index == 0:
             self.w_prev.disabled = True
         elif index == len(self.w_date.items):
-            self.w_prev.disabled = True
+            self.w_next.disabled = True
 
         return

@@ -121,7 +121,7 @@ class MetadataTile(sw.Card):
             self.w_review.disabled = True
 
             # remove the current layer
-            self.remove_curent_layer()
+            self.remove_current_layer()
 
         else:
 
@@ -153,8 +153,8 @@ class MetadataTile(sw.Card):
             # zoom the map on the geometry
             self.map.zoom_bounds(feat.geometry.bounds)
 
-            # change the data of the "current layer" object
-            self.remove_curent_layer()
+            # display the alert in warning color
+            self.remove_current_layer()
             layer = GeoJSON(
                 data=gdf.__geo_interface__,
                 style=cp.current_alert_style,
@@ -165,7 +165,6 @@ class MetadataTile(sw.Card):
             # change the id in the model
             # to trigger the other processes
             self.alert_model.current_id = change["new"]
-            self.alert_model.id_loaded = change["new"]
 
             return
 
@@ -208,7 +207,7 @@ class MetadataTile(sw.Card):
 
         return
 
-    def remove_curent_layer(self):
+    def remove_current_layer(self):
         """remove the current layer if existing"""
 
         try:
