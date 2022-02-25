@@ -73,7 +73,7 @@ class PlanetTile(sw.Card):
         super().__init__(
             class_="pa-1",
             children=[self.title, row],
-            viz=True,
+            viz=False,
         )
 
         # add javascript events
@@ -165,6 +165,9 @@ class PlanetTile(sw.Card):
             item = {"text": text, "value": value}
             date_items += [item]
         self.w_date.items = date_items
+
+        # show the widget
+        self.show()
 
         # go to the now item
         self.now_(None, None, None)
