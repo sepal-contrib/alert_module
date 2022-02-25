@@ -47,3 +47,12 @@ class SettingTile(sw.Card):
         # add js behaviour
         self.close.on_event("click", lambda *args: self.toggle_viz())
         link((tabs, "v_model"), (contents, "v_model"))
+        self.alert_view.alert_model.observe(self._hide_on_success, "gdf")
+
+    def _hide_on_success(self, change):
+        """hide the tile if alerts are loaded on the map"""
+
+        if change["new"] is not None:
+            self.hide()
+
+        return self

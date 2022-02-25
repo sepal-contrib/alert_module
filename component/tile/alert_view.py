@@ -153,8 +153,6 @@ class AlertView(sw.Card):
         layer.on_click(self.on_alert_click)
         self.map.add_layer(layer)
 
-        # generate an empty geojson to the map to display the current alert
-
         # reset in cas an error was displayed
         self.alert.reset()
 
