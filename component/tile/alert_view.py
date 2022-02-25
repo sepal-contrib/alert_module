@@ -144,9 +144,10 @@ class AlertView(sw.Card):
         )
 
         # save the clumps as a geoJson dict in the model
-        self.alert_model.gdf = gpd.GeoDataFrame.from_features(
-            alert_clump.getInfo(), crs="EPSG:4326"
-        )
+        gdf = gpd.GeoDataFrame.from_features(alert_clump.getInfo(), crs="EPSG:4326")
+        gdf["review"] = "unset"
+        gdf["id"] = gdf.index
+        self.alert_model.gdf = gdf
 
         # add the layer on the map
         layer = self.alert_model.get_ipygeojson()

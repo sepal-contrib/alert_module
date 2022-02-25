@@ -120,7 +120,7 @@ class MetadataTile(sw.Card):
             return
 
         # set the value in the dataframe
-        self.alert_model.gdf.at[self.w_id.v_model - 1, "review"] = change["new"]
+        self.alert_model.gdf.at[self.w_id.v_model, "review"] = change["new"]
 
         return
 
@@ -147,7 +147,7 @@ class MetadataTile(sw.Card):
         else:
 
             # select the geoseries
-            gdf = self.alert_model.gdf.loc[[change["new"] - 1]]
+            gdf = self.alert_model.gdf.loc[[change["new"]]]
             feat = gdf.squeeze()
 
             # set the alert type
@@ -156,7 +156,7 @@ class MetadataTile(sw.Card):
 
             # read back the date in a readable format
             julian, year = math.modf(feat.date)
-            julian = int(julian * 100)
+            julian = int(julian * 1000)
             date = datetime(int(year), 1, 1) + timedelta(days=julian - 1)
             self.w_date.v_model = date.strftime("%Y-%m-%d")
 

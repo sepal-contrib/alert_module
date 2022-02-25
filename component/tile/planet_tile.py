@@ -163,7 +163,7 @@ class PlanetTile(sw.Card):
             return
 
         # extract the geometry
-        feat = self.alert_model.gdf.loc[[change["new"] - 1]].squeeze()
+        feat = self.alert_model.gdf.loc[[change["new"]]].squeeze()
 
         # we buffer on a 10% bigger surface than the observed alert
         # minimal size is 1 km
@@ -256,9 +256,9 @@ class PlanetTile(sw.Card):
 
         # extract the current date as an integer timestamp
         julian, year = math.modf(
-            self.alert_model.gdf.at[(self.alert_model.current_id - 1), "date"]
+            self.alert_model.gdf.at[(self.alert_model.current_id), "date"]
         )
-        julian = int(julian * 100)
+        julian = int(julian * 1000)
         date = (
             datetime(int(year), 1, 1) + timedelta(days=julian - 1)
         ).timestamp() * 1000
