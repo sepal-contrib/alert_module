@@ -1,4 +1,5 @@
 import math
+from datetime import datetime, timedelta
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
@@ -77,6 +78,9 @@ class PlanetTile(sw.Card):
         # add javascript events
         self.close.on_event("click", lambda *args: self.hide())
         self.alert_model.observe(self.load_dates, "id_loaded")
+        self.w_prev.on_event("click", self.prev_)
+        self.w_next.on_event("click", self.next_)
+        self.w_now.on_event("click", self.now_)
 
     def _on_palette_change(self, widget, event, data):
         """switch the value of the palette choice"""
@@ -134,12 +138,10 @@ class PlanetTile(sw.Card):
             date_items += [item]
         self.w_date.items = date_items
 
-        return
+        # go to the now item
+        self.now_(None, None, None)
 
-    def prev_next(self, change):
-        """
-        select the next image according to the widget value
-        """
+        return
 
     def remove_planet_layer(self):
         """
@@ -151,5 +153,83 @@ class PlanetTile(sw.Card):
             self.map.remove_layer(layer)
         except StopIteration:
             pass
+
+        return
+
+    def prev_(self, widget, event, data):
+        """got to previous items in the list"""
+
+        if self.w_date.v_model is None:
+            index = 0
+        else:
+            index = next(
+                i for i, v in enumerate(self.w_date.items) if v == self.w_date.v_model
+            )
+            index = max(0, index - 1)
+
+        # block the btn if needed
+        self.free_btn(index)
+
+        # change the dates widget value
+        self.w_date.v_model = self.w_date.items[index]
+
+        return
+
+    def next_(self, widget, event, data):
+        """got to next items in the list"""
+
+        if self.w_date.v_model is None:
+            index = len(self.w_date.items)
+        else:
+            index = next(
+                i for i, v in enumerate(self.w_date.items) if v == self.w_date.v_model
+            )
+            index = min(len(self.w_date.items), index + 1)
+
+        # block the btn if needed
+        self.free_btn(index)
+
+        # change the dates widget value
+        self.w_date.v_model = self.w_date.items[index]
+
+        return
+
+    def now_(self, widget, event, data):
+        """search for the current_date in the list and change the w_date value to the appropiate interval"""
+
+        # extract the current date as an integer timestamp
+        julian, year = math.modf(
+            self.alert_model.gdf.at[(self.alert_model.current_id - 1), "date"]
+        )
+        julian = int(julian * 100)
+        date = (
+            datetime(int(year), 1, 1) + timedelta(days=julian - 1)
+        ).timestamp() * 1000
+
+        # find it's closest index in the dates list
+        index = next(
+            i
+            for i, v in enumerate(self.w_date.items)
+            if v["value"][0] <= date <= v["value"][1]
+        )
+
+        # block the buttons if needed
+        self.free_btn(index)
+
+        # change the dates widget value
+        self.w_date.v_model = self.w_date.items[index]
+
+        return
+
+    def free_btn(self, index):
+        """free all the selectors according to the selected index"""
+
+        self.w_prev.disabled = False
+        self.w_next.disabled = False
+
+        if index == 0:
+            self.w_prev.disabled = True
+        elif index == len(self.w_date.items):
+            self.w_prev.disabled = True
 
         return
