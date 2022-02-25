@@ -35,4 +35,4 @@ class MapTile(sw.Tile):
         self.map.metadata_btn.on_click(lambda *args: self.metadata.toggle_viz())
         self.map.navigate_btn.on_click(lambda *args: self.planet.toggle_viz())
 
-        super().__init__(id_="map_tile", title="Map tile", inputs=[self.map])
+        super().__init__(id_="map_tile", title="", inputs=[self.map])
