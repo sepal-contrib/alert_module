@@ -23,7 +23,7 @@ def get_alerts_clump(alerts, aoi, min_size):
     # clip is not sufficient as it doesn't change the footprint of the image
     alerts = alerts.clipToBoundsAndScale(
         geometry=aoi.geometry(),
-        scale=30,  # alerts.select('alert').projection().nominalScale().getInfo()
+        scale=30,
     )
 
     # Uniquely label the alert image objects.
@@ -81,6 +81,8 @@ def get_alerts(collection, start, end, aoi):
 
     if collection == "GLAD":
         alerts = _from_glad(start, end, aoi)
+    elif collection == "RADD":
+        alerts = _from_radd(start, end, aoi)
     else:
         raise Exception(
             f"{collection} alert collection is not yet included in the tool"
@@ -162,5 +164,46 @@ def _from_glad(start, end, aoi):
         images += [composite]
 
     all_alerts = ee.ImageCollection.fromImages(images).mosaic()
+
+    return all_alerts
+
+
+def _from_radd(start, end, aoi):
+    """reformat the radd alerts to fit the module expectation"""
+
+    # cut the interval into yearly pieces
+    start = datetime.strptime(start, "%Y-%m-%d")
+    end = datetime.strptime(end, "%Y-%m-%d")
+
+    # select the alerts and mosaic them as image
+    source = "projects/radar-wur/raddalert/v1"
+    alerts = (
+        ee.ImageCollection(source)
+        .filterBounds(aoi)
+        .filterDate(start.timestamp() * 1000, end.timestamp() * 1000)
+        .mosaic()
+        .uint16()
+    )
+
+    # filter the alerts dates
+    # extract julian dates ()
+    start = int(start.strftime("%y%j"))
+    end = int(end.strftime("%y%j"))
+
+    # masked all the images that are not between the limits dates
+    alerts = alerts.updateMask(
+        alerts.select("Date").gt(start).And(alerts.select("Date").lt(end))
+    )
+
+    # create a unique alert band
+    alert_band = (
+        alerts.select("Alert").remap([0, 1, 2, 3], [0, 0, 2, 1]).rename("alert")
+    )
+
+    # change the date format
+    date_band = alerts.select("Date").divide(1000).add(2000).rename("date")
+
+    # create the composit image
+    all_alerts = alert_band.addBands(date_band)
 
     return all_alerts
