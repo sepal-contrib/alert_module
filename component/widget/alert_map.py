@@ -1,6 +1,7 @@
-from ipyleaflet import FullScreenControl, WidgetControl
+from ipyleaflet import WidgetControl
 from ipywidgets import Button, Layout
 from sepal_ui import mapping as sm
+from .fullscreen_control import FullScreenControl
 
 
 class CButton(Button):
@@ -17,12 +18,12 @@ class CButton(Button):
 class AlertMap(sm.SepalMap):
     def __init__(self):
 
-        super().__init__(dc=True)
+        super().__init__(dc=True, zoom=3)
 
         self.hide_dc()
 
         # add the fullscreen button
-        self.add_control(FullScreenControl(position="topright"))
+        self.add_control(FullScreenControl())
 
         # add the buttons on the topleft side of the map
         self.parameters_btn = CButton("Toggle parameters", "navicon")

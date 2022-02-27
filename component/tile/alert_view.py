@@ -117,17 +117,7 @@ class AlertView(sw.Card):
                 ),
             ]
         ):
-            # debug #
-            # set default paramters
-            self.alert.add_msg("Use default variables", "warning")
-            self.aoi_model.method = "ADMIN0"
-            self.aoi_model.admin = 222  # singapore
-            self.aoi_model.set_object()
-            self.alert_model.alert_collection = "GLAD"
-            self.alert_model.start = "2021-01-01"
-            self.alert_model.end = "2021-12-31"
-            self.alert_model.min_size = 0
-            self.map.zoom_ee_object(self.aoi_model.feature_collection.geometry())
+            return
 
         # load the alerts in the system
         all_alerts = cs.get_alerts(
