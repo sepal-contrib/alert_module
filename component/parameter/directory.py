@@ -8,20 +8,3 @@ module_dir.mkdir(exist_ok=True)
 
 result_dir = module_dir.joinpath("alerts_results")
 result_dir.mkdir(exist_ok=True)
-
-
-def create_result_folder(aoi_model):
-    """Create a folder to download the glad images
-
-    Args:
-        aoi_model(aoiModel) : the model aoi
-
-    Returns:
-        glad_dir (path): pathname to the glad_result folder
-    """
-    aoi = aoi_model.name
-
-    aoi_dir = result_dir / aoi
-    aoi_dir.mkdir(exist_ok=True)
-
-    return aoi_dir

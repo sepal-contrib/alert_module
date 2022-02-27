@@ -1,0 +1,8 @@
+{
+    "app": {
+        "title": "Time series",
+        "drawer_item": {
+            "about": "About"
+        }
+    }
+}
