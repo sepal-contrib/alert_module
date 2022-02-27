@@ -20,4 +20,4 @@ current_alert_style = {  # current alert styling
     "fillOpacity": 0,
 }
 
-planet_viz = {"min": 64, "max": 5454, "gamma": 1.8}  # I let the soft decide the bands
+planet_viz = {"min": 64, "max": 5454, "gamma": 1.8}  # I let the driver decide the bands

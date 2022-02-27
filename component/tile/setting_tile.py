@@ -3,13 +3,14 @@ from ipywidgets import link
 
 from component import widget as cw
 from .alert_view import AlertView
+from .aoi_view import AoiView
 
 
 class SettingTile(sw.Card):
     def __init__(self, map_):
 
         # create the 2 subtiles
-        self.aoi_view = cw.CustomAoiView(map_=map_)
+        self.aoi_view = AoiView(map_=map_)
         self.alert_view = AlertView(self.aoi_view.model, map_)
 
         # set them into a tab widget
