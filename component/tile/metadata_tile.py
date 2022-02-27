@@ -139,7 +139,7 @@ class MetadataTile(sw.Card):
             self.w_review.disabled = True
 
             # remove the current layer
-            self.remove_current_layer()
+            self.map.remove_layername("current alert")
 
             # unset the current_id
             self.alert_model.current_id = None
@@ -175,7 +175,7 @@ class MetadataTile(sw.Card):
             self.map.zoom_bounds(feat.geometry.bounds)
 
             # display the alert in warning color
-            self.remove_current_layer()
+            self.map.remove_layername("current alert")
             layer = GeoJSON(
                 data=gdf.__geo_interface__,
                 style=cp.current_alert_style,
@@ -243,17 +243,6 @@ class MetadataTile(sw.Card):
 
         # export the file
         gdf.to_file(path, layer="alerts", driver="GPKG")
-
-        return
-
-    def remove_current_layer(self):
-        """remove the current layer if existing"""
-
-        try:
-            layer = next(l for l in self.map.layers if l.name == "current alert")
-            self.map.remove_layer(layer)
-        except StopIteration:
-            pass
 
         return
 

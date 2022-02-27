@@ -91,6 +91,17 @@ class AlertView(sw.Card):
         self.w_alert.observe(self._set_alert_collection, "v_model")
         self.w_recent.observe(self._set_recent_period, "v_model")
         self.btn.on_event("click", self.load_alerts)
+        self.aoi_model.observe(self.remove_alerts, "name")
+
+    def remove_alerts(self, change):
+        """
+        remove the alerts on name change i.e. aoi change
+        The other clearing methods are trigger by the metadata and the planet tile
+        """
+
+        self.map.remove_layername("alerts")
+
+        return
 
     @su.loading_button(debug=True)
     def load_alerts(self, widget, event, data):
@@ -120,6 +131,10 @@ class AlertView(sw.Card):
             ]
         ):
             return
+
+        # clean the current display if necessary
+        self.alert_model.current_id = None
+        self.map.remove_layername("alerts")
 
         # create the grid
         grid = cs.set_grid(self.aoi_model.gdf)

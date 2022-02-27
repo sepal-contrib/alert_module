@@ -109,7 +109,7 @@ class PlanetTile(sw.Card):
         """
 
         # remove the previous layer
-        self.remove_planet_layer()
+        self.map.remove_layername("planet")
         self.free_btn(None)
 
         # exit if nothing is selected
@@ -199,19 +199,6 @@ class PlanetTile(sw.Card):
 
         # go to the now item
         self.now_(None, None, None)
-
-        return
-
-    def remove_planet_layer(self):
-        """
-        remove the planet layer if existing to avoid duplication
-        """
-
-        try:
-            layer = next(l for l in self.map.layers if l.name == "planet")
-            self.map.remove_layer(layer)
-        except StopIteration:
-            pass
 
         return
 

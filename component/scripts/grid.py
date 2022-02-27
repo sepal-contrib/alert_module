@@ -50,7 +50,4 @@ def set_grid(aoi_gdf):
     # filter out empty geometries
     grid = grid[np.invert(grid.is_empty)]
 
-    # convert to earthengine
-    # ee_grid = ee.FeatureCollection(grid.__geo_interface__)
-
     return grid
