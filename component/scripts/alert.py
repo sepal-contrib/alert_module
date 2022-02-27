@@ -180,7 +180,7 @@ def _from_radd(start, end, aoi):
     alerts = (
         ee.ImageCollection(source)
         .filterBounds(aoi)
-        .filterDate(start.timestamp() * 1000, end.timestamp() * 1000)
+        .filterMetadata("layer", "contains", "alert")
         .mosaic()
         .uint16()
     )
