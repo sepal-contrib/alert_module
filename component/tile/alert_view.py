@@ -9,6 +9,8 @@ from ipyleaflet import GeoJSON
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 
+import ee
+
 from component import parameter as cp
 from component import widget as cw
 from component import model as cm
@@ -119,22 +121,40 @@ class AlertView(sw.Card):
         ):
             return
 
-        # load the alerts in the system
-        all_alerts = cs.get_alerts(
-            collection=self.alert_model.alert_collection,
-            start=self.alert_model.start,
-            end=self.alert_model.end,
-            aoi=self.aoi_model.feature_collection,
-        )
+        # create the grid
+        grid = cs.set_grid(self.aoi_model.gdf)
 
-        alert_clump = cs.get_alerts_clump(
-            alerts=all_alerts,
-            aoi=self.aoi_model.feature_collection,
-            min_size=self.alert_model.min_size,
-        )
+        # loop in the grid to avoid timeout in the define AOI
+        # display information to the user
+        self.alert.update_progress(0)
+        data = None
+        for i, geom in enumerate(grid.geometry):
+
+            ee_geom = ee.FeatureCollection(ee.Geometry(geom.__geo_interface__))
+
+            # load the alerts in the system
+            all_alerts = cs.get_alerts(
+                collection=self.alert_model.alert_collection,
+                start=self.alert_model.start,
+                end=self.alert_model.end,
+                aoi=ee_geom,
+            )
+
+            alert_clump = cs.get_alerts_clump(
+                alerts=all_alerts,
+                aoi=ee_geom,
+                min_size=self.alert_model.min_size,
+            )
+
+            if data is None:
+                data = alert_clump.getInfo()
+            else:
+                data["features"] += alert_clump.getInfo()["features"]
+
+            self.alert.update_progress(i / len(grid))
 
         # save the clumps as a geoJson dict in the model
-        gdf = gpd.GeoDataFrame.from_features(alert_clump.getInfo(), crs="EPSG:4326")
+        gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
         gdf["review"] = "unset"
         gdf["id"] = gdf.index
         self.alert_model.gdf = gdf
