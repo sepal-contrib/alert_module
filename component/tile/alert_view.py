@@ -141,7 +141,7 @@ class AlertView(sw.Card):
 
         # loop in the grid to avoid timeout in the define AOI
         # display information to the user
-        self.alert.update_progress(0)
+        self.alert.update_progress(0, bar_length=20)
         data = None
         for i, geom in enumerate(grid.geometry):
 
@@ -166,7 +166,7 @@ class AlertView(sw.Card):
             else:
                 data["features"] += alert_clump.getInfo()["features"]
 
-            self.alert.update_progress(i / len(grid))
+            self.alert.update_progress(i / len(grid), bar_length=20)
 
         # save the clumps as a geoJson dict in the model
         gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
