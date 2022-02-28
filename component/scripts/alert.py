@@ -54,9 +54,9 @@ def get_alerts_clump(alerts, aoi, min_size):
     )
 
     # filter and sort the colection by size
-    alert_collection = alert_collection.filter(ee.Filter.gte("surface", min_size)).sort(
-        "surface", False
-    )
+    alert_collection = alert_collection.filter(
+        ee.Filter.gte("surface", float(min_size))
+    ).sort("surface", False)
 
     return alert_collection
 
