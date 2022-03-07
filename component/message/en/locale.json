@@ -82,8 +82,8 @@
             "row": {
                 "alert": "alert",
                 "date": "date",
-                "surface": "surface",
-                "coords": "coords",
+                "pixels": "number of pixels",
+                "coords": "coordinates",
                 "review": "review"
             },
             "type": {

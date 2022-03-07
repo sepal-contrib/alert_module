@@ -36,7 +36,7 @@ class MetadataTile(sw.Card):
         self.w_alert = sw.TextField(small=True, readonly=True, v_model="")
         self.w_date = sw.TextField(small=True, readonly=True, v_model="")
         self.w_surface = sw.TextField(
-            small=True, readonly=True, v_model="", suffix="ha"
+            small=True, readonly=True, v_model="", suffix="px"
         )
         self.w_coords = sw.TextField(small=True, readonly=True, v_model="")
         self.w_review = sw.RadioGroup(
@@ -77,7 +77,7 @@ class MetadataTile(sw.Card):
             children=[
                 self.row(cm.view.metadata.row.alert, self.w_alert),
                 self.row(cm.view.metadata.row.date, self.w_date),
-                self.row(cm.view.metadata.row.surface, self.w_surface),
+                self.row(cm.view.metadata.row.pixels, self.w_surface),
                 self.row(cm.view.metadata.row.coords, self.w_coords),
                 self.row(cm.view.metadata.row.review, self.w_review),
             ],
@@ -167,7 +167,7 @@ class MetadataTile(sw.Card):
             self.w_date.v_model = date.strftime("%Y-%m-%d")
 
             # read the surface
-            self.w_surface.v_model = feat.surface
+            self.w_surface.v_model = feat.nb_pixel
 
             # get the center coordinates
             coords = list(feat.geometry.centroid.coords)[0]

@@ -174,7 +174,14 @@ class AlertView(sw.Card):
         # save the clumps as a geoJson dict in the model
         gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
         gdf["review"] = cm.view.metadata.status.unset
+
+        # order the gdf by number of pixels
+        gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
+
+        # reset the ids
         gdf["id"] = gdf.index
+
+        # save it in the model
         self.alert_model.gdf = gdf
 
         # add the layer on the map

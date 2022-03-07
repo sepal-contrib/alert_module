@@ -33,16 +33,13 @@ def get_alerts_clump(alerts, aoi, min_size):
     )
 
     # Compute the number of pixels in each object defined by the "labels" band.
-    object_size = object_id.select("labels").connectedPixelCount(
-        eightConnected=True, maxSize=1024
+    object_size = (
+        object_id.select("labels")
+        .connectedPixelCount(eightConnected=True, maxSize=1024)
+        .rename("nb_pixel")
     )
 
-    # Multiply pixel area by the number of pixels in an object to calculate
-    # the object area. The result is an image where each pixel
-    # of an object relates the area of the object in ha.
-    pixel_area = ee.Image.pixelArea()
-    object_area = object_size.multiply(pixel_area).divide(10000).rename("surface")
-    image = object_id.addBands(object_area.select("surface"))
+    image = object_id.addBands(object_size.select("nb_pixel"))
 
     # reduce to vector
     alert_collection = image.reduceToVectors(
@@ -53,11 +50,6 @@ def get_alerts_clump(alerts, aoi, min_size):
         labelProperty="labels",
         geometry=aoi.geometry(),
     )
-
-    # filter and sort the colection by size
-    alert_collection = alert_collection.filter(
-        ee.Filter.gte("surface", float(min_size))
-    ).sort("surface", False)
 
     return alert_collection
 
