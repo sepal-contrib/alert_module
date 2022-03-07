@@ -90,7 +90,8 @@
                 "0": "undefined", 
                 "1": "high confidence", 
                 "2": "low confidence"
-            }
+            },
+            "export": "The file have been exported to {}"
         },
         "planet": {
             "date": {

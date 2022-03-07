@@ -93,6 +93,7 @@ class MetadataTile(sw.Card):
 
         # create the metadata object
         super().__init__(
+            max_width="410px",
             class_="pa-1",
             children=[self.title, self.w_id, table, btn_list, self.alert],
             viz=False,
@@ -235,6 +236,9 @@ class MetadataTile(sw.Card):
         # export the file
         df.to_csv(path, index=False)
 
+        # display information for the end user
+        self.alert.add_msg(cm.view.metadata.export.format(path), "success")
+
         return
 
     def to_gpkg(self, widget, event, data):
@@ -248,7 +252,10 @@ class MetadataTile(sw.Card):
         path = cp.result_dir / f"{name}.gpkg"
 
         # export the file
-        gdf.to_file(path, layer="alerts", driver="GPKG")
+        gdf.to_file(path, layer=cm.map.layer.alerts, driver="GPKG")
+
+        # display information for the end user
+        self.alert.add_msg(cm.view.metadata.export.format(path), "success")
 
         return
 
