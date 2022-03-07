@@ -175,6 +175,9 @@ class AlertView(sw.Card):
         gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
         gdf["review"] = cm.view.metadata.status.unset
 
+        # compute the surfaces for each geometry in square meters
+        gdf["surface"] = gdf.to_crs("EPSG:3857").area
+
         # order the gdf by number of pixels
         gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
 

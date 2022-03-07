@@ -168,7 +168,7 @@ class PlanetTile(sw.Card):
 
         # we buffer on a 10% bigger surface than the observed alert
         # minimal size is 1 km
-        size = math.sqrt(feat.surface * 10000 / math.pi) * 0.1
+        size = math.sqrt(feat.surface / math.pi) * 0.1
         size = max(200, size)
 
         # create a buffer geometry
