@@ -27,8 +27,7 @@
         },
         "alert": {
             "surface": {
-                "label": "Select minimal surface of the alerts",
-                "error": "The value must be a positive integer"
+                "label": "Select minimal surface of the alerts"
             }
         }
     },
@@ -66,7 +65,8 @@
                 "no_type": "select an alert type",
                 "no_start": "select a start for the alerts",
                 "no_end": "select an end for the alerts",
-                "no_size": "select a minimal size"
+                "no_size": "select a minimal size",
+                "no_alerts": "no alerts were spoted with your parameters"
             }
         },
         "metadata": {

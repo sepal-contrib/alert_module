@@ -178,11 +178,19 @@ class AlertView(sw.Card):
         # compute the surfaces for each geometry in square meters
         gdf["surface"] = gdf.to_crs("EPSG:3857").area
 
+        # remove the smallest alerts
+        # be carefull the min offset is set in ha
+        gdf = gdf[gdf.surface >= self.alert_model.min_size * 10000]
+
         # order the gdf by number of pixels
         gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
 
         # reset the ids
         gdf["id"] = gdf.index
+
+        # exit if nothing is found
+        if len(gdf) == 0:
+            raise Exception(cm.view.alert.error.no_alerts)
 
         # save it in the model
         self.alert_model.gdf = gdf
