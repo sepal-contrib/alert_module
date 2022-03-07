@@ -12,6 +12,7 @@ from ipyleaflet import GeoJSON
 from component import widget as cw
 from component import parameter as cp
 from component import scripts as cs
+from component.message import cm
 
 
 class PlanetTile(sw.Card):
@@ -54,7 +55,7 @@ class PlanetTile(sw.Card):
         self.w_now = cw.MapBtn("far fa-circle", class_="ma-0")
         self.w_next = cw.MapBtn("fas fa-chevron-right", class_="ma-0")
         self.w_date = sw.Select(
-            label="dates",
+            label=cm.view.planet.date.label,
             items=[],
             v_model=None,
             dense=True,
@@ -140,7 +141,7 @@ class PlanetTile(sw.Card):
         viz_params = {**cp.planet_viz, "bands": self.BANDS[self.color]}
 
         # display the layer on the map
-        self.map.addLayer(planet_image, viz_params, "planet")
+        self.map.addLayer(planet_image, viz_params, cm.map.layer.planet)
 
         return
 

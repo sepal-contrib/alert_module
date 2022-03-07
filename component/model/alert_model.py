@@ -3,6 +3,7 @@ from traitlets import Any
 from ipyleaflet import GeoJSON
 
 from component import parameter as cp
+from component.message import cm
 
 
 class AlertModel(model.Model):
@@ -48,7 +49,7 @@ class AlertModel(model.Model):
             data=self.gdf.__geo_interface__,
             style=cp.alert_style,
             hover_style={**cp.alert_style, "weight": 5},
-            name="alerts",
+            name=cm.map.layer.alerts,
         )
 
         return ipygeojson

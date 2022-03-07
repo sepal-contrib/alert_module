@@ -10,6 +10,7 @@ import geopandas as gpd
 
 from component import widget as cw
 from component import parameter as cp
+from component.message import cm
 
 
 class MetadataTile(sw.Card):
@@ -44,15 +45,21 @@ class MetadataTile(sw.Card):
             row=True,
             v_model="unset",
             children=[
-                sw.Radio(label="yes", value="yes", color=sc.success),
-                sw.Radio(label="no", value="no", color=sc.error),
-                sw.Radio(label="unset", value="unset", color=sc.info),
+                sw.Radio(
+                    label=cm.view.metadata.status.valid, value="yes", color=sc.success
+                ),
+                sw.Radio(
+                    label=cm.view.metadata.status.unvalid, value="no", color=sc.error
+                ),
+                sw.Radio(
+                    label=cm.view.metadata.status.unset, value="unset", color=sc.info
+                ),
             ],
         )
 
         # add the default card buton and alert
-        self.btn_csv = sw.Btn("to csv", small=True, disabled=True)
-        self.btn_gpkg = sw.Btn("to gpkg", small=True, disabled=True)
+        self.btn_csv = sw.Btn(cm.view.metadata.btn.csv, small=True, disabled=True)
+        self.btn_gpkg = sw.Btn(cm.view.metadata.btn.gpkg, small=True, disabled=True)
         btn_list = sw.Row(
             children=[
                 sw.Spacer(),
@@ -68,11 +75,11 @@ class MetadataTile(sw.Card):
         table = sw.SimpleTable(
             dense=True,
             children=[
-                self.row("alert", self.w_alert),
-                self.row("date", self.w_date),
-                self.row("surface", self.w_surface),
-                self.row("coords", self.w_coords),
-                self.row("review", self.w_review),
+                self.row(cm.view.metadata.row.alert, self.w_alert),
+                self.row(cm.view.metadata.row.date, self.w_date),
+                self.row(cm.view.metadata.row.surface, self.w_surface),
+                self.row(cm.view.metadata.row.coords, self.w_coords),
+                self.row(cm.view.metadata.row.review, self.w_review),
             ],
         )
 
@@ -139,7 +146,7 @@ class MetadataTile(sw.Card):
             self.w_review.disabled = True
 
             # remove the current layer
-            self.map.remove_layername("current alert")
+            self.map.remove_layername(cm.map.layer.current)
 
             # unset the current_id
             self.alert_model.current_id = None
@@ -151,8 +158,7 @@ class MetadataTile(sw.Card):
             feat = gdf.squeeze()
 
             # set the alert type
-            alert_types = ["undefined", "confirmed", "potential"]
-            self.w_alert.v_model = alert_types[feat.alert]
+            self.w_alert.v_model = cm.view.metadata.type[feat.alert]
 
             # read back the date in a readable format
             julian, year = math.modf(feat.date)
@@ -175,11 +181,11 @@ class MetadataTile(sw.Card):
             self.map.zoom_bounds(feat.geometry.bounds)
 
             # display the alert in warning color
-            self.map.remove_layername("current alert")
+            self.map.remove_layername(cm.map.layer.current)
             layer = GeoJSON(
                 data=gdf.__geo_interface__,
                 style=cp.current_alert_style,
-                name="current alert",
+                name=cm.map.layer.current,
             )
             self.map.add_layer(layer)
 

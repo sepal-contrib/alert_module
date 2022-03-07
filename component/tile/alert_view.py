@@ -13,15 +13,16 @@ import ee
 
 from component import parameter as cp
 from component import widget as cw
-from component import model as cm
+from component.model import AlertModel
 from component import scripts as cs
+from component.message import cm
 
 
 class AlertView(sw.Card):
     def __init__(self, aoi_model, map_):
 
         # init the models
-        self.alert_model = cm.AlertModel()
+        self.alert_model = AlertModel()
         self.aoi_model = aoi_model
 
         # wire the map object
@@ -29,7 +30,9 @@ class AlertView(sw.Card):
 
         # select the alert collection that will be used
         self.w_alert = sw.Select(
-            v_model=None, items=[*cp.alert_drivers], label="alert collection"
+            v_model=None,
+            items=[*cp.alert_drivers],
+            label=cm.view.alert.collection.label,
         )
 
         # select the type of alert to use in the computation
@@ -40,14 +43,14 @@ class AlertView(sw.Card):
             v_model=self.alert_model.alert_type,
             row=True,
             children=[
-                sw.Radio(label="recente", value="RECENT"),
-                sw.Radio(label="Historical", value="HISTORICAL"),
+                sw.Radio(label=cm.view.alert.type.recent, value="RECENT"),
+                sw.Radio(label=cm.view.alert.type.custom, value="HISTORICAL"),
             ],
         )
 
         # dropdown to select the lenght of the "recent" period
         self.w_recent = sw.Select(
-            v_model=None, items=cp.time_delta, label="In the last"
+            v_model=None, items=cp.time_delta, label=cm.view.alert.recent.label
         )
 
         # create a datepickers row to select the 2 historical dates
@@ -57,7 +60,7 @@ class AlertView(sw.Card):
         self.w_size = cw.SurfaceSelect()
 
         # set a btn to validate and load the alerts
-        self.btn = sw.Btn("select Alerts")
+        self.btn = sw.Btn(cm.view.alert.btn.label)
 
         # set an alert to display information to the end user
         self.alert = sw.Alert()
@@ -111,22 +114,22 @@ class AlertView(sw.Card):
         if not all(
             [
                 self.alert.check_input(
-                    self.aoi_model.feature_collection, "select an aoi first"
+                    self.aoi_model.feature_collection, cm.view.alert.error.no_aoi
                 ),
                 self.alert.check_input(
-                    self.alert_model.alert_collection, "select alert collection"
+                    self.alert_model.alert_collection, cm.view.alert.error.no_collection
                 ),
                 self.alert.check_input(
-                    self.alert_model.alert_type, "select an alert type"
+                    self.alert_model.alert_type, cm.view.alert.error.no_type
                 ),
                 self.alert.check_input(
-                    self.alert_model.start, "select a start for the alerts"
+                    self.alert_model.start, cm.view.alert.error.no_start
                 ),
                 self.alert.check_input(
-                    self.alert_model.end, "select an end for the alerts"
+                    self.alert_model.end, cm.view.alert.error.no_end
                 ),
                 self.alert.check_input(
-                    self.alert_model.min_size, "select a minimal size"
+                    self.alert_model.min_size, cm.view.alert.error.no_size
                 ),
             ]
         ):
@@ -134,7 +137,7 @@ class AlertView(sw.Card):
 
         # clean the current display if necessary
         self.alert_model.current_id = None
-        self.map.remove_layername("alerts")
+        self.map.remove_layername(cm.map.layer.alerts)
 
         # create the grid
         grid = cs.set_grid(self.aoi_model.gdf)
@@ -170,7 +173,7 @@ class AlertView(sw.Card):
 
         # save the clumps as a geoJson dict in the model
         gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
-        gdf["review"] = "unset"
+        gdf["review"] = cm.view.metadata.status.unset
         gdf["id"] = gdf.index
         self.alert_model.gdf = gdf
 

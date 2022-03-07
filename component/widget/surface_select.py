@@ -1,5 +1,7 @@
 from sepal_ui import sepalwidgets as sw
 
+from component.message import cm
+
 
 class SurfaceSelect(sw.TextField):
     """
@@ -9,7 +11,7 @@ class SurfaceSelect(sw.TextField):
     def __init__(self):
 
         super().__init__(
-            label="Select minimal surface of the alerts",
+            label=cm.widget.alert.surface.label,
             suffix="ha",
             v_model=0,
             class_="mb-5",
@@ -31,7 +33,7 @@ class SurfaceSelect(sw.TextField):
             return
         else:
             # self.error = True
-            self.error_messages = "The value must be a positive integer"
+            self.error_messages = cm.widget.alert.surface.error
             self.v_model = 0
 
         return

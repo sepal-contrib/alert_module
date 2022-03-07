@@ -1,8 +1,105 @@
 {
     "app": {
-        "title": "Time series",
+        "title": "Deforestation alert verification module",
         "drawer_item": {
-            "about": "About"
+            "about": "About",
+            "map": "Map"
+        }
+    },
+    "map": {
+        "control": {
+            "metadata": "Deforestation alert metadata",
+            "navigate": "Navigate through Planet imagery",
+            "parameter": "Toggle Parameter window",
+            "fullscreen": "Toggle fullscreen"
+        },
+        "layer": {
+            "alerts": "alerts",
+            "current": "current alert",
+            "planet": "PlanetLab imagery"
+        }
+    },
+    "widget": {
+        "planet": {
+            "select": {
+                "label": "select date"
+            }
+        },
+        "alert": {
+            "surface": {
+                "label": "Select minimal surface of the alerts",
+                "error": "The value must be a positive integer"
+            }
+        }
+    },
+    "parameter": {
+        "time_delta": {
+            "day": "24h",
+            "week": "7 days",
+            "month": "31 days"
+        }
+    },
+    "alert": {
+        "wrong_collection": "{} alert collection is not yet included in the tool"
+    },
+    "planet": {
+        "no_nicfi": "{} is not an NCFI level 1 recognized mosaic name"
+    },
+    "view": {
+        "alert": {
+            "collection": {
+                "label": "Alert collection"
+            },
+            "type": {
+                "recent": "Recent",
+                "custom": "Historical"
+            },
+            "recent": {
+                "label": "In the last"
+            },
+            "btn": {
+                "label": "Select alerts"
+            },
+            "error": {
+                "no_aoi": "select an aoi first",
+                "no_collection": "select alert collection",
+                "no_type": "select an alert type",
+                "no_start": "select a start for the alerts",
+                "no_end": "select an end for the alerts",
+                "no_size": "select a minimal size"
+            }
+        },
+        "metadata": {
+            "status": {
+                "valid": "yes",
+                "unvalid": "no",
+                "unset": "unset"
+            },
+            "btn": {
+                "csv": "To .csv",
+                "gpkg": "To .gpkg"
+            },
+            "row": {
+                "alert": "alert",
+                "date": "date",
+                "surface": "surface",
+                "coords": "coords",
+                "review": "review"
+            },
+            "type": {
+                "0": "undefined", 
+                "1": "high confidence", 
+                "2": "low confidence"
+            }
+        },
+        "planet": {
+            "date": {
+                "label": "dates"
+            }
+        },
+        "setting": {
+            "aoi": "AOI",
+            "alert": "Alert"
         }
     }
 }

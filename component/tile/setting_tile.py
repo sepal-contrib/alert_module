@@ -2,6 +2,7 @@ from sepal_ui import sepalwidgets as sw
 from ipywidgets import link
 
 from component import widget as cw
+from component.message import cm
 from .alert_view import AlertView
 from .aoi_view import AoiView
 
@@ -18,8 +19,8 @@ class SettingTile(sw.Card):
             fixed_tabs=True,
             v_model=0,
             children=[
-                sw.Tab(children=["AOI"], key=0),
-                sw.Tab(children=["Alerts"], key=1),
+                sw.Tab(children=[cm.view.setting.aoi], key=0),
+                sw.Tab(children=[cm.view.setting.alert], key=1),
             ],
         )
 

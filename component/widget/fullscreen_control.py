@@ -3,6 +3,8 @@ from IPython.display import Javascript, display
 import ipyvuetify as v
 from ipywidgets import Button, Layout
 
+from component.message import cm
+
 
 class FullScreenControl(WidgetControl):
 
@@ -15,7 +17,7 @@ class FullScreenControl(WidgetControl):
 
         # create a btn
         self.w_btn = Button(
-            tooltip="set fullscreen",
+            tooltip=cm.map.control.fullscreen,
             icon=self.ICONS[self.zoomed],
             layout=Layout(
                 width="30px", height="30px", line_height="30px", padding="0px"

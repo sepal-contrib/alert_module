@@ -2,6 +2,7 @@ from datetime import date, datetime
 import ee
 
 from component import parameter as cp
+from component.message import cm
 
 
 def get_alerts_clump(alerts, aoi, min_size):
@@ -84,9 +85,7 @@ def get_alerts(collection, start, end, aoi):
     elif collection == "RADD":
         alerts = _from_radd(start, end, aoi)
     else:
-        raise Exception(
-            f"{collection} alert collection is not yet included in the tool"
-        )
+        raise Exception(cm.alert.wrong_collection.format(collection))
 
     return alerts
 

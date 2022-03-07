@@ -5,7 +5,7 @@ from sepal_ui import color as sc
 
 class MapBtn(v.Btn, sw.SepalWidget):
     """
-    Wrapper of to embed some default formating options that will be used
+    Wrapper of Btn objects to embed some default formating options that will be used
     in many different widgets of the map. THis button is by design:
     without text, blue, x_small and with 1 single icon
     it remains fully customizable but for the chidlren trait

@@ -2,6 +2,7 @@ from datetime import datetime
 import re
 
 from component import parameter as cp
+from component.message import cm
 
 
 def planet_moasics(mosaic):
@@ -17,6 +18,6 @@ def planet_moasics(mosaic):
         end = datetime.strptime(end, "%m").strftime("%b")
         res = f"{start}-{end} {year}"
     else:
-        raise Exception(f"{mosaic} is not an NCFI level 1 recognized mosaic name")
+        raise Exception(cm.planet.no_nicfi.format(mosaic))
 
     return res

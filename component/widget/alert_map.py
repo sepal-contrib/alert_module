@@ -3,6 +3,8 @@ from ipywidgets import Button, Layout
 from sepal_ui import mapping as sm
 from .fullscreen_control import FullScreenControl
 
+from component.message import cm
+
 
 class CButton(Button):
     def __init__(self, tooltip, icon):
@@ -26,9 +28,9 @@ class AlertMap(sm.SepalMap):
         self.add_control(FullScreenControl())
 
         # add the buttons on the topleft side of the map
-        self.parameters_btn = CButton("Toggle parameters", "navicon")
-        self.navigate_btn = CButton("Navigate through Alerts", "globe")
-        self.metadata_btn = CButton("Fire alert metadata", "info")
+        self.parameters_btn = CButton(cm.map.control.parameter, "navicon")
+        self.navigate_btn = CButton(cm.map.control.navigate, "globe")
+        self.metadata_btn = CButton(cm.map.control.metadata, "info")
 
         self.add_widget_as_control(self.parameters_btn, "topleft")
         self.add_widget_as_control(self.navigate_btn, "topleft")
