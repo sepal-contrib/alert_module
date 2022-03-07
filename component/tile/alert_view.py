@@ -1,4 +1,4 @@
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 from json import dumps
 
 import ee
@@ -39,7 +39,7 @@ class AlertView(sw.Card):
         # recent will be defined from now - X days in the past
         # historical will provide 2 date pickers
         self.w_alert_type = sw.RadioGroup(
-            label="type of alerts",
+            label=cm.view.alert.type.label,
             v_model=self.alert_model.alert_type,
             row=True,
             children=[
@@ -47,6 +47,12 @@ class AlertView(sw.Card):
                 sw.Radio(label=cm.view.alert.type.custom, value="HISTORICAL"),
             ],
         )
+
+        # add the specific assetSelect for other types of alerts
+        # hidden by default
+        self.w_asset = sw.AssetSelect(
+            label=cm.view.alert.asset.label, types=["IMAGE"]
+        ).hide()
 
         # dropdown to select the lenght of the "recent" period
         self.w_recent = sw.Select(
@@ -73,11 +79,13 @@ class AlertView(sw.Card):
             .bind(self.w_historic.w_start, "start")
             .bind(self.w_historic.w_end, "end")
             .bind(self.w_size, "min_size")
+            .bind(self.w_asset, "asset")
         )
 
         super().__init__(
             children=[
                 self.w_alert,
+                self.w_asset,
                 self.w_alert_type,
                 self.w_recent,
                 self.w_historic,
@@ -95,6 +103,7 @@ class AlertView(sw.Card):
         self.w_recent.observe(self._set_recent_period, "v_model")
         self.btn.on_event("click", self.load_alerts)
         self.aoi_model.observe(self.remove_alerts, "name")
+        self.w_asset.observe(self.set_period, "v_model")
 
     def remove_alerts(self, change):
         """
@@ -156,13 +165,10 @@ class AlertView(sw.Card):
                 start=self.alert_model.start,
                 end=self.alert_model.end,
                 aoi=ee_geom,
+                asset=self.alert_model.asset,
             )
 
-            alert_clump = cs.get_alerts_clump(
-                alerts=all_alerts,
-                aoi=ee_geom,
-                min_size=self.alert_model.min_size,
-            )
+            alert_clump = cs.get_alerts_clump(alerts=all_alerts, aoi=ee_geom)
 
             if data is None:
                 data = alert_clump.getInfo()
@@ -170,6 +176,8 @@ class AlertView(sw.Card):
                 data["features"] += alert_clump.getInfo()["features"]
 
             self.alert.update_progress(i / len(grid), bar_length=20)
+
+        print(data)
 
         # save the clumps as a geoJson dict in the model
         gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
@@ -237,12 +245,21 @@ class AlertView(sw.Card):
     def _set_alert_collection(self, change):
         """set the min and max year based on the selected data collection"""
 
-        # init the datepicker with appropriate min and max values
-        year_list = cp.alert_drivers[change["new"]]["avalaible_years"]
-        self.w_historic.init(min(year_list), max(year_list))
+        # empty and hide the component by default
+        self.w_historic.disable()
+        self.w_asset.reset()
+        self.w_asset.hide()
 
-        # unable it
-        self.w_historic.unable()
+        # if nrt system is set I need to show the asset select widget first
+        # the datepicker will be updted with the asset
+        if change["new"] == "NRT":
+            self.w_asset.show()
+
+        # init the datepicker with appropriate min and max values
+        elif change["new"] in ["RADD", "GLAD"]:
+            year_list = cp.alert_drivers[change["new"]]["available_years"]
+            self.w_historic.init(min(year_list), max(year_list))
+            self.w_historic.unable()
 
         return self
 
@@ -259,3 +276,25 @@ class AlertView(sw.Card):
         self.w_recent.toggle_viz()
 
         return self
+
+    def set_period(self, change):
+        """set the time period of the historical datepicker when an asset is selected"""
+
+        if change["new"] is None:
+            return
+
+        # read the asset and extract the start and end timestamps
+        image = ee.Image(change["new"])
+
+        min_ = datetime.fromtimestamp(
+            image.get("system:time_start").getInfo() / 1000
+        ).year
+        max_ = datetime.fromtimestamp(
+            image.get("system:time_end").getInfo() / 1000
+        ).year
+
+        # apply it to the w_historic
+        self.w_historic.init(min_, max_)
+        self.w_historic.unable()
+
+        return

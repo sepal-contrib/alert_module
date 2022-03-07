@@ -5,7 +5,7 @@ from component import parameter as cp
 from component.message import cm
 
 
-def get_alerts_clump(alerts, aoi, min_size):
+def get_alerts_clump(alerts, aoi):
     """
     Transform the Image into a featureCollection of agregated alert
     Import it into SEPAL as a GeoJson dict.
@@ -13,7 +13,6 @@ def get_alerts_clump(alerts, aoi, min_size):
     Args:
         alerts (ee.Image): the refactored alerts with an adapted masked to the requested dates
         aoi (ee.FeatureCollection): the featureCollection of the selected AOI
-        min_size (int): the minimal size of the events in ha
 
     Return:
         (dict): a geojson dict
@@ -54,7 +53,7 @@ def get_alerts_clump(alerts, aoi, min_size):
     return alert_collection
 
 
-def get_alerts(collection, start, end, aoi):
+def get_alerts(collection, start, end, aoi, asset):
     """
     get the alerts restricted to the aoi and the specified dates.
     The Returned images will embed mandatory and optional bands:
@@ -67,6 +66,7 @@ def get_alerts(collection, start, end, aoi):
         start (str): the start of the analysis (YYYY-MM-DD)
         end (str): the end day of the analysis (YYYY-MM-DD)
         aoi (ee.FeatureCollection): the selected aoi
+        asset (str): the asset Id of the Image
 
     Returns:
         (ee.Image) the alert Image
@@ -76,6 +76,8 @@ def get_alerts(collection, start, end, aoi):
         alerts = _from_glad(start, end, aoi)
     elif collection == "RADD":
         alerts = _from_radd(start, end, aoi)
+    elif collection == "NRT":
+        alerts = _from_andreas_nrt(start, end, aoi, asset)
     else:
         raise Exception(cm.alert.wrong_collection.format(collection))
 
@@ -162,7 +164,7 @@ def _from_glad(start, end, aoi):
 def _from_radd(start, end, aoi):
     """reformat the radd alerts to fit the module expectation"""
 
-    # cut the interval into yearly pieces
+    # extract dates from parameters
     start = datetime.strptime(start, "%Y-%m-%d")
     end = datetime.strptime(end, "%Y-%m-%d")
 
@@ -193,6 +195,45 @@ def _from_radd(start, end, aoi):
 
     # change the date format
     date_band = alerts.select("Date").divide(1000).add(2000).rename("date")
+
+    # create the composit image
+    all_alerts = alert_band.addBands(date_band)
+
+    return all_alerts
+
+
+def _from_andreas_nrt(start, end, aoi, asset):
+    "reformat andreas alert sytem to be compatible with the rest of the apps"
+
+    # extract dates from parameters
+    start = datetime.strptime(start, "%Y-%m-%d")
+    end = datetime.strptime(end, "%Y-%m-%d")
+
+    # read the image
+    alerts = ee.Image(asset)
+
+    # filter the alerts dates
+    # extract julian dates ()
+    start = int(start.strftime("%y%j"))
+    end = int(end.strftime("%y%j"))
+
+    # create a date mask
+    mask = (
+        alerts.select("detected_sum")
+        .gt(1)
+        .And(alerts.select("detected_doy").gt(start))
+        .And(alerts.select("detected_doy").lt(end))
+    )
+
+    # create a unique alert band
+    # only confirmed alerts are taken into account
+    # we split confirmed from potential by looking at the number of observations
+    alert_band = alerts.select("confirmed").unmask().mask(mask).rename("alert")
+
+    # create a unique date band
+    date_band = (
+        alerts.select("detected_doy").divide(1000).add(2000).mask(mask).rename("date")
+    )
 
     # create the composit image
     all_alerts = alert_band.addBands(date_band)

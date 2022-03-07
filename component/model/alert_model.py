@@ -14,6 +14,9 @@ class AlertModel(model.Model):
     alert_collection = Any(None).tag(sync=True)
     "the alert collection to use as entry source, not everything is supported"
 
+    asset = Any(None).tag(sync=True)
+    "the asset of the NRT alert system only used for NRT alert collections"
+
     alert_type = Any("RECENT").tag(sync=True)
     "if the alert is using recent or historical source"
 

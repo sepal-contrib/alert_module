@@ -50,8 +50,12 @@
                 "label": "Alert collection"
             },
             "type": {
+                "label": "type of alerts",
                 "recent": "Recent",
                 "custom": "Historical"
+            },
+            "asset": {
+                "label": "nrt alert asset"
             },
             "recent": {
                 "label": "In the last"
