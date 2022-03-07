@@ -7,6 +7,12 @@ from component import parameter as cp
 
 
 class AoiView(aoi.AoiView):
+    """
+    Extend the aoi_view component from sepal_ui.mapping to add
+    the extra coloring parameter used in this application. To do so we were
+    forced to copy/paste the _update_aoi
+    """
+
     def __init__(self, **kwargs):
 
         # create the map
@@ -17,7 +23,10 @@ class AoiView(aoi.AoiView):
 
     @su.loading_button(debug=False)
     def _update_aoi(self, widget, event, data):
-        """load the object in the model & update the map (if possible)"""
+        """
+        extention of the original method that display information on the map.
+        In the ee display we changed the display parameters
+        """
 
         # update the model
         self.model.set_object()
