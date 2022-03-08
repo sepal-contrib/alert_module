@@ -4,7 +4,7 @@ from component import widget as cw
 from component import parameter as cp
 from .setting_tile import SettingTile
 from .metadata_tile import MetadataTile
-from .planet_tile import PlanetTile
+from .ee_planet_tile import EEPlanetTile
 
 
 class MapTile(sw.Tile):
@@ -21,18 +21,18 @@ class MapTile(sw.Tile):
             map_=self.map,
             aoi_model=self.settings.aoi_view.model,
         )
-        self.planet = PlanetTile(
+        self.ee_planet = EEPlanetTile(
             alert_model=self.settings.alert_view.alert_model, map_=self.map
         )
 
         # place them in the map
         self.map.add_widget_as_control(self.settings, "bottomright")
         self.map.add_widget_as_control(self.metadata, "bottomleft")
-        self.map.add_widget_as_control(self.planet, "topright", True)
+        self.map.add_widget_as_control(self.ee_planet, "topright", True)
 
         # link to the btn for activation
         self.map.parameters_btn.on_click(lambda *args: self.settings.toggle_viz())
         self.map.metadata_btn.on_click(lambda *args: self.metadata.toggle_viz())
-        self.map.navigate_btn.on_click(lambda *args: self.planet.toggle_viz())
+        self.map.navigate_btn.on_click(lambda *args: self.ee_planet.toggle_viz())
 
         super().__init__(id_="map_tile", title="", inputs=[self.map])

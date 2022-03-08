@@ -5,6 +5,7 @@ from component import widget as cw
 from component.message import cm
 from .alert_view import AlertView
 from .aoi_view import AoiView
+from .planet_view import PlanetView
 
 
 class SettingTile(sw.Card):
@@ -13,6 +14,7 @@ class SettingTile(sw.Card):
         # create the 2 subtiles
         self.aoi_view = AoiView(map_=map_)
         self.alert_view = AlertView(self.aoi_view.model, map_)
+        self.planet_view = PlanetView(self.alert_view.alert_model)
 
         # set them into a tab widget
         tabs = sw.Tabs(
@@ -21,6 +23,7 @@ class SettingTile(sw.Card):
             children=[
                 sw.Tab(children=[cm.view.setting.aoi], key=0),
                 sw.Tab(children=[cm.view.setting.alert], key=1),
+                sw.Tab(children=[cm.view.setting.planet], key=2),
             ],
         )
 
@@ -30,6 +33,7 @@ class SettingTile(sw.Card):
             children=[
                 sw.TabItem(children=[self.aoi_view], key=0),
                 sw.TabItem(children=[self.alert_view], key=1),
+                sw.TabItem(children=[self.planet_view], key=2),
             ],
         )
 

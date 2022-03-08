@@ -15,7 +15,7 @@ from component import scripts as cs
 from component.message import cm
 
 
-class PlanetTile(sw.Card):
+class EEPlanetTile(sw.Card):
     """
     A card to select the information from the planet imagery
     """

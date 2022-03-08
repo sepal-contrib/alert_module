@@ -9,7 +9,7 @@ from component.message import cm
 class AlertModel(model.Model):
 
     ############################################################################
-    # input
+    # alert input
     ############################################################################
     alert_collection = Any(None).tag(sync=True)
     "the alert collection to use as entry source, not everything is supported"
@@ -31,6 +31,27 @@ class AlertModel(model.Model):
 
     current_id = Any(None).tag(sync=True)
     "the id of the feature currently displayed on the map"
+
+    ############################################################################
+    # planet inputs
+    ############################################################################
+    api_key = Any(None).tag(sync=True)
+    "the user api key"
+
+    valid_key = Any(False).tag(sync=True)
+    "set to true if the key is validated to display alert information"
+
+    days_before = Any(1).tag(sync=True)
+    "number of days to include in the query before the requested date"
+
+    days_after = Any(1).tag(sync=True)
+    "number of days to include in the query after the requested date"
+
+    cloud_cover = Any(20).tag(sync=True)
+    "tolerated cloud coverage for the Planet imagery"
+
+    max_images = Any(6).tag(sync=True)
+    "max number of images to use for the planet mosaic"
 
     ############################################################################
     # output

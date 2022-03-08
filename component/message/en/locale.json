@@ -98,13 +98,24 @@
             "export": "The file have been exported to {}"
         },
         "planet": {
+            "advance": {
+                "title": "Advanced parameters",
+                "days_before": "Search up to (day before)",
+                "days_after": "Search up to (day after)",
+                "max_images": "Search up to (max image)",
+                "cloud_cover": "cloud cover"
+            },
+            "key":{
+                "label": "Planet API key"
+            },
             "date": {
                 "label": "dates"
             }
         },
         "setting": {
             "aoi": "AOI",
-            "alert": "Alert"
+            "alert": "Alert",
+            "planet": "Planet"
         }
     }
 }
