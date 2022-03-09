@@ -89,6 +89,7 @@ class EEPlanetTile(sw.Card):
         # add javascript events
         self.close.on_event("click", lambda *args: self.hide())
         self.alert_model.observe(self.load_dates, "current_id")
+        self.alert_model.observe(self._toggle_widget, "valid_key")
         self.w_prev.on_event("click", self.prev_)
         self.w_next.on_event("click", self.next_)
         self.w_now.on_event("click", self.now_)
@@ -149,6 +150,10 @@ class EEPlanetTile(sw.Card):
         """
         load the available image date for the custom feature
         """
+
+        # exit straigh away if an API key is validated
+        if self.alert_model.valid_key is True:
+            return
 
         # unable the widget
         self.unable()
@@ -297,3 +302,17 @@ class EEPlanetTile(sw.Card):
         self.w_date.disabled = True
 
         return self
+
+    def _toggle_widget(self, change):
+        """
+        change visibility and displayed information based on the API status
+        Only used to close the widget if the value were displayed before the
+        validation of the API key
+        """
+
+        if change["new"] is True:
+            self.w_date.v_model = None
+            self.disable()
+            self.hide()
+
+        return

@@ -58,7 +58,7 @@ class PlanetView(sw.Card):
         """cancel the use of planet API"""
 
         self.alert_model.api_key = None
-        self.valid_key = False
+        self.alert_model.valid_key = False
 
         self.alert.add_msg(cm.view.planet.error.to_gee)
 

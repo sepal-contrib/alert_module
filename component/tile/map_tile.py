@@ -33,6 +33,20 @@ class MapTile(sw.Tile):
         # link to the btn for activation
         self.map.parameters_btn.on_click(lambda *args: self.settings.toggle_viz())
         self.map.metadata_btn.on_click(lambda *args: self.metadata.toggle_viz())
-        self.map.navigate_btn.on_click(lambda *args: self.ee_planet.toggle_viz())
+        self.map.navigate_btn.on_click(self._toggle_planet_viz)
 
         super().__init__(id_="map_tile", title="", inputs=[self.map])
+
+    def _toggle_planet_viz(self, *args):
+        """
+        Don't toogle the same planet widget based on the API key
+        If the planet API key is validated we'll use NICFI Level 2 data and the Planet API
+        if not we fallback to pure GEE and NICFI level 1
+        """
+
+        model = self.settings.alert_view.alert_model
+
+        if model.valid_key is False:
+            self.ee_planet.toggle_viz()
+
+        return
