@@ -110,6 +110,12 @@
             },
             "date": {
                 "label": "dates"
+            },
+            "error": {
+                "no_key": "Please provide a Planet API key",
+                "to_gee": "falling back to the GEE NICFI level 1 binding",
+                "valid_key": "The Planet API key have been validated, you are now using NICFI level 2 data",
+                "unvalid_key": "The provided Planet API cannot be validated"
             }
         },
         "setting": {

@@ -102,6 +102,14 @@ class PlanetParam(sw.ExpansionPanels):
         # shrunk the content on start
         self.shrunk()
 
+        # set the parameters in the model
+        (
+            self.model.bind(self.w_days_before, "days_before")
+            .bind(self.w_days_after, "days_after")
+            .bind(self.w_max_images, "max_images")
+            .bind(self.w_cloud_cover, "cloud_cover")
+        )
+
         super().__init__(
             v_model=None, class_="mt-2", children=[sw.ExpansionPanel(children=children)]
         )

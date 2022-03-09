@@ -4,6 +4,7 @@ from traitlets import Bool
 
 from component.message import cm
 from component import widget as cw
+from component import scripts as cs
 
 
 class PlanetView(sw.Card):
@@ -30,9 +31,12 @@ class PlanetView(sw.Card):
         # set up an alert to show information to the user
         self.alert = sw.Alert()
 
+        # bind the parameters to the model
+        self.alert_model.bind(self.w_key, "api_key")
+
         # manually decorate the functions
-        self.cancel = su.loading_button(self.alert, self.c_btn)(self.cancel)
-        self.apply = su.loading_button(self.alert, self.btn)(self.apply)
+        self.cancel = su.loading_button(self.alert, self.c_btn, True)(self.cancel)
+        self.apply = su.loading_button(self.alert, self.btn, True)(self.apply)
 
         # create the object
         super().__init__(
@@ -56,11 +60,32 @@ class PlanetView(sw.Card):
         self.alert_model.api_key = None
         self.valid_key = False
 
+        self.alert.add_msg(cm.view.planet.error.to_gee)
+
         return
 
     def apply(self, widget, event, data):
         """validate the api key"""
 
-        print("toto")
+        # check that a value is set for the api key
+        if not self.alert.check_input(
+            self.alert_model.api_key, cm.view.planet.error.no_key
+        ):
+            return
+
+        # check the key
+        valid = cs.is_active(self.alert_model.api_key)
+
+        # set the valid value in the model
+        self.alert_model.valid_key = valid
+
+        # display information to the end user
+        msg = (
+            cm.view.planet.error.valid_key
+            if valid is True
+            else cm.view.planet.error.unvalid_key
+        )
+        type_ = "success" if valid is True else "error"
+        self.alert.add_msg(msg, type_)
 
         return
