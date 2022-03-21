@@ -22,8 +22,8 @@ class SettingTile(sw.Card):
             v_model=0,
             children=[
                 sw.Tab(children=[cm.view.setting.aoi], key=0),
-                sw.Tab(children=[cm.view.setting.alert], key=1),
-                sw.Tab(children=[cm.view.setting.planet], key=2),
+                sw.Tab(children=[cm.view.setting.planet], key=1),
+                sw.Tab(children=[cm.view.setting.alert], key=2),
             ],
         )
 
@@ -32,8 +32,8 @@ class SettingTile(sw.Card):
             v_model=0,
             children=[
                 sw.TabItem(children=[self.aoi_view], key=0),
-                sw.TabItem(children=[self.alert_view], key=1),
-                sw.TabItem(children=[self.planet_view], key=2),
+                sw.TabItem(children=[self.planet_view], key=1),
+                sw.TabItem(children=[self.alert_view], key=2),
             ],
         )
 
