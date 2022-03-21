@@ -25,8 +25,10 @@ class PlanetView(sw.Card):
         # cancel will cancel the use of planet data and switch to GEE based map
         # instead
         # btn is called c_btn instead of cancel to avoid duplication
-        self.btn = sw.Btn("apply", "fas fa-check")
-        self.c_btn = sw.Btn("cancel", "fas fa-times", outlined=True, class_="mr-1")
+        self.btn = sw.Btn("apply", "fas fa-check", color="secondary")
+        self.c_btn = sw.Btn(
+            "cancel", "fas fa-times", color="error", outlined=True, class_="mr-1"
+        )
 
         # set up an alert to show information to the user
         self.alert = sw.Alert()

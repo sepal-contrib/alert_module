@@ -21,6 +21,9 @@ class AoiView(aoi.AoiView):
         # nest the tile
         self.elevation = False
 
+        # change btn color
+        self.btn.color = "secondary"
+
     @su.loading_button(debug=False)
     def _update_aoi(self, widget, event, data):
         """
