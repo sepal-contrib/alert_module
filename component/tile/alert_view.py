@@ -177,8 +177,6 @@ class AlertView(sw.Card):
 
             self.alert.update_progress(i / len(grid), bar_length=20)
 
-        print(data)
-
         # save the clumps as a geoJson dict in the model
         gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
         gdf["review"] = cm.view.metadata.status.unset

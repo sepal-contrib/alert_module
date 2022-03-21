@@ -111,7 +111,7 @@ class EEPlanetTile(sw.Card):
         """
 
         # remove the previous layer
-        self.map.remove_layername("planet")
+        self.map.remove_layername(cm.map.layer.planet)
         self.free_btn(None)
 
         # exit if nothing is selected
@@ -172,7 +172,7 @@ class EEPlanetTile(sw.Card):
         feat = self.alert_model.gdf.loc[[change["new"]]].squeeze()
 
         # we buffer on a 10% bigger surface than the observed alert
-        # minimal size is 1 km
+        # minimal size is 200m
         size = math.sqrt(feat.surface / math.pi) * 0.1
         size = max(200, size)
 
