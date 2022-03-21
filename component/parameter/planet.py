@@ -10,4 +10,6 @@ regex_bianual = (
 )
 
 # NICFI url for tilelayer
-planet_tile_url = "https://tiles0.planet.com/data/v1/{}/{}/{{z}}/{{x}}/{{y}}.png?api_key={}"
+planet_tile_url = (
+    "https://tiles0.planet.com/data/v1/{}/{}/{{z}}/{{x}}/{{y}}.png?api_key={}"
+)

@@ -25,8 +25,8 @@ class APIPlanetTile(sw.Card):
 
     current_date = None
     "the date saved as a datetime object"
-    
-    layers = None 
+
+    layers = None
     "list: the list of the currently displayed planet layers"
 
     def __init__(self, alert_model, map_):
@@ -36,8 +36,8 @@ class APIPlanetTile(sw.Card):
 
         # get the map as a member
         self.map = map_
-        
-        # init the layer list 
+
+        # init the layer list
         self.layers = []
 
         # add the base widgets
@@ -108,7 +108,7 @@ class APIPlanetTile(sw.Card):
     def update_image(self, change):
 
         # remove any existing image
-        for l in self.layers: 
+        for l in self.layers:
             self.map.remove_layername(l)
         self.layers = []
 
@@ -128,19 +128,23 @@ class APIPlanetTile(sw.Card):
             self.current_day + end,
             self.alert_model.cloud_cover,
         )
-        
-        for i, e in enumerate(items):  
+
+        for i, e in enumerate(items):
             date = pd.to_datetime(e["properties"]["acquired"]).strftime("%Y-%m-%d")
             item_type = e["properties"]["item_type"]
             id_ = e["id"]
             name = f"{item_type} {date} ({i})"
-            self.map.add_layer(TileLayer(
-                url=cp.planet_tile_url.format(item_type, id_, self.alert_model.api_key),
-                name=name,
-                attribution="Imagery © Planet Labs Inc."
-            ))
+            self.map.add_layer(
+                TileLayer(
+                    url=cp.planet_tile_url.format(
+                        item_type, id_, self.alert_model.api_key
+                    ),
+                    name=name,
+                    attribution="Imagery © Planet Labs Inc.",
+                )
+            )
             self.layers.append(name)
-        
+
         return
 
     def _toggle_widget(self, change):
@@ -203,9 +207,9 @@ class APIPlanetTile(sw.Card):
 
         # extract the geometry
         feat = self.alert_model.gdf.loc[[change["new"]]]
-        
+
         # buffer around the feature in 3857
-        feat = feat.to_crs("EPSG:3857") 
+        feat = feat.to_crs("EPSG:3857")
         feat.geometry = [box(*feat.geometry.buffer(200, cap_style=3).total_bounds)]
         feat = feat.to_crs("EPSG:4326").squeeze()
 
