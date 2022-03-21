@@ -5,10 +5,14 @@ from datetime import datetime, timedelta
 from sepal_ui import sepalwidgets as sw
 from traitlets import Bool
 from shapely_geojson import dumps
+from shapely.geometry import box
+from ipyleaflet import TileLayer
+import pandas as pd
 
 from component import widget as cw
 from component.message import cm
 from component import scripts as cs
+from component import parameter as cp
 
 
 class APIPlanetTile(sw.Card):
@@ -21,6 +25,9 @@ class APIPlanetTile(sw.Card):
 
     current_date = None
     "the date saved as a datetime object"
+    
+    layers = None 
+    "list: the list of the currently displayed planet layers"
 
     def __init__(self, alert_model, map_):
 
@@ -29,6 +36,9 @@ class APIPlanetTile(sw.Card):
 
         # get the map as a member
         self.map = map_
+        
+        # init the layer list 
+        self.layers = []
 
         # add the base widgets
         self.close = sw.Icon(children=["mdi-close"], x_small=True)
@@ -97,10 +107,10 @@ class APIPlanetTile(sw.Card):
 
     def update_image(self, change):
 
-        print(self.w_date.v_model)
-
         # remove any existing image
-        self.map.remove_layername(cm.map.layer.planet)
+        for l in self.layers: 
+            self.map.remove_layername(l)
+        self.layers = []
 
         # if nothing is selected exit immediately
         if self.w_date.v_model is None:
@@ -110,8 +120,6 @@ class APIPlanetTile(sw.Card):
         start = timedelta(days=-self.alert_model.days_before)
         end = timedelta(days=self.alert_model.days_after)
 
-        print("bite")
-
         # retreive the layer from planet
         items = cs.get_planet_items(
             self.alert_model.api_key,
@@ -120,17 +128,19 @@ class APIPlanetTile(sw.Card):
             self.current_day + end,
             self.alert_model.cloud_cover,
         )
-
-        print("bite encore")
-        print(items)
-
-        # layer = TileLayer(
-        #            url=param.PLANET_TILES_URL.format(
-        #                row.item_type, row.id, self.model.api_key
-        #            ),
-        #            name=f"{row.item_type}, {row.date}",
-        #            attribution="Imagery © Planet Labs Inc.",
-        #        )
+        
+        for i, e in enumerate(items):  
+            date = pd.to_datetime(e["properties"]["acquired"]).strftime("%Y-%m-%d")
+            item_type = e["properties"]["item_type"]
+            id_ = e["id"]
+            name = f"{item_type} {date} ({i})"
+            self.map.add_layer(TileLayer(
+                url=cp.planet_tile_url.format(item_type, id_, self.alert_model.api_key),
+                name=name,
+                attribution="Imagery © Planet Labs Inc."
+            ))
+            self.layers.append(name)
+        
         return
 
     def _toggle_widget(self, change):
@@ -192,16 +202,15 @@ class APIPlanetTile(sw.Card):
             return
 
         # extract the geometry
-        feat = self.alert_model.gdf.loc[[change["new"]]].squeeze()
-
-        # we buffer on a 10% bigger surface than the observed alert
-        # minimal size is 200m
-        size = math.sqrt(feat.surface / math.pi) * 0.1
-        size = max(200, size)
+        feat = self.alert_model.gdf.loc[[change["new"]]]
+        
+        # buffer around the feature in 3857
+        feat = feat.to_crs("EPSG:3857") 
+        feat.geometry = [box(*feat.geometry.buffer(200, cap_style=3).total_bounds)]
+        feat = feat.to_crs("EPSG:4326").squeeze()
 
         # create a buffer geometry
-        self.buffer = feat.geometry.buffer(size, cap_style=3).__geo_interface__
-        # self.buffer = feat.to_json()
+        self.buffer = feat.geometry.__geo_interface__
 
         # show the widget
         self.show()

@@ -8,3 +8,6 @@ regex_monthly = "^.*?planet_medres_normalized_analytic_(\d{4})-(\d{2})_mosaic$"
 regex_bianual = (
     "^.*?planet_medres_normalized_analytic_(\d{4})-(\d{2})_\d{4}-(\d{2})_mosaic$"
 )
+
+# NICFI url for tilelayer
+planet_tile_url = "https://tiles0.planet.com/data/v1/{}/{}/{{z}}/{{x}}/{{y}}.png?api_key={}"

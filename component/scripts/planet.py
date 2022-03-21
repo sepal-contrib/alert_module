@@ -82,26 +82,18 @@ def get_planet_items(api_key, aoi, start, end, cloud_cover):
 
     query = filters.and_filter(
         filters.geom_filter(aoi),
-        # filters.range_filter("cloud_cover", lte=cloud_cover),
+        filters.range_filter("cloud_cover", lte=cloud_cover),
         filters.date_range("acquired", gt=start),
         filters.date_range("acquired", lt=end),
     )
 
     # Skipping REScene because is not orthorrectified and
     # cannot be clipped.
-    asset_types = [
-        "PSScene",
-        "PSScene3Band",
-        "PSScene4Band",
-        "PSOrthoTile",
-        "REOrthoTile",
-    ]
+    asset_types = ["PSScene"]
 
     # build the request
     request = filters.build_search_request(query, asset_types)
     result = client(api_key).quick_search(request)
-
-    print(len(result))
 
     # get all the results
     items_pages = []
