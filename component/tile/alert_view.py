@@ -194,6 +194,8 @@ class AlertView(sw.Card):
         # reset the ids
         gdf["id"] = gdf.index
 
+        print(len(gdf))
+
         # exit if nothing is found
         if len(gdf) == 0:
             raise Exception(cm.view.alert.error.no_alerts)
@@ -305,14 +307,14 @@ class AlertView(sw.Card):
         # ).year
 
         min_ = datetime.strptime("2022-01-01", "%Y-%m-%d")
-        max_ = datetime.strptime(
-            "2022-12-31",
-        )
+        max_ = datetime.strptime("2022-12-31", "%Y-%m-%d")
 
         ########################################################################
 
         # apply it to the w_historic
         self.w_historic.init(min_, max_)
+        self.w_historic.w_start.menu.children[0].v_model = min_
+        self.w_historic.w_end.menu.children[0].v_model = max_
         # self.w_historic.unable()
 
         return

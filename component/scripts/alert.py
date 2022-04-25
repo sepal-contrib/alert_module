@@ -77,7 +77,7 @@ def get_alerts(collection, start, end, aoi, asset):
     elif collection == "RADD":
         alerts = _from_radd(start, end, aoi)
     elif collection == "NRT":
-        alerts = _from_andreas_nrt(start, end, aoi, asset)
+        alerts = _from_nrt(aoi, asset)
     else:
         raise Exception(cm.alert.wrong_collection.format(collection))
 
@@ -202,38 +202,25 @@ def _from_radd(start, end, aoi):
     return all_alerts
 
 
-def _from_andreas_nrt(start, end, aoi, asset):
+def _from_nrt(aoi, asset):
     "reformat andreas alert sytem to be compatible with the rest of the apps"
-
-    # extract dates from parameters
-    start = datetime.strptime(start, "%Y-%m-%d")
-    end = datetime.strptime(end, "%Y-%m-%d")
 
     # read the image
     alerts = ee.Image(asset)
 
-    # filter the alerts dates
-    # extract julian dates ()
-    start = int(start.strftime("%y%j"))
-    end = int(end.strftime("%y%j"))
-
-    # create a date mask
-    mask = (
-        alerts.select("detected_sum")
-        .gt(1)
-        .And(alerts.select("detected_doy").gt(start))
-        .And(alerts.select("detected_doy").lt(end))
-    )
+    # create a alert mask
+    mask = alerts.select("detection_count").neq(0)
 
     # create a unique alert band
     # only confirmed alerts are taken into account
     # we split confirmed from potential by looking at the number of observations
-    alert_band = alerts.select("confirmed").unmask().mask(mask).rename("alert")
+    alert_band = alerts.select("detection_count").updateMask(mask).rename("alert").int()
+    alert_band = alert_band.where(alert_band.gte(1).And(alert_band.lt(3)), 2).where(
+        alert_band.gte(3), 1
+    )
 
     # create a unique date band
-    date_band = (
-        alerts.select("detected_doy").divide(1000).add(2000).mask(mask).rename("date")
-    )
+    date_band = alerts.select("first_detection_date").mask(mask).rename("date")
 
     # create the composit image
     all_alerts = alert_band.addBands(date_band)
