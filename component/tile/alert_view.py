@@ -249,9 +249,13 @@ class AlertView(sw.Card):
         self.w_asset.hide()
 
         # if nrt system is set I need to show the asset select widget first
-        # the datepicker will be updted with the asset
+        # the datepicker is discarded as the information won't be needed
         if change["new"] == "NRT":
             self.w_asset.show()
+            self.w_historic.hide()
+            self.w_recent.hide()
+            self.w_alert_type.hide()
+            
 
         # init the datepicker with appropriate min and max values
         elif change["new"] in ["RADD", "GLAD"]:
@@ -293,6 +297,6 @@ class AlertView(sw.Card):
 
         # apply it to the w_historic
         self.w_historic.init(min_, max_)
-        self.w_historic.unable()
+        #self.w_historic.unable()
 
         return
