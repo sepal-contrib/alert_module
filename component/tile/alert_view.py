@@ -290,16 +290,26 @@ class AlertView(sw.Card):
 
         if change["new"] is None:
             return
+        ########################################################################
+        ##       broken for now I'll set 2022-01-01 to 2022-12-31             ##
+        ########################################################################
 
-        # read the asset and extract the start and end timestamps
-        image = ee.Image(change["new"])
+        ## read the asset and extract the start and end timestamps
+        # image = ee.Image(change["new"])
+        #
+        # min_ = datetime.fromtimestamp(
+        #    image.get("system:time_start").getInfo() / 1000
+        # ).year
+        # max_ = datetime.fromtimestamp(
+        #    image.get("system:time_end").getInfo() / 1000
+        # ).year
 
-        min_ = datetime.fromtimestamp(
-            image.get("system:time_start").getInfo() / 1000
-        ).year
-        max_ = datetime.fromtimestamp(
-            image.get("system:time_end").getInfo() / 1000
-        ).year
+        min_ = datetime.strptime("2022-01-01", "%Y-%m-%d")
+        max_ = datetime.strptime(
+            "2022-12-31",
+        )
+
+        ########################################################################
 
         # apply it to the w_historic
         self.w_historic.init(min_, max_)
