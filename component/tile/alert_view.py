@@ -244,6 +244,7 @@ class AlertView(sw.Card):
         """set the min and max year based on the selected data collection"""
 
         # empty and hide the component by default
+        self.w_alert_type.show()
         self.w_historic.disable()
         self.w_asset.reset()
         self.w_asset.hide()
@@ -255,13 +256,18 @@ class AlertView(sw.Card):
             self.w_historic.hide()
             self.w_recent.hide()
             self.w_alert_type.hide()
-            
 
         # init the datepicker with appropriate min and max values
         elif change["new"] in ["RADD", "GLAD"]:
             year_list = cp.alert_drivers[change["new"]]["available_years"]
             self.w_historic.init(min(year_list), max(year_list))
             self.w_historic.unable()
+
+        # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
+        # 2022 dates are thus unavialable. To avoid issues, we only display the historical options
+        if change["new"] == "GLAD":
+            self.w_alert_type.hide()
+            self.w_alert_type.v_model = "HISTORICAL"
 
         return self
 
@@ -297,6 +303,6 @@ class AlertView(sw.Card):
 
         # apply it to the w_historic
         self.w_historic.init(min_, max_)
-        #self.w_historic.unable()
+        # self.w_historic.unable()
 
         return
