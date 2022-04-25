@@ -4,6 +4,8 @@ import ee
 from component import parameter as cp
 from component.message import cm
 
+from .utils import to_date
+
 
 def get_alerts_clump(alerts, aoi):
     """
@@ -72,13 +74,13 @@ def get_alerts(collection, start, end, aoi, asset):
         (ee.Image) the alert Image
     """
 
-    if collection == "GLAD_L":
+    if collection == "GLAD-L":
         alerts = _from_glad_l(start, end, aoi)
     elif collection == "RADD":
         alerts = _from_radd(start, end, aoi)
     elif collection == "NRT":
         alerts = _from_nrt(aoi, asset)
-    elif collection == "GLAD_S":
+    elif collection == "GLAD-S":
         alerts = _from_glad_s(start, end, aoi)
     else:
         raise Exception(cm.alert.wrong_collection.format(collection))
@@ -113,7 +115,7 @@ def _from_glad_l(start, end, aoi):
         start = period[0].timetuple().tm_yday
         end = period[1].timetuple().tm_yday
 
-        if year < cp.alert_drivers["GLAD"]["last_updated"]:
+        if year < cp.alert_drivers["GLAD-L"]["last_updated"]:
             source = f"projects/glad/alert/{year}final"
         else:
             source = "projects/glad/alert/UpdResult"
@@ -233,7 +235,7 @@ def _from_nrt(aoi, asset):
 
 
 def _from_glad_s(start, end, aoi):
-    """reformat the radd alerts to fit the module expectation"""
+    """reformat the glad-s alerts to fit the module expectation"""
 
     # extract dates from parameters
     start = datetime.strptime(start, "%Y-%m-%d")
@@ -244,24 +246,21 @@ def _from_glad_s(start, end, aoi):
 
     # select the alerts and mosaic them as image
     alert_band = ee.Image(init + "/alert").selfMask().uint16().rename("alert")
-    date_band = ee.Image(init="/obsDate").selfMask().rename("date")
+    date_band = ee.Image(init + "/obsDate").selfMask().rename("date")
 
     # alerts are stored in int : number of days since 2018-12-31
     origin = datetime.strptime("2018-12-31", "%Y-%m-%d")
     start = (start - origin).days
     end = (end - origin).days
-    date_band = date_band.updatemask(date_band.gt(start).And(date_band.lt(end)))
+    date_band = date_band.updateMask(date_band.gt(start).And(date_band.lt(end)))
 
     # remap the alerts and mask the alerts
-    alert_band = alert_band.remap([0, 1, 2, 3, 4], [0, 2, 2, 1, 1]).updateMask(
-        date_band.mask()
-    )
+    alert_band = (
+        alert_band.remap([0, 1, 2, 3, 4], [0, 2, 2, 1, 1]).updateMask(date_band.mask())
+    ).rename("alert")
 
     # change the date format
-    origin = (origin - datetime.datetime(1970, 1, 1)).days
-    date_band = date_band.add(origin)
-
-    alerts.select("Date").divide(1000).add(2000).rename("date")
+    date_band = to_date(date_band).rename("date")
 
     # create the composit image
     all_alerts = alert_band.addBands(date_band)
