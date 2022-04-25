@@ -1,9 +1,10 @@
 from component.message import cm
 
 alert_drivers = {
-    "GLAD": {"available_years": range(2017, 2022), "last_updated": 2020},
+    "GLAD-L": {"available_years": range(2017, 2022), "last_updated": 2020},
     "RADD": {"available_years": range(2019, 2023)},
     "NRT": {},
+    "GLAD-S": {"available_years": range(2018, 2023)},
 }
 
 # the amont of days to look for in the past
