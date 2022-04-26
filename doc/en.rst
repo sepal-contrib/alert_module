@@ -102,6 +102,11 @@ The process is simple, select a driver in the dropdown list, then select a date 
     :width: 24%
     :title: when selecting The GLAD-S widget
     :group: alert-module
+    
+.. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/nrt_settings.png 
+    :width: 24%
+    :title: when selecting The CUSUM widget
+    :group: alert-module
 
 GLAD-L
 ######
@@ -149,6 +154,15 @@ GLAD-S
 Selecting this alert system, the user will use the GLAD alerts based on the Sentinel 2 satellites.
 
     Loss of primary forest is mapped in near-real time at 10m resolution using Sentinel-2 multispectral data. Cloud, shadow, water are detected in each new Sentinel-2 image and a forest loss algorithm is applied to all remaining clear land observations. The algorithm relies on the spectral data in each new image in combination with spectral metrics from a baseline period of the previous two years. Confidence is built through repeated loss observations in the consequent images. 
+    
+CUSUM
+#####
+
+.. note::
+
+    this will be using the :code:`.tif` output of the `CUSUM module <https://docs.sepal.io/en/latest/modules/dwn/cusum.html>`__.
+    
+Once you've run the CUSUM module, you'll otain a 3 bands :code:`.tif` file. Ingest this file in Google Earth ENgine using the `code editor interface<https://code.earthengine.google.com/>`__. Once the map is available in your asset you can use it in the module. If you don't find the asset in the list, click on the :icon:`fas fa-sync` icon to reload your asset list.
 
 Validation
 ##########
