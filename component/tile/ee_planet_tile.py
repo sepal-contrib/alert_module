@@ -176,7 +176,7 @@ class EEPlanetTile(sw.Card):
         # we buffer on a 10% bigger surface than the observed alert
         # minimal size is 200m
         size = math.sqrt(feat.surface / math.pi) * 0.1
-        size = max(200, size)
+        size = max(1000, size)
 
         # create a buffer geometry
         self.buffer = ee.Geometry(feat.geometry.__geo_interface__).buffer(size).bounds()
