@@ -45,12 +45,12 @@ On the top left corner of the map. 3 buttons will help the user navigate through
 Settings
 --------
 
-The settings need to be fully validated to load the alerts on the map. it has 3 sections **AOI**, **Planet** and ** It's de first step of the process.
+The settings need to be fully validated to load the alerts on the map. it has 3 sections **AOI**, **Planet** and **Metadata** It's de first step of the process.
 
 Area of interest
 ^^^^^^^^^^^^^^^^
 
-The area o interest, also called AOI is set using the same AOI interface as in other applications. You can read the `module aoi <https://docs.sepal.io/en/latest/feature/aoi_selector.html#module-aoi>`__ for more information. 
+The area of interest, also called AOI is set using the same AOI interface as in other applications. You can read the `module aoi page <https://docs.sepal.io/en/latest/feature/aoi_selector.html#module-aoi>`__ for more information. 
 
 In this step the user will be able to select any type of AOI method. when validated, the AOI will be displayed in gold on the map. 
 
@@ -65,7 +65,7 @@ Planet
 
     this panel is fully optional. If nothing is set, The module will use Planet NICFI level 1 data (monthly mosaics). If you have a NICFI level 2 access, providing your API key will grant you access to daily imagery.
 
-click on **Planet** to access the second tab and fill the Planet API key field withthe one associated your NICFI level 2 programm. once validated you'll be able to modify the Planet advance parameters. This parameters are use to request images to Planet, some default parameter have been set but changing may improve the readability of the image. 
+click on **Planet** to access the second tab and fill the Planet API key field with the one associated with your NICFI level 2 programm. Once validated you'll be able to modify the Planet advance parameters. These parameters are used to request images to Planet, some default parameters have been set but changes may improve the readability of the image. 
 
 -   **number of images**: the max number of images to display on the map, default to 6
 -   **day before**: number of previous day the interface can search for images. useful when lot of cloud coverage, default to 1 
@@ -150,6 +150,9 @@ Selecting this alert system, the user will use the GLAD alerts based on the Sent
 
     Loss of primary forest is mapped in near-real time at 10m resolution using Sentinel-2 multispectral data. Cloud, shadow, water are detected in each new Sentinel-2 image and a forest loss algorithm is applied to all remaining clear land observations. The algorithm relies on the spectral data in each new image in combination with spectral metrics from a baseline period of the previous two years. Confidence is built through repeated loss observations in the consequent images. 
 
+Validation
+##########
+
 Once everything is set, the user can click on :btn:`select alerts` and the module will start downloading the information from google earth engine. the module will tile the AOI in smaller chunks to avoid GEE limitation, if you use a big area downloading can take up to 15 min. The alerts are displayed as shapes in red on the map and the settings panel will close automatically. If alerts are found in your AOI, the metadata panel will open automatically.
 
 Metadata
@@ -167,7 +170,7 @@ The metadata panel will allow the user to validate the displayed alerts. on the 
 
 .. tip::
 
-    TO move from one alert to another, the user can also directly click on the map, the information will be loaded automatically.
+    To jump from one alert to another, the user can also directly click on the map, the information will be loaded automatically.
 
 To evaluate the validity of the alert the user can use the available Planet imagery.
 
@@ -188,6 +191,7 @@ Click on the :btn:`<fas fa-palette>` to change the color of the images from CIR 
     :group: alert-module
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/planet_monthly_cir.png 
+    :width: 49%
     :title: the planet monthly mosaic displayed in cir
     :group: alert-module
     
@@ -204,7 +208,7 @@ Level 2 data are daily imagery. When an alert is clicked, the module will load t
 
     Multiple images are displayed at once so don't hesitate to play with the layer control to hide and show different scenes.
     
-Thus user can navigate through the images using the buttons in the Planet navigator. Click on :btn:`<fas fa-chevron-left>` (res. :btn:`<fas fa-chevron-right>`) to move one day in the past (res. one day in the future). Click on :btn:`<fas fa-chevrons-left>` (res. :btn:`<fas fa-chevrons-right>`) to move one month in the past (res. one month in the future). The :btn:`<fas fa-circle>` will set back on the closest date from the observation date. 
+Thus user can navigate through the images using the buttons in the Planet navigator. Click on :btn:`<fas fa-chevron-left>` (res. :btn:`<fas fa-chevron-right>`) to move one day in the past (res. one day in the future). Click on :btn:`<fas fa-chevron-double-left>` (res. :btn:`<fas fa-chevron-double-right>`) to move one month in the past (res. one month in the future). The :btn:`<fas fa-circle>` will set back on the closest date from the observation date. 
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/planet_daily.png 
     :title: the planet daily mosaic displayed in cir
@@ -213,7 +217,7 @@ Thus user can navigate through the images using the buttons in the Planet naviga
 Export
 ------
 
-Once the alerts are validated, the user can download them in .csv using the center of the alert as coordinates or as a geopackage (.gpkg) to keep the shapes of the alerts. 
+Once the alerts are validated, the user can download them in :code:`.csv` using the center of the alert as coordinates or as a geopackage (:code:`.gpkg`) to keep the shapes of the alerts. 
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/validate_download.png 
     :title: the planet daily mosaic displayed in cir
