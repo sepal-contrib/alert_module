@@ -48,17 +48,17 @@ class APIPlanetTile(sw.Card):
 
         # create the control widgets
         self.w_prev_month = cw.MapBtn(
-            "fa fa-chevron-double-left", class_="ma-0", attributes={"increm": -20}
+            "mdi-chevron-double-left", class_="ma-0", attributes={"increm": -20}
         )
         self.w_prev_day = cw.MapBtn(
-            "fas fa-chevron-left", class_="ma-0", attributes={"increm": -1}
+            "mdi-chevron-left", class_="ma-0", attributes={"increm": -1}
         )
-        self.w_now = cw.MapBtn("fas fa-circle", class_="ma-0", attributes=None)
+        self.w_now = cw.MapBtn("far fa-circle", class_="ma-0", attributes=None)
         self.w_next_day = cw.MapBtn(
-            "fas fa-chevron-right", class_="ma-0", attributes={"increm": 1}
+            "mdi-chevron-right", class_="ma-0", attributes={"increm": 1}
         )
         self.w_next_month = cw.MapBtn(
-            "fas fa-chevron-double-right", class_="ma-0", attributes={"increm": 20}
+            "mdi-chevron-double-right", class_="ma-0", attributes={"increm": 20}
         )
         self.w_date = sw.TextField(
             label=cm.view.planet.date.label,

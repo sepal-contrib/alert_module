@@ -51,9 +51,9 @@ class EEPlanetTile(sw.Card):
 
         # create the control widgets
         self.w_color = cw.MapBtn("fas fa-palette")
-        self.w_prev = cw.MapBtn("fas fa-chevron-left", class_="ma-0")
+        self.w_prev = cw.MapBtn("mdi-chevron-left", class_="ma-0")
         self.w_now = cw.MapBtn("far fa-circle", class_="ma-0")
-        self.w_next = cw.MapBtn("fas fa-chevron-right", class_="ma-0")
+        self.w_next = cw.MapBtn("mdi-chevron-right", class_="ma-0")
         self.w_date = sw.Select(
             label=cm.view.planet.date.label,
             items=[],
@@ -176,7 +176,7 @@ class EEPlanetTile(sw.Card):
         # we buffer on a 10% bigger surface than the observed alert
         # minimal size is 200m
         size = math.sqrt(feat.surface / math.pi) * 0.1
-        size = max(200, size)
+        size = max(1000, size)
 
         # create a buffer geometry
         self.buffer = ee.Geometry(feat.geometry.__geo_interface__).buffer(size).bounds()

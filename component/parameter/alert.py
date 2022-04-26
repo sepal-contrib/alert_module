@@ -5,6 +5,7 @@ alert_drivers = {
     "RADD": {"available_years": range(2019, 2023)},
     "NRT": {},
     "GLAD-S": {"available_years": range(2018, 2023)},
+    "CUSUM": {},
 }
 
 # the amont of days to look for in the past

@@ -13,10 +13,13 @@ class MapBtn(v.Btn, sw.SepalWidget):
 
     def __init__(self, icon_name, **kwargs):
 
+        # check if the icon is a fontawesome icon
+        is_fa = icon_name[:2] == "fa"
+
         # set the default parameters
         kwargs["color"] = kwargs.pop("color", sc.secondary)
         kwargs["x_small"] = kwargs.pop("x_small", True)
         kwargs["class_"] = kwargs.pop("class_", "ml-1 mr-1")
-        kwargs["children"] = [sw.Icon(children=[icon_name], x_small=True)]
+        kwargs["children"] = [sw.Icon(children=[icon_name], x_small=is_fa)]
 
         super().__init__(**kwargs)

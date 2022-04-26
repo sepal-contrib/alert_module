@@ -181,6 +181,7 @@ class MetadataTile(sw.Card):
 
             # zoom the map on the geometry
             self.map.zoom_bounds(feat.geometry.bounds)
+            self.map.zoom = min(16, self.map.zoom)
 
             # display the alert in warning color
             self.map.remove_layername(cm.map.layer.current)

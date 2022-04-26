@@ -215,7 +215,7 @@ class AlertView(sw.Card):
 
     def on_alert_click(self, feature, **kwargs):
         """
-        change the current id on click on a specif alert feature
+        change the current id on click on a specific alert feature
         This change will trigger the modification of the metadata and the map zoom
         """
 
@@ -252,7 +252,7 @@ class AlertView(sw.Card):
 
         # if nrt system is set I need to show the asset select widget first
         # the datepicker is discarded as the information won't be needed
-        if change["new"] == "NRT":
+        if change["new"] in ["NRT", "CUSUM"]:
             self.w_asset.show()
             self.w_historic.hide()
             self.w_recent.hide()
