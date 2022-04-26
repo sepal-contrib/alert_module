@@ -82,6 +82,8 @@ def get_alerts(collection, start, end, aoi, asset):
         alerts = _from_nrt(aoi, asset)
     elif collection == "GLAD-S":
         alerts = _from_glad_s(start, end, aoi)
+    elif collection == "CUSUM":
+        alerts = _from_cusum(aoi, asset)
     else:
         raise Exception(cm.alert.wrong_collection.format(collection))
 
@@ -261,6 +263,32 @@ def _from_glad_s(start, end, aoi):
 
     # change the date format
     date_band = to_date(date_band).rename("date")
+
+    # create the composit image
+    all_alerts = alert_band.addBands(date_band)
+
+    return all_alerts
+
+
+def _from_cusum(aoi, asset):
+    "reformat andreas CUSUM alert sytem to be compatible with the rest of the apps"
+
+    # read the image
+    alerts = ee.Image(asset)
+
+    # create a unique alert band (2nd band of the output)
+    # the alert is considered high confidence if the confidece is above offset
+    offset = 0.5
+    alert_band = alerts.select(2)
+    alert_band = (
+        alert_band.where(alert_band.gte(offset), 1)
+        .where(alert_band.lt(offset), 2)
+        .uint16()
+        .rename("alert")
+    )
+
+    # create a unique date band
+    date_band = alerts.select(0).rename("date")
 
     # create the composit image
     all_alerts = alert_band.addBands(date_band)
