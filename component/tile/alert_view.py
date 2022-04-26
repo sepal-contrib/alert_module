@@ -194,6 +194,8 @@ class AlertView(sw.Card):
         # reset the ids
         gdf["id"] = gdf.index
 
+        print(len(gdf))
+
         # exit if nothing is found
         if len(gdf) == 0:
             raise Exception(cm.view.alert.error.no_alerts)
@@ -244,20 +246,30 @@ class AlertView(sw.Card):
         """set the min and max year based on the selected data collection"""
 
         # empty and hide the component by default
+        self.w_alert_type.show()
         self.w_historic.disable()
         self.w_asset.reset()
         self.w_asset.hide()
 
         # if nrt system is set I need to show the asset select widget first
-        # the datepicker will be updted with the asset
+        # the datepicker is discarded as the information won't be needed
         if change["new"] == "NRT":
             self.w_asset.show()
+            self.w_historic.hide()
+            self.w_recent.hide()
+            self.w_alert_type.hide()
 
         # init the datepicker with appropriate min and max values
-        elif change["new"] in ["RADD", "GLAD"]:
+        elif change["new"] in ["RADD", "GLAD-L", "GLAD-S"]:
             year_list = cp.alert_drivers[change["new"]]["available_years"]
             self.w_historic.init(min(year_list), max(year_list))
             self.w_historic.unable()
+
+        # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
+        # 2022 dates are thus unavialable. To avoid issues, we only display the historical options
+        if change["new"] == "GLAD-L":
+            self.w_alert_type.hide()
+            self.w_alert_type.v_model = "HISTORICAL"
 
         return self
 
@@ -280,19 +292,29 @@ class AlertView(sw.Card):
 
         if change["new"] is None:
             return
+        ########################################################################
+        ##       broken for now I'll set 2022-01-01 to 2022-12-31             ##
+        ########################################################################
 
-        # read the asset and extract the start and end timestamps
-        image = ee.Image(change["new"])
+        ## read the asset and extract the start and end timestamps
+        # image = ee.Image(change["new"])
+        #
+        # min_ = datetime.fromtimestamp(
+        #    image.get("system:time_start").getInfo() / 1000
+        # ).year
+        # max_ = datetime.fromtimestamp(
+        #    image.get("system:time_end").getInfo() / 1000
+        # ).year
 
-        min_ = datetime.fromtimestamp(
-            image.get("system:time_start").getInfo() / 1000
-        ).year
-        max_ = datetime.fromtimestamp(
-            image.get("system:time_end").getInfo() / 1000
-        ).year
+        min_ = datetime.strptime("2022-01-01", "%Y-%m-%d")
+        max_ = datetime.strptime("2022-12-31", "%Y-%m-%d")
+
+        ########################################################################
 
         # apply it to the w_historic
         self.w_historic.init(min_, max_)
-        self.w_historic.unable()
+        self.w_historic.w_start.menu.children[0].v_model = min_
+        self.w_historic.w_end.menu.children[0].v_model = max_
+        # self.w_historic.unable()
 
         return

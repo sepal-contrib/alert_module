@@ -4,6 +4,8 @@ import ee
 from component import parameter as cp
 from component.message import cm
 
+from .utils import to_date
+
 
 def get_alerts_clump(alerts, aoi):
     """
@@ -72,19 +74,21 @@ def get_alerts(collection, start, end, aoi, asset):
         (ee.Image) the alert Image
     """
 
-    if collection == "GLAD":
-        alerts = _from_glad(start, end, aoi)
+    if collection == "GLAD-L":
+        alerts = _from_glad_l(start, end, aoi)
     elif collection == "RADD":
         alerts = _from_radd(start, end, aoi)
     elif collection == "NRT":
-        alerts = _from_andreas_nrt(start, end, aoi, asset)
+        alerts = _from_nrt(aoi, asset)
+    elif collection == "GLAD-S":
+        alerts = _from_glad_s(start, end, aoi)
     else:
         raise Exception(cm.alert.wrong_collection.format(collection))
 
     return alerts
 
 
-def _from_glad(start, end, aoi):
+def _from_glad_l(start, end, aoi):
     """reformat the glad alerts to fit the module expectation"""
 
     # glad is not compatible with multi year analysis so we cut the dataset into
@@ -111,7 +115,7 @@ def _from_glad(start, end, aoi):
         start = period[0].timetuple().tm_yday
         end = period[1].timetuple().tm_yday
 
-        if year < cp.alert_drivers["GLAD"]["last_updated"]:
+        if year < cp.alert_drivers["GLAD-L"]["last_updated"]:
             source = f"projects/glad/alert/{year}final"
         else:
             source = "projects/glad/alert/UpdResult"
@@ -202,38 +206,61 @@ def _from_radd(start, end, aoi):
     return all_alerts
 
 
-def _from_andreas_nrt(start, end, aoi, asset):
+def _from_nrt(aoi, asset):
     "reformat andreas alert sytem to be compatible with the rest of the apps"
+
+    # read the image
+    alerts = ee.Image(asset)
+
+    # create a alert mask
+    mask = alerts.select("detection_count").neq(0)
+
+    # create a unique alert band
+    # only confirmed alerts are taken into account
+    # we split confirmed from potential by looking at the number of observations
+    alert_band = (
+        alerts.select("detection_count").updateMask(mask).rename("alert").uint16()
+    )
+    alert_band = alert_band.where(alert_band.gte(1).And(alert_band.lt(3)), 2).where(
+        alert_band.gte(3), 1
+    )
+
+    # create a unique date band
+    date_band = alerts.select("first_detection_date").mask(mask).rename("date")
+
+    # create the composit image
+    all_alerts = alert_band.addBands(date_band)
+
+    return all_alerts
+
+
+def _from_glad_s(start, end, aoi):
+    """reformat the glad-s alerts to fit the module expectation"""
 
     # extract dates from parameters
     start = datetime.strptime(start, "%Y-%m-%d")
     end = datetime.strptime(end, "%Y-%m-%d")
 
-    # read the image
-    alerts = ee.Image(asset)
+    # the sources are now stored in a folder like system
+    init = "projects/glad/S2alert"
 
-    # filter the alerts dates
-    # extract julian dates ()
-    start = int(start.strftime("%y%j"))
-    end = int(end.strftime("%y%j"))
+    # select the alerts and mosaic them as image
+    alert_band = ee.Image(init + "/alert").selfMask().uint16().rename("alert")
+    date_band = ee.Image(init + "/obsDate").selfMask().rename("date")
 
-    # create a date mask
-    mask = (
-        alerts.select("detected_sum")
-        .gt(1)
-        .And(alerts.select("detected_doy").gt(start))
-        .And(alerts.select("detected_doy").lt(end))
-    )
+    # alerts are stored in int : number of days since 2018-12-31
+    origin = datetime.strptime("2018-12-31", "%Y-%m-%d")
+    start = (start - origin).days
+    end = (end - origin).days
+    date_band = date_band.updateMask(date_band.gt(start).And(date_band.lt(end)))
 
-    # create a unique alert band
-    # only confirmed alerts are taken into account
-    # we split confirmed from potential by looking at the number of observations
-    alert_band = alerts.select("confirmed").unmask().mask(mask).rename("alert")
+    # remap the alerts and mask the alerts
+    alert_band = (
+        alert_band.remap([0, 1, 2, 3, 4], [0, 2, 2, 1, 1]).updateMask(date_band.mask())
+    ).rename("alert")
 
-    # create a unique date band
-    date_band = (
-        alerts.select("detected_doy").divide(1000).add(2000).mask(mask).rename("date")
-    )
+    # change the date format
+    date_band = to_date(date_band).rename("date")
 
     # create the composit image
     all_alerts = alert_band.addBands(date_band)
