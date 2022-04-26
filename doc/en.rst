@@ -162,7 +162,7 @@ CUSUM
 
     this will be using the :code:`.tif` output of the `CUSUM module <https://docs.sepal.io/en/latest/modules/dwn/cusum.html>`__.
     
-Once you've run the CUSUM module, you'll otain a 3 bands :code:`.tif` file. Ingest this file in Google Earth ENgine using the `code editor interface<https://code.earthengine.google.com/>`__. Once the map is available in your asset you can use it in the module. If you don't find the asset in the list, click on the :icon:`fas fa-sync` icon to reload your asset list.
+Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface<https://code.earthengine.google.com/>`__. Once the map is available in your asset you can use it in the module. If you don't find the asset in the list, click on the :icon:`fas fa-sync` icon to reload your asset list.
 
 Validation
 ##########
