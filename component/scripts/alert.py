@@ -278,7 +278,7 @@ def _from_cusum(aoi, asset):
 
     # create a unique alert band (2nd band of the output)
     # the alert is considered high confidence if the confidece is above offset
-    offset = 0.5
+    offset = 0.7
     alert_band = alerts.select(2)
     alert_band = (
         alert_band.where(alert_band.gte(offset), 1)
