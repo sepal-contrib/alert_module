@@ -85,7 +85,7 @@ class EEPlanetTile(sw.Card):
             children=[self.title, row],
             viz=False,
             max_height="80vh",
-            max_width="30vw",
+            max_width="80vw",
         )
 
         # add javascript events
