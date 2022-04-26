@@ -23,6 +23,7 @@ class AlertMap(sm.SepalMap):
         super().__init__(dc=True, zoom=3)
 
         self.hide_dc()
+        self.layout.height = "85vh"
 
         # add the fullscreen button
         self.add_control(FullScreenControl())
