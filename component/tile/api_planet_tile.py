@@ -53,7 +53,7 @@ class APIPlanetTile(sw.Card):
         self.w_prev_day = cw.MapBtn(
             "mdi-chevron-left", class_="ma-0", attributes={"increm": -1}
         )
-        self.w_now = cw.MapBtn("mdi-circle-outline", class_="ma-0", attributes=None)
+        self.w_now = cw.MapBtn("far fa-circle", class_="ma-0", attributes=None)
         self.w_next_day = cw.MapBtn(
             "mdi-chevron-right", class_="ma-0", attributes={"increm": 1}
         )

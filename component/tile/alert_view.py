@@ -215,7 +215,7 @@ class AlertView(sw.Card):
 
     def on_alert_click(self, feature, **kwargs):
         """
-        change the current id on click on a specif alert feature
+        change the current id on click on a specific alert feature
         This change will trigger the modification of the metadata and the map zoom
         """
 
