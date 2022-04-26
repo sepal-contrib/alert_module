@@ -247,7 +247,6 @@ class AlertView(sw.Card):
 
         # empty and hide the component by default
         self.w_alert_type.show()
-        self.w_historic.disable()
         self.w_asset.reset()
         self.w_asset.hide()
 
@@ -262,8 +261,8 @@ class AlertView(sw.Card):
         # init the datepicker with appropriate min and max values
         elif change["new"] in ["RADD", "GLAD-L", "GLAD-S"]:
             year_list = cp.alert_drivers[change["new"]]["available_years"]
+            self.w_alert_type.v_model = "RECENT"
             self.w_historic.init(min(year_list), max(year_list))
-            self.w_historic.unable()
 
         # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
         # 2022 dates are thus unavialable. To avoid issues, we only display the historical options
@@ -281,9 +280,10 @@ class AlertView(sw.Card):
         self.w_historic.w_start.reset()
         self.w_historic.w_end.reset()
 
-        # exchange component visibility
-        self.w_historic.toggle_viz()
-        self.w_recent.toggle_viz()
+        # change component visibility with respect to the value
+        # I can't guarantee that previous visibility is hide because of NRT options
+        self.w_historic.viz = self.w_alert_type.v_model == "HISTORIC"
+        self.w_recent.viz = self.w_alert_type.v_model == "RECENT"
 
         return self
 
