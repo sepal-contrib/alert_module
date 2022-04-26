@@ -17,6 +17,7 @@ class MapBtn(v.Btn, sw.SepalWidget):
         kwargs["color"] = kwargs.pop("color", sc.secondary)
         kwargs["x_small"] = kwargs.pop("x_small", True)
         kwargs["class_"] = kwargs.pop("class_", "ml-1 mr-1")
-        kwargs["children"] = [sw.Icon(children=[icon_name], x_small=True)]
+        kwargs["children"] = [sw.Icon(children=[icon_name])]  # , x_small=True)]
+        kwargs["style"] = "padding-top: 2px; padding-bottom: 2px;"
 
         super().__init__(**kwargs)

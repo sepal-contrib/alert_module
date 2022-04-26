@@ -10,8 +10,8 @@ from .map_btn import *
 class DynamicSelect(sw.Layout):
     def __init__(self):
 
-        self.prev = MapBtn("fas fa-chevron-left", value=-1)
-        self.next = MapBtn("fas fa-chevron-right", value=1)
+        self.prev = MapBtn("mdi-chevron-left", value=-1)
+        self.next = MapBtn("mdi-chevron-right", value=1)
 
         self.select = sw.Select(
             dense=True,
