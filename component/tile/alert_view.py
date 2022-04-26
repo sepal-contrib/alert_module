@@ -252,7 +252,7 @@ class AlertView(sw.Card):
 
         # if nrt system is set I need to show the asset select widget first
         # the datepicker is discarded as the information won't be needed
-        if change["new"] == "NRT":
+        if change["new"] in ["NRT", "CUSUM"]:
             self.w_asset.show()
             self.w_historic.hide()
             self.w_recent.hide()
