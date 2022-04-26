@@ -44,9 +44,9 @@ class SettingTile(sw.Card):
         # create the card
         super().__init__(
             children=[title, tabs, contents],
-            min_height="370px",
-            min_width="462px",
-            max_width="462px",
+            max_height="80vh",  # prevent from going outside the map
+            min_width="30vw",
+            max_width="30vw",
             class_="pa-2",
         )
 

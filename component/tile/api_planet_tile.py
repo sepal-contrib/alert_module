@@ -92,6 +92,8 @@ class APIPlanetTile(sw.Card):
             class_="pa-1",
             children=[self.title, row],
             viz=False,
+            max_height="80vh",
+            max_width="80vw",
         )
 
         # add javascript event

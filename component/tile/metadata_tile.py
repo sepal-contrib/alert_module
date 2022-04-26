@@ -93,10 +93,11 @@ class MetadataTile(sw.Card):
 
         # create the metadata object
         super().__init__(
-            max_width="410px",
             class_="pa-1",
             children=[self.title, self.w_id, table, btn_list, self.alert],
             viz=False,
+            max_height="50vh",
+            max_width="30vw",
         )
 
         # add javascript events

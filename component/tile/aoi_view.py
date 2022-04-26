@@ -16,7 +16,7 @@ class AoiView(aoi.AoiView):
     def __init__(self, **kwargs):
 
         # create the map
-        super().__init__(methods=["-DRAW", "-POINTS"], **kwargs)
+        super().__init__(methods=["-POINTS"], **kwargs)
 
         # nest the tile
         self.elevation = False
