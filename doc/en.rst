@@ -1,9 +1,5 @@
 Deforestation alert analysis
 ============================
-
-.. note::
-
-    This documentation is not complete, work in progress.
     
 .. warning::
 
