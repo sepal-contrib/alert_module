@@ -120,7 +120,7 @@ More information on these alerts can be found on the `GLAD forest alert page <ht
 RADD
 ####
 
-.. info::
+.. note::
 
     RADD alerts only covers the tropical part of the Americas and Africa. More information can be found in their documenation.
     
