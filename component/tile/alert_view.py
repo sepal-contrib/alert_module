@@ -8,6 +8,7 @@ from ipyleaflet import GeoJSON
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
+from sepal_ui import color as sc
 
 import ee
 
@@ -104,6 +105,8 @@ class AlertView(sw.Card):
         self.btn.on_event("click", self.load_alerts)
         self.aoi_model.observe(self.remove_alerts, "name")
         self.w_asset.observe(self.set_period, "v_model")
+        self.w_alert.observe(self.display_spatial_extent, "v_model")
+        self.w_asset.observe(self.display_spatial_extent, "v_model")
 
     def remove_alerts(self, change):
         """
@@ -320,5 +323,29 @@ class AlertView(sw.Card):
         self.w_historic.w_start.menu.children[0].v_model = min_
         self.w_historic.w_end.menu.children[0].v_model = max_
         # self.w_historic.unable()
+
+        return
+
+    def display_spatial_extent(self, change):
+        """display the spatial extend f the selected alert system on the map"""
+
+        # check the extent
+        if self.w_alert.v_model in ["GLAD-L", "RADD"]:
+            obj = ee.ImageCollection(cp.alert_drivers[self.w_alert.v_model]["asset"])
+        elif self.w_alert.v_model in ["GLAD-S"]:
+            obj = ee.Image(cp.alert_drivers[self.w_alert.v_model]["asset"])
+        elif (
+            self.w_alert.v_model in ["CUSUM", "NRT"]
+            and self.w_asset.v_model is not None
+        ):
+            obj = ee.Image(self.w_asset.v_model)
+        else:
+            return
+
+        # display it on the map
+        self.map.addLayer(obj.geometry(), {"color": sc.secondary}, f"alert extend")
+        self.alert.add_msg(
+            "check that the AOI you selected is covered by the Alert system"
+        )
 
         return

@@ -1,10 +1,20 @@
 from component.message import cm
 
 alert_drivers = {
-    "GLAD-L": {"available_years": range(2017, 2022), "last_updated": 2020},
-    "RADD": {"available_years": range(2019, 2023)},
+    "GLAD-L": {
+        "available_years": range(2017, 2022),
+        "last_updated": 2020,
+        "asset": "projects/glad/alert/UpdResult",
+    },
+    "RADD": {
+        "available_years": range(2019, 2023),
+        "asset": "projects/radar-wur/raddalert/v1",
+    },
     "NRT": {},
-    "GLAD-S": {"available_years": range(2018, 2023)},
+    "GLAD-S": {
+        "available_years": range(2018, 2023),
+        "asset": "projects/glad/S2alert/alert",
+    },
     "CUSUM": {},
 }
 
