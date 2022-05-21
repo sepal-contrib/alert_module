@@ -58,7 +58,6 @@ class SettingTile(sw.Card):
         self.close.on_event("click", lambda *args: self.toggle_viz())
         link((self.tabs, "v_model"), (contents, "v_model"))
         self.alert_view.alert_model.observe(self._hide_on_success, "gdf")
-        self.tabs.observe(self.update_zoom, "v_model")
 
     def _hide_on_success(self, change):
         """hide the tile if alerts are loaded on the map"""
@@ -67,25 +66,3 @@ class SettingTile(sw.Card):
             self.hide()
 
         return self
-
-    def update_zoom(self, change):
-        """
-        Update the zoom based on the selected panel
-        - If no AOI is selected, we do nothing
-        - AOI and planet we zoom on the aoi
-        - alert we zoom on the world to see the alert footprint
-        """
-
-        # do nothing if no AOI
-        if self.aoi_view.model.gdf is None:
-            return
-
-        # aoi selection and planet
-        if self.tabs.v_model == 0 or self.tabs.v_model == 1:
-            self.map.zoom_ee_object(self.aoi_view.model.feature_collection.geometry())
-        # alert selection
-        elif self.tabs.v_model == 2:
-            self.map.zoom = 2
-            self.map.center = [0, 0]
-
-        return

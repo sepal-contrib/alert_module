@@ -211,8 +211,14 @@ class AlertView(sw.Card):
         layer.on_click(self.on_alert_click)
         self.map.add_layer(layer)
 
-        # reset in cas an error was displayed
+        # reset in case an error was displayed
         self.alert.reset()
+
+        # zoom back to the aoi
+        self.map.zoom_ee_object(self.aoi_model.feature_collection.geometry())
+
+        # remove the alert bounds layer
+        self.map.remove_layername("alert extend")
 
         return self
 
@@ -343,9 +349,9 @@ class AlertView(sw.Card):
             return
 
         # display it on the map
-        self.map.addLayer(obj.geometry(), {"color": sc.secondary}, f"alert extend")
+        self.map.addLayer(obj.geometry(), {"color": sc.secondary}, "alert extend")
         self.alert.add_msg(
-            "check that the AOI you selected is covered by the Alert system"
+            "check that the AOI you selected is covered by the Alert system you selected"
         )
 
         return
