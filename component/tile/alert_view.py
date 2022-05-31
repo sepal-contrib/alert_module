@@ -181,7 +181,13 @@ class AlertView(sw.Card):
             self.alert.update_progress(i / len(grid), bar_length=20)
 
         # save the clumps as a geoJson dict in the model
-        gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
+        # exit if nothing is found
+        if len(data["features"]) == 0:
+            raise Exception(cm.view.alert.error.no_alerts)
+        else:
+            gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
+
+        # set all the values to unset
         gdf["review"] = cm.view.metadata.status.unset
 
         # compute the surfaces for each geometry in square meters
@@ -196,12 +202,6 @@ class AlertView(sw.Card):
 
         # reset the ids
         gdf["id"] = gdf.index
-
-        print(len(gdf))
-
-        # exit if nothing is found
-        if len(gdf) == 0:
-            raise Exception(cm.view.alert.error.no_alerts)
 
         # save it in the model
         self.alert_model.gdf = gdf
@@ -272,12 +272,14 @@ class AlertView(sw.Card):
             year_list = cp.alert_drivers[change["new"]]["available_years"]
             self.w_alert_type.v_model = "RECENT"
             self.w_historic.init(min(year_list), max(year_list))
+            self.w_recent.show()
 
         # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
         # 2022 dates are thus unavialable. To avoid issues, we only display the historical options
         if change["new"] == "GLAD-L":
             self.w_alert_type.hide()
             self.w_alert_type.v_model = "HISTORICAL"
+            self.w_historic.show()
 
         return self
 

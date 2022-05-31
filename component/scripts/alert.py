@@ -231,7 +231,7 @@ def _from_nrt(aoi, asset):
     date_band = alerts.select("first_detection_date").mask(mask)
     year = date_band.floor()
     day = date_band.subtract(year).multiply(365)
-    date.band = year.add(day.divide(1000)).rename("date")
+    date_band = year.add(day.divide(1000)).rename("date")
 
     # create the composit image
     all_alerts = alert_band.addBands(date_band)
