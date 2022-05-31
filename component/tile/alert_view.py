@@ -181,7 +181,13 @@ class AlertView(sw.Card):
             self.alert.update_progress(i / len(grid), bar_length=20)
 
         # save the clumps as a geoJson dict in the model
-        gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
+        # exit if nothing is found
+        if len(data["features"]) == 0:
+            raise Exception(cm.view.alert.error.no_alerts)
+        else:
+            gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
+
+        # set all the values to unset
         gdf["review"] = cm.view.metadata.status.unset
 
         # compute the surfaces for each geometry in square meters
@@ -196,12 +202,6 @@ class AlertView(sw.Card):
 
         # reset the ids
         gdf["id"] = gdf.index
-
-        print(len(gdf))
-
-        # exit if nothing is found
-        if len(gdf) == 0:
-            raise Exception(cm.view.alert.error.no_alerts)
 
         # save it in the model
         self.alert_model.gdf = gdf
