@@ -272,12 +272,14 @@ class AlertView(sw.Card):
             year_list = cp.alert_drivers[change["new"]]["available_years"]
             self.w_alert_type.v_model = "RECENT"
             self.w_historic.init(min(year_list), max(year_list))
+            self.w_recent.show()
 
         # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
         # 2022 dates are thus unavialable. To avoid issues, we only display the historical options
         if change["new"] == "GLAD-L":
             self.w_alert_type.hide()
             self.w_alert_type.v_model = "HISTORICAL"
+            self.w_historic.show()
 
         return self
 
