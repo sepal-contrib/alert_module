@@ -7,13 +7,13 @@ import ee
 def to_date(dates):
     """
     transform a date store as (int) number of days since 2018-12-31 to a date in YYYY.ddd
-    adapted from https://gis.stackexchange.com/a/428770/154945 to tackle the GLAD_S2 date format
+    adapted from https:#gis.stackexchange.com/a/428770/154945 to tackle the GLAD_S2 date format
     """
 
-    reference_year = ee.Number(2019)
+    reference_year = ee.Number(2018)
 
     # compute the approximate number of year
-    years = dates.subtract(1).divide(365).floor().add(reference_year)
+    years = dates.add(364).divide(365).floor().add(reference_year)
 
     # compute a leap year image
     leap_years = ee.Image(
@@ -41,13 +41,14 @@ def to_date(dates):
     # adjust the day with the number of leap year
     # and recompute the number of years
     adust_dates = dates.add(nb_leap_years)
-    years = adust_dates.subtract(1).divide(365).floor().add(reference_year)
+    years = adust_dates.add(364).divide(365).floor().add(reference_year)
 
     # adapt the number of days if the current year is a leap year
     is_leap_year = leap_years.arrayMask(leap_years.eq(years)).arrayLength(0)
     jan_first = (
         years.subtract(reference_year)
         .multiply(365)
+        .subtract(364)
         .add(nb_leap_years)
         .add(1)
         .subtract(is_leap_year)
@@ -55,6 +56,6 @@ def to_date(dates):
     dates = adust_dates.subtract(jan_first).add(1)
     is_before_leap_year = dates.lte(31 + 29)
     dates_adjustment = is_leap_year.And(is_before_leap_year)  # 1 if leap day else 0
-    dates = adust_dates.subtract(dates_adjustment)
+    dates = dates.subtract(dates_adjustment)
 
     return years.add(dates.divide(1000))
