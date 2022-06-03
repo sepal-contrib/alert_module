@@ -7,6 +7,7 @@ from sepal_ui.scripts import utils as su
 import pandas as pd
 from ipyleaflet import GeoJSON
 import geopandas as gpd
+import fiona
 
 from component import widget as cw
 from component import parameter as cp
@@ -58,14 +59,32 @@ class MetadataTile(sw.Card):
         )
 
         # add the default card buton and alert
-        self.btn_csv = sw.Btn(cm.view.metadata.btn.csv, small=True, disabled=True)
-        self.btn_gpkg = sw.Btn(cm.view.metadata.btn.gpkg, small=True, disabled=True)
+        self.btn_csv = sw.Btn(
+            cm.view.metadata.btn.csv,
+            small=True,
+            disabled=True,
+            attributes={"data": "csv"},
+        )
+        self.btn_gpkg = sw.Btn(
+            cm.view.metadata.btn.gpkg,
+            small=True,
+            disabled=True,
+            attributes={"data": "gpkg"},
+        )
+        self.btn_kml = sw.Btn(
+            cm.view.metadata.btn.kml,
+            small=True,
+            disabled=True,
+            attributes={"data": "kml"},
+        )
         btn_list = sw.Row(
             children=[
                 sw.Spacer(),
                 self.btn_csv,
                 sw.Spacer(),
                 self.btn_gpkg,
+                sw.Spacer(),
+                self.btn_kml,
                 sw.Spacer(),
             ]
         )
@@ -83,21 +102,14 @@ class MetadataTile(sw.Card):
             ],
         )
 
-        # manually decorate the btn
-        self.to_csv = su.loading_button(alert=self.alert, button=self.btn_csv)(
-            self.to_csv
-        )
-        self.to_gpkg = su.loading_button(alert=self.alert, button=self.btn_gpkg)(
-            self.to_gpkg
-        )
-
         # create the metadata object
         super().__init__(
             class_="pa-1",
             children=[self.title, self.w_id, table, btn_list, self.alert],
             viz=False,
             max_height="50vh",
-            max_width="30vw",
+            max_width="20vw",
+            min_width="20vw",
         )
 
         # add javascript events
@@ -105,8 +117,9 @@ class MetadataTile(sw.Card):
         self.alert_model.observe(self._on_alerts_change, "gdf")
         self.w_id.observe(self._on_id_change, "v_model")
         self.w_review.observe(self._on_review_change, "v_model")
-        self.btn_csv.on_event("click", self.to_csv)
-        self.btn_gpkg.on_event("click", self.to_gpkg)
+        self.btn_csv.on_event("click", self.export)
+        self.btn_gpkg.on_event("click", self.export)
+        self.btn_kml.on_event("click", self.export)
         self.alert_model.observe(self._id_click, "current_id")
 
     def _id_click(self, change):
@@ -212,51 +225,51 @@ class MetadataTile(sw.Card):
         # unable the export btns
         self.btn_csv.disabled = False
         self.btn_gpkg.disabled = False
+        self.btn_kml.disabled = False
 
         # show the table
         self.show()
 
         return self
 
-    def to_csv(self, widget, event, data):
-        """export the datapoint to a specific file location in csv"""
+    @su.switch("loading", "disabled", on_widgets=["btn_csv", "btn_gpkg", "btn_kml"])
+    def export(self, widget, event, data):
+        """export the file to multple formats"""
 
-        # copy the gdf locally
         gdf = self.alert_model.gdf.copy()
 
-        # add the lat and long column
-        gdf["lat"] = gdf.apply(lambda r: list(r.geometry.centroid.coords)[0][0], axis=1)
-        gdf["lng"] = gdf.apply(lambda r: list(r.geometry.centroid.coords)[0][1], axis=1)
-
-        # remove the geometries
-        df = pd.DataFrame(gdf.drop(columns="geometry"))
-
-        # create the name of the output from the paramters
+        # create the name
         name = f"{self.aoi_model.name}_{self.alert_model.start}_{self.alert_model.end}_{self.alert_model.min_size}"
-        path = cp.result_dir / f"{name}.csv"
 
-        # export the file
-        df.to_csv(path, index=False)
+        # identify the format
+        format_ = widget.attributes["data"]
+        path = cp.result_dir / f"{name}.{format_}"
 
-        # display information for the end user
-        self.alert.add_msg(cm.view.metadata.export.format(path), "success")
+        if format_ == "csv":
 
-        return
+            # add the lat and long column
+            gdf["lat"] = gdf.apply(
+                lambda r: list(r.geometry.centroid.coords)[0][0], axis=1
+            )
+            gdf["lng"] = gdf.apply(
+                lambda r: list(r.geometry.centroid.coords)[0][1], axis=1
+            )
 
-    def to_gpkg(self, widget, event, data):
-        """export the datapoint to a specific file location in geojson"""
+            # remove the geometries
+            df = pd.DataFrame(gdf.drop(columns="geometry"))
 
-        # copy the gdf locally
-        gdf = self.alert_model.gdf.copy()
+            # export the file
+            df.to_csv(path, index=False)
 
-        # create the name of the output from the paramters
-        name = f"{self.aoi_model.name}_{self.alert_model.start}_{self.alert_model.end}_{self.alert_model.min_size}"
-        path = cp.result_dir / f"{name}.gpkg"
+        elif format_ in ["gpkg", "kml"]:
 
-        # export the file
-        gdf.to_file(path, layer=cm.map.layer.alerts, driver="GPKG")
+            # allow the kml driver in fiona
+            fiona.supported_drivers["KML"] = "rw"
 
-        # display information for the end user
+            # export the file
+            with fiona.drivers():
+                gdf.to_file(path, layer=cm.map.layer.alerts, driver=format_.upper())
+
         self.alert.add_msg(cm.view.metadata.export.format(path), "success")
 
         return

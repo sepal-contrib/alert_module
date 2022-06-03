@@ -227,7 +227,11 @@ Thus user can navigate through the images using the buttons in the Planet naviga
 Export
 ------
 
-Once the alerts are validated, the user can download them in :code:`.csv` using the center of the alert as coordinates or as a geopackage (:code:`.gpkg`) to keep the shapes of the alerts. 
+Once the alerts are validated, the user can download them to its SEPAL workspace in multiple formats They will use all the metadata and keep geometries information as such:
+
+-   :code:`.csv` using the center of the alert as coordinates ("lat" and "lng" columns)
+-   :code:`.gpkg` to keep the shapes of the alerts in a open-source fomat
+-   :code:`.kml` keep the geometry in a format compatible with Google earth
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/validate_download.png 
     :title: the planet daily mosaic displayed in cir
