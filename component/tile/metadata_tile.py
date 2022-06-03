@@ -7,6 +7,7 @@ from sepal_ui.scripts import utils as su
 import pandas as pd
 from ipyleaflet import GeoJSON
 import geopandas as gpd
+import fiona
 
 from component import widget as cw
 from component import parameter as cp
@@ -60,12 +61,15 @@ class MetadataTile(sw.Card):
         # add the default card buton and alert
         self.btn_csv = sw.Btn(cm.view.metadata.btn.csv, small=True, disabled=True)
         self.btn_gpkg = sw.Btn(cm.view.metadata.btn.gpkg, small=True, disabled=True)
+        self.btn_kml = sw.Btn(cm.view.metadata.btn.kml, small=True, disabled=True)
         btn_list = sw.Row(
             children=[
                 sw.Spacer(),
                 self.btn_csv,
                 sw.Spacer(),
                 self.btn_gpkg,
+                sw.Spacer(),
+                self.btn_kml,
                 sw.Spacer(),
             ]
         )
@@ -90,6 +94,9 @@ class MetadataTile(sw.Card):
         self.to_gpkg = su.loading_button(alert=self.alert, button=self.btn_gpkg)(
             self.to_gpkg
         )
+        self.to_kml = su.loading_button(alert=self.alert, button=self.btn_kml)(
+            self.to_kml
+        )
 
         # create the metadata object
         super().__init__(
@@ -97,7 +104,8 @@ class MetadataTile(sw.Card):
             children=[self.title, self.w_id, table, btn_list, self.alert],
             viz=False,
             max_height="50vh",
-            max_width="30vw",
+            max_width="20vw",
+            min_width="20vw",
         )
 
         # add javascript events
@@ -107,6 +115,7 @@ class MetadataTile(sw.Card):
         self.w_review.observe(self._on_review_change, "v_model")
         self.btn_csv.on_event("click", self.to_csv)
         self.btn_gpkg.on_event("click", self.to_gpkg)
+        self.btn_kml.on_event("click", self.to_kml)
         self.alert_model.observe(self._id_click, "current_id")
 
     def _id_click(self, change):
@@ -212,6 +221,7 @@ class MetadataTile(sw.Card):
         # unable the export btns
         self.btn_csv.disabled = False
         self.btn_gpkg.disabled = False
+        self.btn_kml.disabled = False
 
         # show the table
         self.show()
@@ -244,7 +254,7 @@ class MetadataTile(sw.Card):
         return
 
     def to_gpkg(self, widget, event, data):
-        """export the datapoint to a specific file location in geojson"""
+        """export the datapoint to a specific file location in geopackage format"""
 
         # copy the gdf locally
         gdf = self.alert_model.gdf.copy()
@@ -255,6 +265,28 @@ class MetadataTile(sw.Card):
 
         # export the file
         gdf.to_file(path, layer=cm.map.layer.alerts, driver="GPKG")
+
+        # display information for the end user
+        self.alert.add_msg(cm.view.metadata.export.format(path), "success")
+
+        return
+
+    def to_kml(self, widget, event, data):
+        """export the datapoint to a specific file location as a kml file"""
+
+        # copy the gdf locally
+        gdf = self.alert_model.gdf.copy()
+
+        # create the name of the output from the paramters
+        name = f"{self.aoi_model.name}_{self.alert_model.start}_{self.alert_model.end}_{self.alert_model.min_size}"
+        path = cp.result_dir / f"{name}.kml"
+
+        # allow the kml driver in fiona
+        fiona.supported_drivers["KML"] = "rw"
+
+        # export the file
+        with fiona.drivers():
+            gdf.to_file(path, driver="KML")
 
         # display information for the end user
         self.alert.add_msg(cm.view.metadata.export.format(path), "success")

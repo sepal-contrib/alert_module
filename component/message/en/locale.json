@@ -81,7 +81,8 @@
             },
             "btn": {
                 "csv": "To .csv",
-                "gpkg": "To .gpkg"
+                "gpkg": "To .gpkg",
+                "kml": "To .kml"
             },
             "row": {
                 "alert": "alert",
