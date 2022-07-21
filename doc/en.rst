@@ -3,7 +3,7 @@ Deforestation alert analysis
     
 .. warning::
 
-    To use this module, one must have least register to the NICFI planetLab programm and link it's GEE account to it. More information can be found in `Register to NICFI programm<https://docs.sepal.io/en/latest/setup/nicfi.html>`__.
+    To use this module, one must have least register to the NICFI planetLab programm and link it's GEE account to it. More information can be found in `Register to NICFI programm <https://docs.sepal.io/en/latest/setup/nicfi.html>`__.
 
 
 Set up
@@ -158,7 +158,7 @@ CUSUM
 
     this will be using the :code:`.tif` output of the `CUSUM module <https://docs.sepal.io/en/latest/modules/dwn/cusum.html>`__.
     
-Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface<https://code.earthengine.google.com/>`__. Once the map is available in your asset you can use it in the module. If you don't find the asset in the list, click on the :icon:`fas fa-sync` icon to reload your asset list.
+Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface <https://code.earthengine.google.com/>`__. Once the map is available in your asset you can use it in the module. If you don't find the asset in the list, click on the :icon:`fas fa-sync` icon to reload your asset list.
 
 Validation
 ##########
@@ -236,18 +236,3 @@ Once the alerts are validated, the user can download them to its SEPAL workspace
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/validate_download.png 
     :title: the planet daily mosaic displayed in cir
     :group: alert-module
-
-    
-
-
-
-
-
-    
-
-
-
-
-
-
-    
