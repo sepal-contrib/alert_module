@@ -6,6 +6,9 @@ planet API
 from datetime import datetime
 import re
 import requests
+import warnings
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 from planet import api
 from planet.api import filters
