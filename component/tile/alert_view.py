@@ -1,5 +1,6 @@
 from datetime import timedelta, date, datetime
 from json import dumps
+import time
 
 import ee
 from pathlib import Path
@@ -123,29 +124,14 @@ class AlertView(sw.Card):
         """load the alerts in the model"""
 
         # check that all variables are set
-        if not all(
-            [
-                self.alert.check_input(
-                    self.aoi_model.feature_collection, cm.view.alert.error.no_aoi
-                ),
-                self.alert.check_input(
-                    self.alert_model.alert_collection, cm.view.alert.error.no_collection
-                ),
-                self.alert.check_input(
-                    self.alert_model.alert_type, cm.view.alert.error.no_type
-                ),
-                self.alert.check_input(
-                    self.alert_model.start, cm.view.alert.error.no_start
-                ),
-                self.alert.check_input(
-                    self.alert_model.end, cm.view.alert.error.no_end
-                ),
-                self.alert.check_input(
-                    self.alert_model.min_size, cm.view.alert.error.no_size
-                ),
-            ]
-        ):
-            return
+        su.check_input(self.aoi_model.feature_collection, cm.view.alert.error.no_aoi)
+        su.check_input(
+            self.alert_model.alert_collection, cm.view.alert.error.no_collection
+        )
+        su.check_input(self.alert_model.alert_type, cm.view.alert.error.no_type)
+        su.check_input(self.alert_model.start, cm.view.alert.error.no_start)
+        su.check_input(self.alert_model.end, cm.view.alert.error.no_end)
+        su.check_input(self.alert_model.min_size, cm.view.alert.error.no_size)
 
         # clean the current display if necessary
         self.alert_model.current_id = None
@@ -156,7 +142,8 @@ class AlertView(sw.Card):
 
         # loop in the grid to avoid timeout in the define AOI
         # display information to the user
-        self.alert.update_progress(0, bar_length=20)
+        self.alert.reset()
+        self.alert.update_progress(0, total=len(grid))
         data = None
         for i, geom in enumerate(grid.geometry):
 
@@ -178,7 +165,8 @@ class AlertView(sw.Card):
             else:
                 data["features"] += alert_clump.getInfo()["features"]
 
-            self.alert.update_progress(i / len(grid), bar_length=20)
+            print(f"{i}/{len(grid)}")
+            self.alert.update_progress(i / len(grid), total=len(grid))
 
         # save the clumps as a geoJson dict in the model
         # exit if nothing is found
