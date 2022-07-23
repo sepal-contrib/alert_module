@@ -122,11 +122,16 @@ def _from_glad_l(start, end, aoi):
         else:
             source = "projects/glad/alert/UpdResult"
 
+        # the number of bands throughout the ImageCollection is not consisitent
+        # remove the extra useless one before any operation
+        bands = [f"conf{year%100}", f"alertDate{year%100}", "obsCount", "obsDate"]
+
         # create the composit band alert_date.
         # cannot use the alertDateXX band directly because
         # they are not all casted to the same type
         alerts = (
             ee.ImageCollection(source)
+            .select(bands)
             .map(lambda image: image.uint16())
             .filterBounds(aoi)
             .mosaic()
