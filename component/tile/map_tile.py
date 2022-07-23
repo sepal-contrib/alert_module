@@ -34,9 +34,13 @@ class MapTile(sw.Tile):
         self.map.add_widget_as_control(self.api_planet, "topright", True)
 
         # link to the btn for activation
-        self.map.parameters_btn.on_click(lambda *args: self.settings.toggle_viz())
-        self.map.metadata_btn.on_click(lambda *args: self.metadata.toggle_viz())
-        self.map.navigate_btn.on_click(self._toggle_planet_viz)
+        self.map.parameters_btn.on_event(
+            "click", lambda *args: self.settings.toggle_viz()
+        )
+        self.map.metadata_btn.on_event(
+            "click", lambda *args: self.metadata.toggle_viz()
+        )
+        self.map.navigate_btn.on_event("click", self._toggle_planet_viz)
 
         super().__init__(id_="map_tile", title="", inputs=[self.map])
 
