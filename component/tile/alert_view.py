@@ -263,12 +263,7 @@ class AlertView(sw.Card):
             self.w_recent.show()
 
         # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
-        # 2022 dates are thus unavialable. To avoid issues, we only display the historical options
-        if change["new"] == "GLAD-L":
-            self.w_alert_type.hide()
-            self.w_alert_type.v_model = "HISTORICAL"
-            self.w_historic.show()
-
+        # the issue with GLDA-L is now solved keeping this comments for later references (https://groups.google.com/g/globalforestwatch/c/nT_PSdfd3Fs)
         return self
 
     def _change_alert_type(self, change):
