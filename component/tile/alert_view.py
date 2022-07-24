@@ -142,8 +142,8 @@ class AlertView(sw.Card):
 
         # loop in the grid to avoid timeout in the define AOI
         # display information to the user
-        self.alert.reset()
-        self.alert.update_progress(0, total=len(grid))
+        self.alert.reset().show()
+        self.alert.update_progress(0)
         data = None
         for i, geom in enumerate(grid.geometry):
 
@@ -165,8 +165,7 @@ class AlertView(sw.Card):
             else:
                 data["features"] += alert_clump.getInfo()["features"]
 
-            print(f"{i}/{len(grid)}")
-            self.alert.update_progress(i / len(grid), total=len(grid))
+            self.alert.update_progress(i / len(grid))
 
         # save the clumps as a geoJson dict in the model
         # exit if nothing is found
