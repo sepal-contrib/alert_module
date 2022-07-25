@@ -113,7 +113,7 @@ class EEPlanetTile(sw.Card):
         """
 
         # remove the previous layer
-        self.map.remove_layername(cm.map.layer.planet)
+        self.map.remove_layer(cm.map.layer.planet, none_ok=True)
         self.free_btn(None)
 
         # exit if nothing is selected

@@ -31,6 +31,9 @@ class APIPlanetTile(sw.Card):
 
     def __init__(self, alert_model, map_):
 
+        # add an alert to display warning to the user
+        self.alert = sw.Alert()
+
         # listent to the alert model
         self.alert_model = alert_model
 
@@ -68,7 +71,7 @@ class APIPlanetTile(sw.Card):
             readonly=True,
         )
 
-        # affreaget the btns
+        # aggregate the btns
         btn_list = sw.ItemGroup(
             class_="mr-1 ml-1 v-btn-toggle",
             children=[
@@ -81,16 +84,12 @@ class APIPlanetTile(sw.Card):
         )
 
         # create a row with all the action widgets
-        row = sw.Row(
-            align="center",
-            class_="ma-1",
-            children=[btn_list, self.w_date],
-        )
+        row = sw.Row(align="center", class_="ma-1", children=[btn_list, self.w_date])
 
         # create the planet control widgets
         super().__init__(
             class_="pa-1",
-            children=[self.title, row],
+            children=[self.title, row, self.alert],
             viz=False,
             max_height="80vh",
             max_width="80vw",
@@ -109,9 +108,12 @@ class APIPlanetTile(sw.Card):
 
     def update_image(self, change):
 
+        # switch off the alert
+        self.alert.reset()
+
         # remove any existing image
         for l in self.layers:
-            self.map.remove_layername(l)
+            self.map.remove_layer(l)
         self.layers = []
 
         # if nothing is selected exit immediately
@@ -129,6 +131,11 @@ class APIPlanetTile(sw.Card):
             self.current_day + start,
             self.current_day + end,
             self.alert_model.cloud_cover,
+        )
+
+        len(items) > 0 or alert.add_msg(
+            "there are no images corresponding to your request paramters. change the advance one to get more informations",
+            "warning",
         )
 
         for i, e in enumerate(items):

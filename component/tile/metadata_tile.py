@@ -161,7 +161,7 @@ class MetadataTile(sw.Card):
             self.w_review.disabled = True
 
             # remove the current layer
-            self.map.remove_layername(cm.map.layer.current)
+            self.map.remove_layer(cm.map.layer.current, none_ok=True)
 
             # unset the current_id
             self.alert_model.current_id = None
@@ -197,7 +197,7 @@ class MetadataTile(sw.Card):
             self.map.zoom = min(16, self.map.zoom)
 
             # display the alert in warning color
-            self.map.remove_layername(cm.map.layer.current)
+            self.map.remove_layer(cm.map.layer.current, none_ok=True)
             layer = GeoJSON(
                 data=gdf.__geo_interface__,
                 style=cp.current_alert_style,

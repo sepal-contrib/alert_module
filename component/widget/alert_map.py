@@ -52,14 +52,3 @@ class AlertMap(sm.SepalMap):
             self.controls = self.controls + tuple([new_control])
 
         return
-
-    def remove_layername(self, name):
-        """remove a layer if existing by its name"""
-
-        try:
-            layer = next(l for l in self.layers if l.name == name)
-            self.remove_layer(layer)
-        except StopIteration:
-            pass
-
-        return

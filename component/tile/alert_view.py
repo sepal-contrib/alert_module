@@ -115,7 +115,7 @@ class AlertView(sw.Card):
         The other clearing methods are trigger by the metadata and the planet tile
         """
 
-        self.map.remove_layername("alerts")
+        self.map.remove_layer("alerts", none_ok=True)
 
         return
 
@@ -135,7 +135,7 @@ class AlertView(sw.Card):
 
         # clean the current display if necessary
         self.alert_model.current_id = None
-        self.map.remove_layername(cm.map.layer.alerts)
+        self.map.remove_layer(cm.map.layer.alerts, none_ok=True)
 
         # create the grid
         grid = cs.set_grid(self.aoi_model.gdf)
@@ -205,7 +205,7 @@ class AlertView(sw.Card):
         self.map.zoom_ee_object(self.aoi_model.feature_collection.geometry())
 
         # remove the alert bounds layer
-        self.map.remove_layername("alert extend")
+        self.map.remove_layer("alert extend", none_ok=True)
 
         return self
 
