@@ -32,7 +32,7 @@ class APIPlanetTile(sw.Card):
     def __init__(self, alert_model, map_):
 
         # add an alert to display warning to the user
-        self.alert = sw.Alert()
+        self.alert = sw.Alert().show()
 
         # listent to the alert model
         self.alert_model = alert_model
@@ -133,10 +133,7 @@ class APIPlanetTile(sw.Card):
             self.alert_model.cloud_cover,
         )
 
-        len(items) > 0 or alert.add_msg(
-            "there are no images corresponding to your request paramters. change the advance one to get more informations",
-            "warning",
-        )
+        len(items) > 0 or self.alert.add_msg(cm.planet.no_image, "warning")
 
         for i, e in enumerate(items):
             date = pd.to_datetime(e["properties"]["acquired"]).strftime("%Y-%m-%d")
