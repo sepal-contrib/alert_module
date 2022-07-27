@@ -20,17 +20,8 @@ sepal_ui==2.10.1
 
 # custom libs
 geopandas==0.10.2
-<<<<<<< HEAD
-ipyleaflet==0.13.3
-ipython==8.1.1
-ipyvuetify==1.8.2
-ipywidgets==7.6.5
-=======
-numpy==1.22.2
->>>>>>> edc4aa115fc0811f52c3d632553de1cef74fed8f
 pandas==1.4.1
 requests==2.22.0
 Shapely==1.8.1.post1
 shapely_geojson==0.0.1
 traitlets==5.1.1
-planet==1.4.9
