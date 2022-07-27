@@ -7,6 +7,7 @@ pre-commit
 
 # if you require GDAL and or pyproj in your module please uncomment these lines
 # there are set up to be inlined with SEPAL implementation of GDAL and PROJ version
+numpy==1.22.2
 pygdal==3.4.0.10
 pyproj==3.3.0
 
@@ -23,7 +24,6 @@ ipyleaflet==0.13.3
 ipython==8.1.1
 ipyvuetify==1.8.2
 ipywidgets==7.6.5
-numpy==1.22.2
 pandas==1.4.1
 requests==2.22.0
 Shapely==1.8.1.post1
