@@ -42,7 +42,8 @@
         "wrong_collection": "{} alert collection is not yet included in the tool"
     },
     "planet": {
-        "no_nicfi": "{} is not an NCFI level 1 recognized mosaic name"
+        "no_nicfi": "{} is not an NCFI level 1 recognized mosaic name",
+        "no_image": "there is no image corresponding to your request parameters for this day"
     },
     "view": {
         "alert": {

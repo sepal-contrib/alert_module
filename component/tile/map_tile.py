@@ -1,7 +1,10 @@
 from sepal_ui import sepalwidgets as sw
+from sepal_ui import mapping as sm
+from ipyleaflet import WidgetControl
 
 from component import widget as cw
 from component import parameter as cp
+
 from .setting_tile import SettingTile
 from .metadata_tile import MetadataTile
 from .ee_planet_tile import EEPlanetTile
@@ -34,9 +37,13 @@ class MapTile(sw.Tile):
         self.map.add_widget_as_control(self.api_planet, "topright", True)
 
         # link to the btn for activation
-        self.map.parameters_btn.on_click(lambda *args: self.settings.toggle_viz())
-        self.map.metadata_btn.on_click(lambda *args: self.metadata.toggle_viz())
-        self.map.navigate_btn.on_click(self._toggle_planet_viz)
+        self.map.parameters_btn.on_event(
+            "click", lambda *args: self.settings.toggle_viz()
+        )
+        self.map.metadata_btn.on_event(
+            "click", lambda *args: self.metadata.toggle_viz()
+        )
+        self.map.navigate_btn.on_event("click", self._toggle_planet_viz)
 
         super().__init__(id_="map_tile", title="", inputs=[self.map])
 
@@ -53,5 +60,32 @@ class MapTile(sw.Tile):
             self.ee_planet.toggle_viz()
         elif model.valid_key is True:
             self.api_planet.toggle_viz()
+
+        return
+
+    def set_code(self, link):
+        "add the code link btn to the map"
+
+        btn = sm.MapBtn("fas fa-code", href=link, target="_blank")
+        control = WidgetControl(widget=btn, position="bottomleft")
+        self.map.add_control(control)
+
+        return
+
+    def set_wiki(self, link):
+        "add the wiki link btn to the map"
+
+        btn = sm.MapBtn("fas fa-book-open", href=link, target="_blank")
+        control = WidgetControl(widget=btn, position="bottomleft")
+        self.map.add_control(control)
+
+        return
+
+    def set_issue(self, link):
+        "add the code link btn to the map"
+
+        btn = sm.MapBtn("fas fa-bug", href=link, target="_blank")
+        control = WidgetControl(widget=btn, position="bottomleft")
+        self.map.add_control(control)
 
         return

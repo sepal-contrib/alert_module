@@ -1,5 +1,6 @@
 from datetime import timedelta, date, datetime
 from json import dumps
+import time
 
 import ee
 from pathlib import Path
@@ -114,7 +115,7 @@ class AlertView(sw.Card):
         The other clearing methods are trigger by the metadata and the planet tile
         """
 
-        self.map.remove_layername("alerts")
+        self.map.remove_layer("alerts", none_ok=True)
 
         return
 
@@ -123,40 +124,26 @@ class AlertView(sw.Card):
         """load the alerts in the model"""
 
         # check that all variables are set
-        if not all(
-            [
-                self.alert.check_input(
-                    self.aoi_model.feature_collection, cm.view.alert.error.no_aoi
-                ),
-                self.alert.check_input(
-                    self.alert_model.alert_collection, cm.view.alert.error.no_collection
-                ),
-                self.alert.check_input(
-                    self.alert_model.alert_type, cm.view.alert.error.no_type
-                ),
-                self.alert.check_input(
-                    self.alert_model.start, cm.view.alert.error.no_start
-                ),
-                self.alert.check_input(
-                    self.alert_model.end, cm.view.alert.error.no_end
-                ),
-                self.alert.check_input(
-                    self.alert_model.min_size, cm.view.alert.error.no_size
-                ),
-            ]
-        ):
-            return
+        su.check_input(self.aoi_model.feature_collection, cm.view.alert.error.no_aoi)
+        su.check_input(
+            self.alert_model.alert_collection, cm.view.alert.error.no_collection
+        )
+        su.check_input(self.alert_model.alert_type, cm.view.alert.error.no_type)
+        su.check_input(self.alert_model.start, cm.view.alert.error.no_start)
+        su.check_input(self.alert_model.end, cm.view.alert.error.no_end)
+        su.check_input(self.alert_model.min_size, cm.view.alert.error.no_size)
 
         # clean the current display if necessary
         self.alert_model.current_id = None
-        self.map.remove_layername(cm.map.layer.alerts)
+        self.map.remove_layer(cm.map.layer.alerts, none_ok=True)
 
         # create the grid
         grid = cs.set_grid(self.aoi_model.gdf)
 
         # loop in the grid to avoid timeout in the define AOI
         # display information to the user
-        self.alert.update_progress(0, bar_length=20)
+        self.alert.reset().show()
+        self.alert.update_progress(0)
         data = None
         for i, geom in enumerate(grid.geometry):
 
@@ -178,7 +165,7 @@ class AlertView(sw.Card):
             else:
                 data["features"] += alert_clump.getInfo()["features"]
 
-            self.alert.update_progress(i / len(grid), bar_length=20)
+            self.alert.update_progress(i / len(grid))
 
         # save the clumps as a geoJson dict in the model
         # exit if nothing is found
@@ -218,7 +205,7 @@ class AlertView(sw.Card):
         self.map.zoom_ee_object(self.aoi_model.feature_collection.geometry())
 
         # remove the alert bounds layer
-        self.map.remove_layername("alert extend")
+        self.map.remove_layer("alert extend", none_ok=True)
 
         return self
 
@@ -275,12 +262,7 @@ class AlertView(sw.Card):
             self.w_recent.show()
 
         # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
-        # 2022 dates are thus unavialable. To avoid issues, we only display the historical options
-        if change["new"] == "GLAD-L":
-            self.w_alert_type.hide()
-            self.w_alert_type.v_model = "HISTORICAL"
-            self.w_historic.show()
-
+        # the issue with GLDA-L is now solved keeping this comments for later references (https://groups.google.com/g/globalforestwatch/c/nT_PSdfd3Fs)
         return self
 
     def _change_alert_type(self, change):

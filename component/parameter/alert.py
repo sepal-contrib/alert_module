@@ -2,8 +2,8 @@ from component.message import cm
 
 alert_drivers = {
     "GLAD-L": {
-        "available_years": range(2017, 2022),
-        "last_updated": 2020,
+        "available_years": range(2017, 2023),
+        "last_updated": 2022,
         "asset": "projects/glad/alert/UpdResult",
     },
     "RADD": {
