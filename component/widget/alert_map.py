@@ -1,6 +1,7 @@
 from ipyleaflet import WidgetControl
 from ipywidgets import Button, Layout
 from sepal_ui import mapping as sm
+import ipyvuetify as v
 
 from component.message import cm
 
@@ -8,7 +9,9 @@ from component.message import cm
 class AlertMap(sm.SepalMap):
     def __init__(self):
 
-        super().__init__(dc=True, zoom=3)
+        default = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+
+        super().__init__(["SATELLITE", default], dc=True, zoom=3)
 
         self.hide_dc()
 
