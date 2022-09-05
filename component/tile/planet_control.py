@@ -2,6 +2,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from traitlets import Bool, Int
 from sepal_ui import mapping as sm
+from sepal_ui import planetapi as sp
 
 from component.message import cm
 from component import widget as cw
@@ -22,23 +23,25 @@ class PlanetView(sw.Card):
         self.alert_model = alert_model
 
         # select the parameters for the planet API
-        self.w_key = sw.PasswordField(label=cm.view.planet.key.label)
+        self.w_planet = sp.PlanetView()
         self.w_advance = cw.PlanetParam(self.alert_model)
 
         # set the view btn
         # cancel will cancel the use of planet data and switch to GEE based map
         # instead
         # btn is called c_btn instead of cancel to avoid duplication
-        self.btn = sw.Btn("apply", "fas fa-check", color="secondary")
+        self.btn = sw.Btn("apply", "fas fa-check", color="secondary", small=True)
         self.c_btn = sw.Btn(
-            "cancel", "fas fa-times", color="error", outlined=True, class_="mr-1"
+            "cancel",
+            "fas fa-times",
+            color="error",
+            outlined=True,
+            class_="mr-1",
+            small=True,
         )
 
         # set up an alert to show information to the user
         self.alert = sw.Alert()
-
-        # bind the parameters to the model
-        self.alert_model.bind(self.w_key, "api_key")
 
         # manually decorate the functions
         self.cancel = su.loading_button(self.alert, self.c_btn, True)(self.cancel)
@@ -47,9 +50,11 @@ class PlanetView(sw.Card):
         # create the object
         super().__init__(
             children=[
-                self.w_key,
+                self.w_planet,
                 self.w_advance,
-                sw.Row(class_="mt-2 ml-1", children=[self.c_btn, self.btn]),
+                sw.Row(
+                    class_="mt-2 ml-1", children=[sw.Spacer(), self.c_btn, self.btn]
+                ),
                 self.alert,
             ],
             class_="mt_5",
@@ -63,7 +68,7 @@ class PlanetView(sw.Card):
     def cancel(self, widget, event, data):
         """cancel the use of planet API"""
 
-        self.alert_model.api_key = None
+        self.alert_model.session = None
         self.alert_model.valid_key = False
 
         self.alert.add_msg(cm.view.planet.error.to_gee)
@@ -73,27 +78,29 @@ class PlanetView(sw.Card):
     def apply(self, widget, event, data):
         """validate the api key"""
 
-        # check that a value is set for the api key
-        if not self.alert.check_input(
-            self.alert_model.api_key, cm.view.planet.error.no_key
-        ):
-            return
+        # check that a level 2 key was set
+        valid = False
+        model = self.w_planet.planet_model
+        if "nicfi" in model.subscriptions:
+            for p in model.subscriptions["nicfi"]:
+                if "Level2" in p["plan"]["name"]:
+                    valid = True
+                    break
 
-        # check the key
-        valid = cs.is_active(self.alert_model.api_key)
-
-        # set the valid value in the model
-        self.alert_model.valid_key = valid
+        # apply the paramters to the level 2 search
+        self.api = valid
+        self.alert_model.valid = valid
+        self.alert_model.session = model.session
 
         # display information to the end user
-        msg = (
-            cm.view.planet.error.valid_key
-            if valid is True
-            else cm.view.planet.error.unvalid_key
-        )
-        type_ = "success" if valid is True else "error"
+        if valid is True:
+            msg, type_ = cm.view.planet.error.valid_key, "success"
+        else:
+            msg, type_ = cm.view.planet.error.unvalid_key, "error"
+
         self.alert.add_msg(msg, type_)
 
+        # send the information to the rest of the app
         self.updated += 1
 
         return

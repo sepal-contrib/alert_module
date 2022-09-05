@@ -63,14 +63,12 @@ class PlanetParam(sw.ExpansionPanels):
             label=cm.view.planet.advance.days_before,
             max_=5,
             v_model=self.model.days_before,
-            disabled=True,
         )
 
         self.w_days_after = sw.NumberField(
             label=cm.view.planet.advance.days_after,
             max_=5,
             v_model=self.model.days_after,
-            disabled=True,
         )
 
         self.w_max_images = sw.NumberField(
@@ -78,14 +76,12 @@ class PlanetParam(sw.ExpansionPanels):
             max_=6,
             min_=1,
             v_model=self.model.max_images,
-            disabled=True,
         )
 
         self.w_cloud_cover = sw.Slider(
             label=cm.view.planet.advance.cloud_cover,
             thumb_label=True,
             v_model=self.model.cloud_cover,
-            disabled=True,
         )
 
         self.content = sw.ExpansionPanelContent(
@@ -130,14 +126,6 @@ class PlanetParam(sw.ExpansionPanels):
         "expand the content and remove the paramters from the header"
 
         self.header.children = [self.title]
-
-        return
-
-    @observe("disable_content")
-    def disable(self, change):
-
-        for w in self.content.children:
-            w.disabled = change["new"]
 
         return
 

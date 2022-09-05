@@ -10,8 +10,8 @@ import warnings
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-from planet import api
-from planet.api import filters
+# from planet import api
+# from planet.api import filters
 
 from component import parameter as cp
 from component.message import cm
