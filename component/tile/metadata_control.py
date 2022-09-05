@@ -54,6 +54,9 @@ class MetadataView(sw.Card):
                 ),
             ],
         )
+        self.w_comment = sw.Textarea(
+            small=True, outlined=True, v_model="", disabled=True
+        )
 
         # add the default card buton and alert
         self.btn_csv = sw.Btn(
@@ -96,6 +99,7 @@ class MetadataView(sw.Card):
                 self.row(cm.view.metadata.row.pixels, self.w_surface),
                 self.row(cm.view.metadata.row.coords, self.w_coords),
                 self.row(cm.view.metadata.row.review, self.w_review),
+                self.row(cm.view.metadata.row.comment, self.w_comment),
             ],
         )
 
@@ -103,15 +107,13 @@ class MetadataView(sw.Card):
         super().__init__(
             class_="pa-1",
             children=[self.w_id, table, btn_list, self.alert],
-            max_height="50vh",
-            max_width="20vw",
-            min_width="20vw",
         )
 
         # add javascript events
         self.alert_model.observe(self._on_alerts_change, "gdf")
         self.w_id.observe(self._on_id_change, "v_model")
         self.w_review.observe(self._on_review_change, "v_model")
+        self.w_comment.observe(self._on_comment_change, "v_model")
         self.btn_csv.on_event("click", self.export)
         self.btn_gpkg.on_event("click", self.export)
         self.btn_kml.on_event("click", self.export)
@@ -141,6 +143,13 @@ class MetadataView(sw.Card):
 
         return
 
+    def _on_comment_change(self, change):
+        """change the comment of the feature in the dataframe"""
+
+        self.alert_model.gdf.at[self.w_id.v_model, "comment"] = change["new"]
+
+        return
+
     def _on_id_change(self, change):
         """
         set the table values according to the selected id data
@@ -154,6 +163,7 @@ class MetadataView(sw.Card):
             self.w_coords.v_model = ""
             self.w_review.v_model = "unset"
             self.w_review.disabled = True
+            self.w_comment.disabled = True
 
             # remove the current layer
             self.map.remove_layer(cm.map.layer.current, none_ok=True)
@@ -186,6 +196,10 @@ class MetadataView(sw.Card):
             # get the review value
             self.w_review.v_model = feat.review
             self.w_review.disabled = False
+
+            # get the comment
+            self.w_comment.v_model = feat.comment
+            self.w_comment.disabled = False
 
             # zoom the map on the geometry
             self.map.zoom_bounds(feat.geometry.bounds)

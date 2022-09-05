@@ -185,6 +185,9 @@ class AlertView(sw.Card):
         # compute the surfaces for each geometry in square meters
         gdf["surface"] = gdf.to_crs("EPSG:3857").area
 
+        # add a comment column with empty string at the moment
+        gdf["comment"] = ""
+
         # remove the smallest alerts
         # be carefull the min offset is set in ha
         gdf = gdf[gdf.surface >= self.alert_model.min_size * 10000]
