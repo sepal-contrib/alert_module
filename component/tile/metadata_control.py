@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
 from sepal_ui.scripts import utils as su
+from sepal_ui import mapping as sm
 import pandas as pd
 from ipyleaflet import GeoJSON
 import geopandas as gpd
@@ -14,7 +15,7 @@ from component import parameter as cp
 from component.message import cm
 
 
-class MetadataTile(sw.Card):
+class MetadataView(sw.Card):
     """
     A card to display the metadata information relative to an alert
     """
@@ -29,10 +30,6 @@ class MetadataTile(sw.Card):
         self.map = map_
 
         # add the base widgets
-        self.close = sw.Icon(children=["mdi-close"], small=True)
-        self.title = sw.CardTitle(
-            class_="pa-0 ma-0", children=[sw.Spacer(), self.close]
-        )
         self.w_id = cw.DynamicSelect()
         self.w_alert = sw.TextField(small=True, readonly=True, v_model="")
         self.w_date = sw.TextField(small=True, readonly=True, v_model="")
@@ -105,15 +102,13 @@ class MetadataTile(sw.Card):
         # create the metadata object
         super().__init__(
             class_="pa-1",
-            children=[self.title, self.w_id, table, btn_list, self.alert],
-            viz=False,
+            children=[self.w_id, table, btn_list, self.alert],
             max_height="50vh",
             max_width="20vw",
             min_width="20vw",
         )
 
         # add javascript events
-        self.close.on_event("click", lambda *args: self.hide())
         self.alert_model.observe(self._on_alerts_change, "gdf")
         self.w_id.observe(self._on_id_change, "v_model")
         self.w_review.observe(self._on_review_change, "v_model")
@@ -283,3 +278,13 @@ class MetadataTile(sw.Card):
         tr = sw.Html(tag="tr", children=[th, td])
 
         return tr
+
+
+class MetadataControl(sm.MenuControl):
+    def __init__(self, alert_model, map_, aoi_model):
+
+        # define the view
+        self.view = MetadataView(alert_model, map_, aoi_model)
+
+        # create the control
+        super().__init__("fas fa-info", self.view, m=map_, position="topleft")

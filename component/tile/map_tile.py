@@ -5,12 +5,12 @@ from ipyleaflet import WidgetControl
 from component import widget as cw
 from component import parameter as cp
 
-from .metadata_tile import MetadataTile
 from .ee_planet_tile import EEPlanetTile
 from .api_planet_tile import APIPlanetTile
 from .aoi_control import *
 from .alert_control import *
 from .planet_control import *
+from .metadata_control import *
 
 
 class MapTile(sw.Tile):
@@ -37,19 +37,19 @@ class MapTile(sw.Tile):
         self.alert_model = self.alert_control.view.alert_model
 
         # create the other tiles
-        self.metadata = MetadataTile(self.alert_model, self.map, self.aoi_model)
+        self.metadata_control = MetadataControl(
+            self.alert_model, self.map, self.aoi_model
+        )
+        self.metadata = self.metadata_control.view
         self.ee_planet = EEPlanetTile(self.alert_model, self.map)
         self.api_planet = APIPlanetTile(self.alert_model, self.map)
 
         # place them in the map
-        self.map.add_widget_as_control(self.metadata, "bottomleft")
+        self.map.add_control(self.metadata_control)
         self.map.add_widget_as_control(self.ee_planet, "topright", True)
         self.map.add_widget_as_control(self.api_planet, "topright", True)
 
         # link to the btn for activation
-        self.map.metadata_btn.on_event(
-            "click", lambda *args: self.metadata.toggle_viz()
-        )
         self.aoi_control.view.observe(self.end_aoi, "updated")
         self.alert_control.view.observe(self.end_alert, "updated")
         self.planet_control.view.observe(self.end_planet, "updated")

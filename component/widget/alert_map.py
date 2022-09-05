@@ -18,10 +18,6 @@ class AlertMap(sm.SepalMap):
         )
         self.add_control(fullscreen)
 
-        # add the buttons on the topleft side of the map
-        self.metadata_btn = sm.MapBtn("fas fa-info")
-        self.add_widget_as_control(self.metadata_btn, "topleft")
-
     def add_widget_as_control(self, widget, position, first=False):
         """
         Add widget as control in the given position
