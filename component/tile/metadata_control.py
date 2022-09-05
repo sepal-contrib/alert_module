@@ -256,10 +256,17 @@ class MetadataView(sw.Card):
             # export the file
             df.to_csv(path, index=False)
 
-        elif format_ in ["gpkg", "kml"]:
+        elif format_ == "gpkg":
+
+            gdf.to_file(path, layer=cm.map.layer.alerts, driver=format_.upper())
+
+        elif format_ == "kml":
 
             # allow the kml driver in fiona
             fiona.supported_drivers["KML"] = "rw"
+
+            # rename ids to name
+            gdf = gdf.rename(columns={"id": "name"})
 
             # export the file
             with fiona.drivers():
