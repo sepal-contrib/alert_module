@@ -1,10 +1,12 @@
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from traitlets import Bool
+from sepal_ui import mapping as sm
 
 from component.message import cm
 from component import widget as cw
 from component import scripts as cs
+from component.message import cm
 
 
 class PlanetView(sw.Card):
@@ -91,3 +93,14 @@ class PlanetView(sw.Card):
         self.alert.add_msg(msg, type_)
 
         return
+
+class PlanetControl(sm.MenuControl):
+    
+    def __init__(self, alert_model, map_):
+        
+        # create a view 
+        self.view = PlanetView(alert_model)
+        self.view.class_list.add("ma-5")
+        
+        # integrate it in a menu 
+        super().__init__("fas fa-globe", self.view, m=map_, card_title=cm.view.setting.planet)

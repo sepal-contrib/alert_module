@@ -1,9 +1,11 @@
 from sepal_ui import aoi
 from sepal_ui.scripts import utils as su
 from sepal_ui import color as sc
+from sepal_ui import mapping as sm
 import ee
 
 from component import parameter as cp
+from component.message import cm
 
 
 class AoiView(aoi.AoiView):
@@ -54,3 +56,15 @@ class AoiView(aoi.AoiView):
 
         # tell the rest of the apps that the aoi have been updated
         self.updated += 1
+
+class AoiControl(sm.MenuControl):
+    
+    def __init__(self, map_):
+        
+        # create the view 
+        self.view = AoiView(map_=map_)
+        self.view.class_list.add("ma-5")
+        
+        # create the control
+        super().__init__("fas fa-map-marker-alt", self.view, m=map_, card_title=cm.view.setting.aoi)
+        

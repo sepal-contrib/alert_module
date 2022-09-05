@@ -13,18 +13,13 @@ class AlertMap(sm.SepalMap):
         self.hide_dc()
 
         # add the fullscreen button
-        self.add_control(
-            sm.FullScreenControl(
-                self, position="topleft", fullscreen=True, fullapp=True
-            )
-        )
+        fullscreen = sm.FullScreenControl(self, position="topright", fullscreen=True, fullapp=True)
+        self.add_control(fullscreen)
 
         # add the buttons on the topleft side of the map
-        self.parameters_btn = sm.MapBtn("fas fa-bars")
         self.navigate_btn = sm.MapBtn("fas fa-globe")
         self.metadata_btn = sm.MapBtn("fas fa-info")
 
-        self.add_widget_as_control(self.parameters_btn, "topleft")
         self.add_widget_as_control(self.navigate_btn, "topleft")
         self.add_widget_as_control(self.metadata_btn, "topleft")
 

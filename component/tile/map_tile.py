@@ -5,10 +5,12 @@ from ipyleaflet import WidgetControl
 from component import widget as cw
 from component import parameter as cp
 
-from .setting_tile import SettingTile
 from .metadata_tile import MetadataTile
 from .ee_planet_tile import EEPlanetTile
 from .api_planet_tile import APIPlanetTile
+from .aoi_control import *
+from .alert_control import *
+from .planet_control import *
 
 
 class MapTile(sw.Tile):
@@ -19,27 +21,30 @@ class MapTile(sw.Tile):
 
         # I decided to set the widgets here instead of in the map to avoid
         # complexity with model sharing
-        self.settings = SettingTile(self.map)
-
+        aoi_control = AoiControl(self.map)
+        alert_control = AlertControl(aoi_control.view.model, self.map)
+        planet_control = PlanetControl(alert_control.view.alert_model, self.map)
+        
+        # add the control on the map 
+        self.map.add_control(planet_control)
+        self.map.add_control(alert_control)
+        self.map.add_control(aoi_control)
+        
         # extract the model from the setting tile for easier manipulation
-        self.aoi_model = self.settings.aoi_view.model
-        self.alert_model = self.settings.alert_view.alert_model
-
+        self.aoi_model = aoi_control.view.model
+        self.alert_model = alert_control.view.alert_model
+        
         # create the other tiles
         self.metadata = MetadataTile(self.alert_model, self.map, self.aoi_model)
         self.ee_planet = EEPlanetTile(self.alert_model, self.map)
         self.api_planet = APIPlanetTile(self.alert_model, self.map)
 
         # place them in the map
-        self.map.add_widget_as_control(self.settings, "bottomright")
         self.map.add_widget_as_control(self.metadata, "bottomleft")
         self.map.add_widget_as_control(self.ee_planet, "topright", True)
         self.map.add_widget_as_control(self.api_planet, "topright", True)
 
         # link to the btn for activation
-        self.map.parameters_btn.on_event(
-            "click", lambda *args: self.settings.toggle_viz()
-        )
         self.map.metadata_btn.on_event(
             "click", lambda *args: self.metadata.toggle_viz()
         )

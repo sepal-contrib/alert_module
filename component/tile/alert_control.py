@@ -10,6 +10,7 @@ from ipyleaflet import GeoJSON
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui import color as sc
+from sepal_ui import mapping as sm
 
 import ee
 
@@ -339,3 +340,14 @@ class AlertView(sw.Card):
         )
 
         return
+    
+class AlertControl(sm.MenuControl):
+    
+    def __init__(self, aoi_model, map_):
+        
+        # create the view 
+        self.view = AlertView(aoi_model, map_)
+        self.view.class_list.add("ma-5")
+        
+        # include it in the control 
+        super().__init__("fas fa-exclamation-triangle", self.view, m=map_, card_title=cm.view.setting.alert)
