@@ -26,6 +26,9 @@ class PlanetView(sw.Card):
         self.w_planet = sp.PlanetView()
         self.w_advance = cw.PlanetParam(self.alert_model)
 
+        # save the planet model for simplicity
+        self.model = self.w_planet.planet_model
+
         # set the view btn
         # cancel will cancel the use of planet data and switch to GEE based map
         # instead
@@ -68,7 +71,6 @@ class PlanetView(sw.Card):
     def cancel(self, widget, event, data):
         """cancel the use of planet API"""
 
-        self.alert_model.session = None
         self.alert_model.valid_key = False
 
         self.alert.add_msg(cm.view.planet.error.to_gee)
@@ -80,25 +82,21 @@ class PlanetView(sw.Card):
 
         # check that a level 2 key was set
         valid = False
-        model = self.w_planet.planet_model
-        if "nicfi" in model.subscriptions:
-            for p in model.subscriptions["nicfi"]:
+        if "nicfi" in self.model.subscriptions:
+            for p in self.model.subscriptions["nicfi"]:
                 if "Level2" in p["plan"]["name"]:
                     valid = True
                     break
 
         # apply the paramters to the level 2 search
         self.api = valid
-        self.alert_model.valid = valid
-        self.alert_model.session = model.session
+        self.alert_model.valid_key = valid
 
         # display information to the end user
         if valid is True:
-            msg, type_ = cm.view.planet.error.valid_key, "success"
+            self.alert.add_msg(cm.view.planet.error.valid_key, "success")
         else:
-            msg, type_ = cm.view.planet.error.unvalid_key, "error"
-
-        self.alert.add_msg(msg, type_)
+            self.alert.add_msg(cm.view.planet.error.unvalid_key, "error")
 
         # send the information to the rest of the app
         self.updated += 1

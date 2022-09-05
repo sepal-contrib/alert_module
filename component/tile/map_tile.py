@@ -42,7 +42,9 @@ class MapTile(sw.Tile):
         )
         self.metadata = self.metadata_control.view
         self.ee_planet = EEPlanetTile(self.alert_model, self.map)
-        self.api_planet = APIPlanetTile(self.alert_model, self.map)
+        self.api_planet = APIPlanetTile(
+            self.alert_model, self.map, self.planet_control.view.model
+        )
 
         # place them in the map
         self.map.add_control(self.metadata_control)

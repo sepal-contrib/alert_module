@@ -29,7 +29,10 @@ class APIPlanetTile(sw.Card):
     layers = None
     "list: the list of the currently displayed planet layers"
 
-    def __init__(self, alert_model, map_):
+    def __init__(self, alert_model, map_, planet_model):
+
+        # get the planet model
+        self.model = planet_model
 
         # add an alert to display warning to the user
         self.alert = sw.Alert().show()
@@ -118,8 +121,7 @@ class APIPlanetTile(sw.Card):
         end = timedelta(days=self.alert_model.days_after)
 
         # retreive the layer from planet
-        items = cs.get_planet_items(
-            self.alert_model.api_key,
+        items = self.model.get_items(
             self.buffer,
             self.current_day + start,
             self.current_day + end,
@@ -136,7 +138,7 @@ class APIPlanetTile(sw.Card):
             self.map.add_layer(
                 TileLayer(
                     url=cp.planet_tile_url.format(
-                        item_type, id_, self.alert_model.api_key
+                        item_type, id_, self.model.session._client.auth.value
                     ),
                     name=name,
                     attribution="Imagery © Planet Labs Inc.",

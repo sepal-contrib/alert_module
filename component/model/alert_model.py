@@ -36,9 +36,6 @@ class AlertModel(model.Model):
     # planet inputs
     ############################################################################
 
-    session = Any(None).tag(sync=True)
-    "the current planet session"
-
     valid_key = Any(False).tag(sync=True)
     "set to true if the key is validated to display alert information"
 
