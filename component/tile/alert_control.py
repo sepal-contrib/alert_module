@@ -6,6 +6,7 @@ import ee
 from pathlib import Path
 import geopandas as gpd
 from ipyleaflet import GeoJSON
+from traitlets import Int
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -22,6 +23,9 @@ from component.message import cm
 
 
 class AlertView(sw.Card):
+
+    updated = Int(0).tag(sync=True)
+
     def __init__(self, aoi_model, map_):
 
         # init the models
@@ -208,6 +212,8 @@ class AlertView(sw.Card):
         # remove the alert bounds layer
         self.map.remove_layer("alert extend", none_ok=True)
 
+        self.updated += 1
+
         return self
 
     def on_alert_click(self, feature, **kwargs):
@@ -340,14 +346,19 @@ class AlertView(sw.Card):
         )
 
         return
-    
+
+
 class AlertControl(sm.MenuControl):
-    
     def __init__(self, aoi_model, map_):
-        
-        # create the view 
+
+        # create the view
         self.view = AlertView(aoi_model, map_)
         self.view.class_list.add("ma-5")
-        
-        # include it in the control 
-        super().__init__("fas fa-exclamation-triangle", self.view, m=map_, card_title=cm.view.setting.alert)
+
+        # include it in the control
+        super().__init__(
+            "fas fa-exclamation-triangle",
+            self.view,
+            m=map_,
+            card_title=cm.view.setting.alert,
+        )

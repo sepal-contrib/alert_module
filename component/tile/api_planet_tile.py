@@ -43,12 +43,6 @@ class APIPlanetTile(sw.Card):
         # init the layer list
         self.layers = []
 
-        # add the base widgets
-        self.close = sw.Icon(children=["mdi-close"], x_small=True)
-        self.title = sw.CardTitle(
-            class_="pa-0 ma-0", children=[sw.Spacer(), self.close]
-        )
-
         # create the control widgets
         self.w_prev_month = cw.MapBtn(
             "mdi-chevron-double-left", class_="ma-0", attributes={"increm": -20}
@@ -88,15 +82,14 @@ class APIPlanetTile(sw.Card):
 
         # create the planet control widgets
         super().__init__(
-            class_="pa-1",
-            children=[self.title, row, self.alert],
+            class_="pa-2",
+            children=[row, self.alert],
             viz=False,
             max_height="80vh",
             max_width="80vw",
         )
 
         # add javascript event
-        self.close.on_event("click", lambda *Args: self.hide())
         self.alert_model.observe(self._toggle_widget, "valid_key")
         self.alert_model.observe(self.load_data, "current_id")
         self.w_prev_month.on_event("click", self._month)

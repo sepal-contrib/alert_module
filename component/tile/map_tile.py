@@ -21,19 +21,21 @@ class MapTile(sw.Tile):
 
         # I decided to set the widgets here instead of in the map to avoid
         # complexity with model sharing
-        aoi_control = AoiControl(self.map)
-        alert_control = AlertControl(aoi_control.view.model, self.map)
-        planet_control = PlanetControl(alert_control.view.alert_model, self.map)
-        
-        # add the control on the map 
-        self.map.add_control(planet_control)
-        self.map.add_control(alert_control)
-        self.map.add_control(aoi_control)
-        
+        self.aoi_control = AoiControl(self.map)
+        self.alert_control = AlertControl(self.aoi_control.view.model, self.map)
+        self.planet_control = PlanetControl(
+            self.alert_control.view.alert_model, self.map
+        )
+
+        # add the control on the map
+        self.map.add_control(self.planet_control)
+        self.map.add_control(self.alert_control)
+        self.map.add_control(self.aoi_control)
+
         # extract the model from the setting tile for easier manipulation
-        self.aoi_model = aoi_control.view.model
-        self.alert_model = alert_control.view.alert_model
-        
+        self.aoi_model = self.aoi_control.view.model
+        self.alert_model = self.alert_control.view.alert_model
+
         # create the other tiles
         self.metadata = MetadataTile(self.alert_model, self.map, self.aoi_model)
         self.ee_planet = EEPlanetTile(self.alert_model, self.map)
@@ -48,9 +50,33 @@ class MapTile(sw.Tile):
         self.map.metadata_btn.on_event(
             "click", lambda *args: self.metadata.toggle_viz()
         )
-        self.map.navigate_btn.on_event("click", self._toggle_planet_viz)
+        self.aoi_control.view.observe(self.end_aoi, "updated")
+        self.alert_control.view.observe(self.end_alert, "updated")
+        self.planet_control.view.observe(self.end_planet, "updated")
 
         super().__init__(id_="map_tile", title="", inputs=[self.map])
+
+    def end_aoi(self, change):
+        """switch to alert selection when the aoi is selected"""
+
+        self.alert_control.menu.v_model = True
+
+        return
+
+    def end_alert(self, change):
+        """close the alert selection once done, Planet need to be seen as an option"""
+
+        self.alert_control.menu.v_model = False
+
+        return
+
+    def end_planet(self, change):
+        """close the planet selection once done"""
+
+        if self.planet_control.view.alert.type == "success":
+            self.planet_control.menu.v_model = False
+
+        return
 
     def _toggle_planet_viz(self, *args):
         """

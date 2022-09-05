@@ -43,12 +43,6 @@ class EEPlanetTile(sw.Card):
         # get the map as a member
         self.map = map_
 
-        # add the base widgets
-        self.close = sw.Icon(children=["mdi-close"], x_small=True)
-        self.title = sw.CardTitle(
-            class_="pa-0 ma-0", children=[sw.Spacer(), self.close]
-        )
-
         # create the control widgets
         self.w_color = cw.MapBtn("fas fa-palette")
         self.w_prev = cw.MapBtn("mdi-chevron-left", class_="ma-0")
@@ -81,15 +75,14 @@ class EEPlanetTile(sw.Card):
 
         # create the planet control widgets
         super().__init__(
-            class_="pa-1",
-            children=[self.title, row],
+            class_="pa-2",
+            children=[row],
             viz=False,
             max_height="80vh",
             max_width="80vw",
         )
 
         # add javascript events
-        self.close.on_event("click", lambda *args: self.hide())
         self.alert_model.observe(self.load_dates, "current_id")
         self.alert_model.observe(self._toggle_widget, "valid_key")
         self.w_prev.on_event("click", self.prev_)

@@ -1,6 +1,6 @@
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
-from traitlets import Bool
+from traitlets import Bool, Int
 from sepal_ui import mapping as sm
 
 from component.message import cm
@@ -10,6 +10,8 @@ from component.message import cm
 
 
 class PlanetView(sw.Card):
+
+    updated = Int(0).tag(sync=True)
 
     api = Bool(False).tag(sync=True)
     "wether or not to use the Planet API"
@@ -92,15 +94,19 @@ class PlanetView(sw.Card):
         type_ = "success" if valid is True else "error"
         self.alert.add_msg(msg, type_)
 
+        self.updated += 1
+
         return
 
+
 class PlanetControl(sm.MenuControl):
-    
     def __init__(self, alert_model, map_):
-        
-        # create a view 
+
+        # create a view
         self.view = PlanetView(alert_model)
         self.view.class_list.add("ma-5")
-        
-        # integrate it in a menu 
-        super().__init__("fas fa-globe", self.view, m=map_, card_title=cm.view.setting.planet)
+
+        # integrate it in a menu
+        super().__init__(
+            "fas fa-globe", self.view, m=map_, card_title=cm.view.setting.planet
+        )
