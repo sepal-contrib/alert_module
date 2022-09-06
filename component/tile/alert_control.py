@@ -53,12 +53,17 @@ class AlertView(sw.Card):
                 sw.Radio(label=cm.view.alert.type.recent, value="RECENT"),
                 sw.Radio(label=cm.view.alert.type.custom, value="HISTORICAL"),
             ],
-        )
+        ).hide()
 
         # add the specific assetSelect for other types of alerts
         # hidden by default
         self.w_asset = sw.AssetSelect(
             label=cm.view.alert.asset.label, types=["IMAGE"]
+        ).hide()
+
+        # add a file selector for the vietnamese alert system
+        self.w_file_jica = sw.FileInput(
+            label="geojson file", extentions=[".geojson"]
         ).hide()
 
         # dropdown to select the lenght of the "recent" period
@@ -96,6 +101,7 @@ class AlertView(sw.Card):
                 self.w_alert_type,
                 self.w_recent,
                 self.w_historic,
+                self.w_file_jica,
                 self.w_size,
                 self.btn,
                 self.alert,
@@ -252,24 +258,30 @@ class AlertView(sw.Card):
         """set the min and max year based on the selected data collection"""
 
         # empty and hide the component by default
-        self.w_alert_type.show()
+        self.w_alert_type.hide()
+        self.w_historic.hide()
+        self.w_recent.hide()
         self.w_asset.reset()
         self.w_asset.hide()
+        self.w_file_jica.reset()
+        self.w_file_jica.hide()
 
         # if nrt system is set I need to show the asset select widget first
         # the datepicker is discarded as the information won't be needed
         if change["new"] in ["NRT", "CUSUM"]:
             self.w_asset.show()
-            self.w_historic.hide()
-            self.w_recent.hide()
-            self.w_alert_type.hide()
 
         # init the datepicker with appropriate min and max values
         elif change["new"] in ["RADD", "GLAD-L", "GLAD-S"]:
-            year_list = cp.alert_drivers[change["new"]]["available_years"]
+            self.w_alert_type.show()
             self.w_alert_type.v_model = "RECENT"
-            self.w_historic.init(min(year_list), max(year_list))
             self.w_recent.show()
+            year_list = cp.alert_drivers[change["new"]]["available_years"]
+            self.w_historic.init(min(year_list), max(year_list))
+
+        # move to JICA file selector
+        elif change["new"] in ["JICA"]:
+            self.w_file_jica.show()
 
         # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
         # the issue with GLDA-L is now solved keeping this comments for later references (https://groups.google.com/g/globalforestwatch/c/nT_PSdfd3Fs)
@@ -340,6 +352,7 @@ class AlertView(sw.Card):
         ):
             obj = ee.Image(self.w_asset.v_model)
         else:
+            self.map.remove_layer("alert extend")
             return
 
         # display it on the map
