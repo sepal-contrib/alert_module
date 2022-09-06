@@ -148,42 +148,8 @@ class AlertView(sw.Card):
         self.alert_model.current_id = None
         self.map.remove_layer(cm.map.layer.alerts, none_ok=True)
 
-        # create the grid
-        grid = cs.set_grid(self.aoi_model.gdf)
-
-        # loop in the grid to avoid timeout in the define AOI
-        # display information to the user
-        self.alert.reset().show()
-        self.alert.update_progress(0)
-        data = None
-        for i, geom in enumerate(grid.geometry):
-
-            ee_geom = ee.FeatureCollection(ee.Geometry(geom.__geo_interface__))
-
-            # load the alerts in the system
-            all_alerts = cs.get_alerts(
-                collection=self.alert_model.alert_collection,
-                start=self.alert_model.start,
-                end=self.alert_model.end,
-                aoi=ee_geom,
-                asset=self.alert_model.asset,
-            )
-
-            alert_clump = cs.get_alerts_clump(alerts=all_alerts, aoi=ee_geom)
-
-            if data is None:
-                data = alert_clump.getInfo()
-            else:
-                data["features"] += alert_clump.getInfo()["features"]
-
-            self.alert.update_progress(i / len(grid))
-
-        # save the clumps as a geoJson dict in the model
-        # exit if nothing is found
-        if len(data["features"]) == 0:
-            raise Exception(cm.view.alert.error.no_alerts)
-        else:
-            gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
+        if self.w_alert.v_model in ["GLAD-L", "RADD", "NRT", "GLAD-S", "CUSUM"]:
+            gdf = self.load_from_gee()
 
         # set all the values to unset
         gdf["review"] = cm.view.metadata.status.unset
@@ -352,7 +318,7 @@ class AlertView(sw.Card):
         ):
             obj = ee.Image(self.w_asset.v_model)
         else:
-            self.map.remove_layer("alert extend")
+            self.map.remove_layer("alert extend", none_ok=True)
             return
 
         # display it on the map
@@ -362,6 +328,48 @@ class AlertView(sw.Card):
         )
 
         return
+
+    def load_from_gee(self):
+        """load the data into a gdf using the gee API and a grid"""
+
+        # create the grid
+        grid = cs.set_grid(self.aoi_model.gdf)
+
+        # loop in the grid to avoid timeout in the define AOI
+        # display information to the user
+        self.alert.reset().show()
+        self.alert.update_progress(0)
+        data = None
+        for i, geom in enumerate(grid.geometry):
+
+            ee_geom = ee.FeatureCollection(ee.Geometry(geom.__geo_interface__))
+
+            # load the alerts in the system
+            all_alerts = cs.get_alerts(
+                collection=self.alert_model.alert_collection,
+                start=self.alert_model.start,
+                end=self.alert_model.end,
+                aoi=ee_geom,
+                asset=self.alert_model.asset,
+            )
+
+            alert_clump = cs.get_alerts_clump(alerts=all_alerts, aoi=ee_geom)
+
+            if data is None:
+                data = alert_clump.getInfo()
+            else:
+                data["features"] += alert_clump.getInfo()["features"]
+
+            self.alert.update_progress(i / len(grid))
+
+        # save the clumps as a geoJson dict in the model
+        # exit if nothing is found
+        if len(data["features"]) == 0:
+            raise Exception(cm.view.alert.error.no_alerts)
+        else:
+            gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
+
+        return gdf
 
 
 class AlertControl(sm.MenuControl):
