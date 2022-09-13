@@ -150,12 +150,11 @@ class AlertView(sw.Card):
 
         if self.w_alert.v_model in ["GLAD-L", "RADD", "NRT", "GLAD-S", "CUSUM"]:
             gdf = self.load_from_gee()
+        elif self.w_alert.v_model in ["JICA"]:
+            gdf = self.load_from_geojson()
 
         # set all the values to unset
         gdf["review"] = cm.view.metadata.status.unset
-
-        # compute the surfaces for each geometry in square meters
-        gdf["surface"] = gdf.to_crs("EPSG:3857").area
 
         # add a comment column with empty string at the moment
         gdf["comment"] = ""
@@ -248,6 +247,8 @@ class AlertView(sw.Card):
         # move to JICA file selector
         elif change["new"] in ["JICA"]:
             self.w_file_jica.show()
+            self.alert_model.start = "2022-01-01"  # dummy dates
+            self.alert_model.end = "2022-01-01"  # dummy dates
 
         # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
         # the issue with GLDA-L is now solved keeping this comments for later references (https://groups.google.com/g/globalforestwatch/c/nT_PSdfd3Fs)
@@ -368,6 +369,17 @@ class AlertView(sw.Card):
             raise Exception(cm.view.alert.error.no_alerts)
         else:
             gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
+
+        # compute the surfaces for each geometry in square meters
+        gdf["surface"] = gdf.to_crs("EPSG:3857").area
+
+        return gdf
+
+    def load_from_geojson(self):
+        """load a file from a geojson file from JICA/previous work alert system"""
+
+        if self.w_alert.v_model == "JICA":
+            gdf = cs.from_jica(self.w_file_jica.v_model)
 
         return gdf
 
