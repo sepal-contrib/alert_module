@@ -309,3 +309,11 @@ class MetadataControl(sm.MenuControl):
 
         # create the control
         super().__init__("fas fa-info", self.view, m=map_, position="topleft")
+
+        # update some traits of the control
+        self.set_size(
+            min_width="",
+            max_width="80vw",
+            min_height="",
+            max_height="80vh",
+        )
