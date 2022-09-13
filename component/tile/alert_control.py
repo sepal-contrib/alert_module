@@ -168,6 +168,9 @@ class AlertView(sw.Card):
             gdf = gdf[gdf.surface >= self.alert_model.min_size * 10000]  # filter alerts
             gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
             gdf["id"] = gdf.index  # reset the ids
+            gdf["original_geometry"] = gdf["geometry"].apply(
+                lambda g: g.__geo_interface__
+            )
 
         # save it in the model
         self.alert_model.gdf = gdf

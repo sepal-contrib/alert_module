@@ -9,6 +9,8 @@ import pandas as pd
 from ipyleaflet import GeoJSON
 import geopandas as gpd
 import fiona
+from traitlets import Bool
+from shapely import geometry as sg
 
 from component import widget as cw
 from component import parameter as cp
@@ -20,6 +22,8 @@ class MetadataView(sw.Card):
     A card to display the metadata information relative to an alert
     """
 
+    edit_status = Bool(False).tag(sync=True)
+
     def __init__(self, alert_model, map_, aoi_model):
 
         # listen the alert_model
@@ -29,7 +33,13 @@ class MetadataView(sw.Card):
         # get the map as a member
         self.map = map_
 
-        # add the base widgets
+        # add a btn to dynamically edit the geometry
+        self.w_edit = cw.Btn(
+            cm.metadata_control.edit[self.edit_status], small=True, disabled=True
+        )
+        edit_line = sw.Row(children=[sw.Spacer(), self.w_edit, sw.Spacer()])
+
+        # create the base widgets
         self.w_id = cw.DynamicSelect()
         self.w_alert = sw.TextField(small=True, readonly=True, v_model="")
         self.w_date = sw.TextField(small=True, readonly=True, v_model="")
@@ -106,7 +116,7 @@ class MetadataView(sw.Card):
         # create the metadata object
         super().__init__(
             class_="pa-1",
-            children=[self.w_id, table, btn_list, self.alert],
+            children=[self.w_id, edit_line, table, btn_list, self.alert],
         )
 
         # add javascript events
@@ -118,6 +128,48 @@ class MetadataView(sw.Card):
         self.btn_gpkg.on_event("click", self.export)
         self.btn_kml.on_event("click", self.export)
         self.alert_model.observe(self._id_click, "current_id")
+        self.w_edit.on_event("click", self._edit_geometry)
+
+    def _edit_geometry(self, widget, event, data):
+        """open the editor mode and draw a new geometry on top of the previous one"""
+
+        self.edit_status = not self.edit_status
+        self.w_edit.set_txt(cm.metadata_control.edit[self.edit_status])
+
+        if self.edit_status is True:
+            self.w_id.disable()
+            gdf = self.alert_model.gdf.loc[[self.alert_model.current_id]]
+            data = gdf.__geo_interface__
+            data["properties"] = {
+                "style": {
+                    "stroke": True,
+                    "color": "#79b1c9",
+                    "weight": 4,
+                    "opacity": 0.5,
+                    "fill": True,
+                    "fillColor": None,
+                    "fillOpacity": 0.2,
+                    "clickable": True,
+                }
+            }
+            self.map.alert_dc.data = [data]
+
+        else:
+            # reset to original geometry if nothing is set
+            if len(self.map.alert_dc.data) == 0:
+                feat = self.alert_model.gdf.loc[[self.alert_model.current_id]].squeeze()
+                shape = sg.shape(feat.original_geometry)
+
+            # else read the new geometry from data
+            else:
+                shape = sg.shape(self.map.alert_dc.data[0]["geometry"])
+
+            self.alert_model.gdf.at[self.w_id.v_model, "geometry"] = shape
+            self.w_id.unable()
+
+            self.map.alert_dc.clear()
+
+        return
 
     def _id_click(self, change):
         """
@@ -164,6 +216,7 @@ class MetadataView(sw.Card):
             self.w_review.v_model = "unset"
             self.w_review.disabled = True
             self.w_comment.disabled = True
+            self.w_edit.disabled = True
 
             # remove the current layer
             self.map.remove_layer(cm.map.layer.current, none_ok=True)
@@ -172,6 +225,7 @@ class MetadataView(sw.Card):
             self.alert_model.current_id = None
 
         else:
+            self.w_edit.disabled = False
 
             # select the geoseries
             gdf = self.alert_model.gdf.loc[[change["new"]]]
@@ -218,7 +272,7 @@ class MetadataView(sw.Card):
             # to trigger the other processes
             self.alert_model.current_id = change["new"]
 
-            return
+        return
 
     def _on_alerts_change(self, change):
 
@@ -245,6 +299,7 @@ class MetadataView(sw.Card):
     def export(self, widget, event, data):
         """export the file to multple formats"""
 
+        # copy the original gdf to avoid mutable modifications
         gdf = self.alert_model.gdf.copy()
 
         # create the name
@@ -255,6 +310,9 @@ class MetadataView(sw.Card):
         path = cp.result_dir / f"{name}.{format_}"
 
         if format_ == "csv":
+
+            # remove original geometry
+            gdf = gdf.drop(columns=["original_geometry"])
 
             # add the lat and long column
             gdf["lat"] = gdf.apply(

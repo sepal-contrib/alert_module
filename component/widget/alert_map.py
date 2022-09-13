@@ -11,15 +11,20 @@ class AlertMap(sm.SepalMap):
 
         default = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
 
-        super().__init__(["SATELLITE", default], dc=True, zoom=3)
+        super().__init__(["SATELLITE", default], zoom=3)
 
-        self.hide_dc()
+        # add a custom dc
+        self.alert_dc = sm.DrawControl(
+            self, rectangle={}, circle={}, polygon={}, position="topright"
+        )
 
         # add the fullscreen button
         fullscreen = sm.FullScreenControl(
             self, position="topright", fullscreen=True, fullapp=True
         )
+
         self.add_control(fullscreen)
+        self.add_control(self.alert_dc)
 
     def add_widget_as_control(self, widget, position, first=False):
         """
