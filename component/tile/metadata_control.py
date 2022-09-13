@@ -98,7 +98,7 @@ class MetadataView(sw.Card):
                 sw.Spacer(),
             ]
         )
-        self.alert = sw.Alert(small=True)
+        self.alert = sw.Alert(small=True, max_width="500px")
 
         # create a table out of the widgets
         table = sw.SimpleTable(
@@ -170,6 +170,7 @@ class MetadataView(sw.Card):
             self.map.alert_dc.clear()
 
             # reload the content to update coordinates and representation
+            id_ = self.w_id.v_model
             self._on_id_change({"new": self.w_id.v_model})
 
         return
