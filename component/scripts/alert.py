@@ -335,3 +335,13 @@ def from_jica(path):
     gdf["nb_pixel"] = (gdf["surface"] * (10 ^ 4)) / (30 * 30)
 
     return gdf
+
+
+def from_recover(path):
+    """retreive the alerts from a recovered gpkg file generated from a prvious work"""
+
+    # read the file
+    path = Path(path)
+    gdf = gdp.read_file(path, layer=cm.map.layer.alerts)
+
+    return gdf

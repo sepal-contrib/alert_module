@@ -17,6 +17,7 @@ alert_drivers = {
     },
     "CUSUM": {},
     "JICA": {},
+    "RECOVER": {},
 }
 
 # the amont of days to look for in the past

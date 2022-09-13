@@ -66,6 +66,11 @@ class AlertView(sw.Card):
             label="geojson file", extentions=[".geojson"]
         ).hide()
 
+        # add a file selector for the gpkg file created from previous work
+        self.w_file_recover = sw.FileInput(
+            label="gpkg file", extentions=[".gpkg"]
+        ).hide()
+
         # dropdown to select the lenght of the "recent" period
         self.w_recent = sw.Select(
             v_model=None, items=cp.time_delta, label=cm.view.alert.recent.label
@@ -102,6 +107,7 @@ class AlertView(sw.Card):
                 self.w_recent,
                 self.w_historic,
                 self.w_file_jica,
+                self.w_file_recover,
                 self.w_size,
                 self.btn,
                 self.alert,
@@ -151,23 +157,17 @@ class AlertView(sw.Card):
         if self.w_alert.v_model in ["GLAD-L", "RADD", "NRT", "GLAD-S", "CUSUM"]:
             gdf = self.load_from_gee()
         elif self.w_alert.v_model in ["JICA"]:
-            gdf = self.load_from_geojson()
+            gdf = cs.from_jica(self.w_file_jica.v_model)
+        elif self.w_alert.v_model in ["RECOVER"]:
+            gdf = cs.from_recover(self.w_file_recover.v_model)
 
-        # set all the values to unset
-        gdf["review"] = cm.view.metadata.status.unset
-
-        # add a comment column with empty string at the moment
-        gdf["comment"] = ""
-
-        # remove the smallest alerts
-        # be carefull the min offset is set in ha
-        gdf = gdf[gdf.surface >= self.alert_model.min_size * 10000]
-
-        # order the gdf by number of pixels
-        gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
-
-        # reset the ids
-        gdf["id"] = gdf.index
+        # set all the unset values
+        if self.w_alert.v_model not in ["RECOVER"]:
+            gdf["review"] = cm.view.metadata.status.unset
+            gdf["comment"] = ""  # add a comment column with empty string
+            gdf = gdf[gdf.surface >= self.alert_model.min_size * 10000]  # filter alerts
+            gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
+            gdf["id"] = gdf.index  # reset the ids
 
         # save it in the model
         self.alert_model.gdf = gdf
@@ -230,6 +230,7 @@ class AlertView(sw.Card):
         self.w_asset.hide()
         self.w_file_jica.reset()
         self.w_file_jica.hide()
+        self.w_file_recover.hide()
 
         # if nrt system is set I need to show the asset select widget first
         # the datepicker is discarded as the information won't be needed
@@ -244,14 +245,23 @@ class AlertView(sw.Card):
             year_list = cp.alert_drivers[change["new"]]["available_years"]
             self.w_historic.init(min(year_list), max(year_list))
 
+            # glad L dataset is in maintenance for now
+            # (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
+            # the issue with GLDA-L is now solved keeping this comments for later references
+            # (https://groups.google.com/g/globalforestwatch/c/nT_PSdfd3Fs)
+
         # move to JICA file selector
         elif change["new"] in ["JICA"]:
             self.w_file_jica.show()
             self.alert_model.start = "2022-01-01"  # dummy dates
             self.alert_model.end = "2022-01-01"  # dummy dates
 
-        # glad L dataset is in maintenance for now (https://groups.google.com/g/globalforestwatch/c/v4WhGxbKG1I)
-        # the issue with GLDA-L is now solved keeping this comments for later references (https://groups.google.com/g/globalforestwatch/c/nT_PSdfd3Fs)
+        # move to JICA file selector
+        elif change["new"] in ["RECOVER"]:
+            self.w_file_recover.show()
+            self.alert_model.start = "2022-01-01"  # dummy dates
+            self.alert_model.end = "2022-01-01"  # dummy dates
+
         return self
 
     def _change_alert_type(self, change):
