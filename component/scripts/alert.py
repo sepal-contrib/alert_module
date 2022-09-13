@@ -331,7 +331,7 @@ def from_jica(path):
     gdf = gdf.filter(items=["geometry", "id", "areaHa"])
     gdf = gdf.rename(columns={"id": "label", "areaHa": "surface"})
     gdf["alert"] = 1
-    gdf["date"] = (int(date.strftime("%j")) - 1) / 1000 + date.year
+    gdf["date"] = int(date.strftime("%j")) / 1000 + date.year
     gdf["nb_pixel"] = (gdf["surface"] * (10 ^ 4)) / (30 * 30)
 
     return gdf

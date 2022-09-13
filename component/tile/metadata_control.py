@@ -42,7 +42,10 @@ class MetadataView(sw.Card):
         # create the base widgets
         self.w_id = cw.DynamicSelect()
         self.w_alert = sw.TextField(small=True, readonly=True, v_model="")
-        self.w_date = sw.TextField(small=True, readonly=True, v_model="")
+        self.w_date = sw.DatePicker(class_="pa-0")
+        self.w_date.date_text.persistent_hint = False  # small hack to avoid the hint
+        self.w_date.date_text.hint = None
+        self.w_date.date_text.disabled = True
         self.w_surface = sw.TextField(
             small=True, readonly=True, v_model="", suffix="px"
         )
@@ -124,6 +127,7 @@ class MetadataView(sw.Card):
         self.w_id.observe(self._on_id_change, "v_model")
         self.w_review.observe(self._on_review_change, "v_model")
         self.w_comment.observe(self._on_comment_change, "v_model")
+        self.w_date.observe(self._on_date_change, "v_model")
         self.btn_csv.on_event("click", self.export)
         self.btn_gpkg.on_event("click", self.export)
         self.btn_kml.on_event("click", self.export)
@@ -206,6 +210,22 @@ class MetadataView(sw.Card):
 
         return
 
+    def _on_date_change(self, change):
+        """change the date of the feature in the dataframe"""
+
+        # date is saved in the dataframe using yyyy.doy format so I need to build
+        # it from the v_model
+        value = change["new"]
+        year = int(value[0:4])
+        month = int(value[5:7])
+        day = int(value[8:10])
+        date = datetime(year, month, day)
+        date = int(date.strftime("%j")) / 1000 + date.year
+
+        self.alert_model.gdf.at[self.w_id.v_model, "date"] = date
+
+        return
+
     def _on_id_change(self, change):
         """
         set the table values according to the selected id data
@@ -221,6 +241,7 @@ class MetadataView(sw.Card):
             self.w_review.disabled = True
             self.w_comment.disabled = True
             self.w_edit.disabled = True
+            self.w_date.date_text.disabled = True
 
             # remove the current layer
             self.map.remove_layer(cm.map.layer.current, none_ok=True)
@@ -243,6 +264,7 @@ class MetadataView(sw.Card):
             julian = int(julian * 1000)
             date = datetime(int(year), 1, 1) + timedelta(days=julian - 1)
             self.w_date.v_model = date.strftime("%Y-%m-%d")
+            self.w_date.date_text.disabled = False
 
             # read the surface
             self.w_surface.v_model = feat.nb_pixel
