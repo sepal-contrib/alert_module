@@ -169,6 +169,9 @@ class MetadataView(sw.Card):
 
             self.map.alert_dc.clear()
 
+            # reload the content to update coordinates and representation
+            self._on_id_change({"new": self.w_id.v_model})
+
         return
 
     def _id_click(self, change):
