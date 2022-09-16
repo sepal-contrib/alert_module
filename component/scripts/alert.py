@@ -1,7 +1,9 @@
 from datetime import date, datetime
+import re
+import json
+
 import geopandas as gdp
 import ee
-import re
 from pathlib import Path
 
 from component import parameter as cp
@@ -343,5 +345,8 @@ def from_recover(path):
     # read the file
     path = Path(path)
     gdf = gdp.read_file(path, layer=cm.map.layer.alerts)
+
+    # rewrite the original_geometry as a dict instead of a string
+    gdf["original_geometry"] = gdf["original_geometry"].apply(lambda g: json.loads(g))
 
     return gdf

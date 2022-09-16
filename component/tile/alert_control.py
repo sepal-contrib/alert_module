@@ -1,5 +1,4 @@
 from datetime import timedelta, date, datetime
-from json import dumps
 import time
 
 import ee
