@@ -144,18 +144,7 @@ class MetadataView(sw.Card):
             self.w_id.disable()
             gdf = self.alert_model.gdf.loc[[self.alert_model.current_id]]
             data = gdf.__geo_interface__
-            data["properties"] = {
-                "style": {
-                    "stroke": True,
-                    "color": "#79b1c9",
-                    "weight": 4,
-                    "opacity": 0.5,
-                    "fill": True,
-                    "fillColor": None,
-                    "fillOpacity": 0.2,
-                    "clickable": True,
-                }
-            }
+            data["properties"] = {"style": cp.edit_style}
             self.map.alert_dc.data = [data]
 
         else:

@@ -64,7 +64,7 @@ class AlertModel(model.Model):
         """return a ipygeojson layer ready to be displayed on the map"""
 
         if self.gdf is None:
-            raise Exception("Impossible to load layer without he json data")
+            raise Exception("Impossible to load layer without the json data")
 
         # create a GeoJSON object
         ipygeojson = GeoJSON(

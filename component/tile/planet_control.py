@@ -33,9 +33,11 @@ class PlanetView(sw.Card):
         # cancel will cancel the use of planet data and switch to GEE based map
         # instead
         # btn is called c_btn instead of cancel to avoid duplication
-        self.btn = sw.Btn("apply", "fas fa-check", color="secondary", small=True)
+        self.btn = sw.Btn(
+            cm.planet_control.btn.apply, "fas fa-check", color="secondary", small=True
+        )
         self.c_btn = sw.Btn(
-            "cancel",
+            cm.planet_control.btn.cancel,
             "fas fa-times",
             color="error",
             outlined=True,

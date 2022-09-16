@@ -15,7 +15,7 @@ class DynamicSelect(sw.Layout):
 
         self.select = sw.Select(
             dense=True,
-            label=cm.widget.planet.select.label,
+            label=cm.metadata_control.select.label,
             v_model=None,
             items=[],
             prepend_icon="mdi-pound",

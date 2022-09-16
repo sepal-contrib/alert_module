@@ -1,0 +1,8 @@
+{
+    "planet_control": {
+        "btn": {
+            "apply": "apply",
+            "cancel": "cancel"
+        }
+    }
+}
