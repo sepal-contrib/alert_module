@@ -47,7 +47,7 @@ class MetadataView(sw.Card):
         self.w_date.date_text.hint = None
         self.w_date.date_text.disabled = True
         self.w_surface = sw.TextField(
-            small=True, readonly=True, v_model="", suffix="px"
+            small=True, readonly=True, v_model="", suffix="ha"
         )
         self.w_coords = sw.TextField(small=True, readonly=True, v_model="")
         self.w_review = sw.RadioGroup(
@@ -109,7 +109,7 @@ class MetadataView(sw.Card):
             children=[
                 self.row(cm.view.metadata.row.alert, self.w_alert),
                 self.row(cm.view.metadata.row.date, self.w_date),
-                self.row(cm.view.metadata.row.pixels, self.w_surface),
+                self.row(cm.view.metadata.row.surface, self.w_surface),
                 self.row(cm.view.metadata.row.coords, self.w_coords),
                 self.row(cm.view.metadata.row.review, self.w_review),
                 self.row(cm.view.metadata.row.comment, self.w_comment),
@@ -148,16 +148,19 @@ class MetadataView(sw.Card):
             self.map.alert_dc.data = [data]
 
         else:
-            # reset to original geometry if nothing is set
-            if len(self.map.alert_dc.data) == 0:
-                feat = self.alert_model.gdf.loc[[self.alert_model.current_id]].squeeze()
-                shape = sg.shape(feat.original_geometry)
+            feat = self.alert_model.gdf.loc[[self.alert_model.current_id]].squeeze()
 
+            # reset to original geometry if nothing is set
             # else read the new geometry from data
+            if len(self.map.alert_dc.data) == 0:
+                shape = sg.shape(feat.original_geometry)
             else:
                 shape = sg.shape(self.map.alert_dc.data[0]["geometry"])
 
+            surface = gpd.GeoSeries([shape], crs=4326).to_crs(3857).area.squeeze()
             self.alert_model.gdf.at[self.w_id.v_model, "geometry"] = shape
+            self.alert_model.gdf.at[self.w_id.v_model, "surface"] = surface / 10000
+
             self.w_id.unable()
 
             self.map.alert_dc.clear()
@@ -256,7 +259,7 @@ class MetadataView(sw.Card):
             self.w_date.date_text.disabled = False
 
             # read the surface
-            self.w_surface.v_model = feat.nb_pixel
+            self.w_surface.v_model = feat.surface
 
             # get the center coordinates
             coords = list(feat.geometry.centroid.coords)[0]

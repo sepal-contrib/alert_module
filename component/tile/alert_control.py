@@ -164,7 +164,7 @@ class AlertView(sw.Card):
         if self.w_alert.v_model not in ["RECOVER"]:
             gdf["review"] = cm.view.metadata.status.unset
             gdf["comment"] = ""  # add a comment column with empty string
-            gdf = gdf[gdf.surface >= self.alert_model.min_size * 10000]  # filter alerts
+            gdf = gdf[gdf.surface >= self.alert_model.min_size]  # filter alerts
             gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
             gdf["id"] = gdf.index  # reset the ids
             gdf["original_geometry"] = gdf["geometry"].apply(
@@ -383,7 +383,7 @@ class AlertView(sw.Card):
             gdf = gpd.GeoDataFrame.from_features(data, crs="EPSG:4326")
 
         # compute the surfaces for each geometry in square meters
-        gdf["surface"] = gdf.to_crs("EPSG:3857").area
+        gdf["surface"] = gdf.to_crs("EPSG:3857").area / 10000
 
         return gdf
 

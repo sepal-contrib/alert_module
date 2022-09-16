@@ -91,7 +91,8 @@
                 "pixels": "number of pixels",
                 "coords": "coordinates",
                 "review": "review",
-                "comment": "comment"
+                "comment": "comment",
+                "surface": "surface"
             },
             "type": {
                 "0": "undefined", 
