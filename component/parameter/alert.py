@@ -16,6 +16,8 @@ alert_drivers = {
         "asset": "projects/glad/S2alert/alert",
     },
     "CUSUM": {},
+    "JICA": {},
+    "RECOVER": {},
 }
 
 # the amont of days to look for in the past

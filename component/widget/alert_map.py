@@ -1,6 +1,7 @@
 from ipyleaflet import WidgetControl
 from ipywidgets import Button, Layout
 from sepal_ui import mapping as sm
+import ipyvuetify as v
 
 from component.message import cm
 
@@ -8,25 +9,22 @@ from component.message import cm
 class AlertMap(sm.SepalMap):
     def __init__(self):
 
-        super().__init__(dc=True, zoom=3)
+        default = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
 
-        self.hide_dc()
+        super().__init__(["SATELLITE", default], zoom=3)
 
-        # add the fullscreen button
-        self.add_control(
-            sm.FullScreenControl(
-                self, position="topleft", fullscreen=True, fullapp=True
-            )
+        # add a custom dc
+        self.alert_dc = sm.DrawControl(
+            self, rectangle={}, circle={}, polygon={}, position="topright"
         )
 
-        # add the buttons on the topleft side of the map
-        self.parameters_btn = sm.MapBtn("fas fa-bars")
-        self.navigate_btn = sm.MapBtn("fas fa-globe")
-        self.metadata_btn = sm.MapBtn("fas fa-info")
+        # add the fullscreen button
+        fullscreen = sm.FullScreenControl(
+            self, position="topright", fullscreen=True, fullapp=True
+        )
 
-        self.add_widget_as_control(self.parameters_btn, "topleft")
-        self.add_widget_as_control(self.navigate_btn, "topleft")
-        self.add_widget_as_control(self.metadata_btn, "topleft")
+        self.add_control(fullscreen)
+        self.add_control(self.alert_dc)
 
     def add_widget_as_control(self, widget, position, first=False):
         """

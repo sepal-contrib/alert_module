@@ -90,7 +90,9 @@
                 "date": "date",
                 "pixels": "number of pixels",
                 "coords": "coordinates",
-                "review": "review"
+                "review": "review",
+                "comment": "comment",
+                "surface": "surface"
             },
             "type": {
                 "0": "undefined", 

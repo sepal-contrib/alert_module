@@ -1,5 +1,10 @@
 from datetime import date, datetime
+import re
+import json
+
+import geopandas as gdp
 import ee
+from pathlib import Path
 
 from component import parameter as cp
 from component.message import cm
@@ -302,3 +307,46 @@ def _from_cusum(aoi, asset):
     all_alerts = alert_band.addBands(date_band)
 
     return all_alerts
+
+
+def from_jica(path):
+    """retreive the alerts from a JICA geojson file"""
+
+    # force cast to path
+    path = Path(path)
+
+    # get the date from the file name and use today if not existing
+    # try:
+    search = "(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
+    year, month, day = (int(g) for g in re.search(search, path.stem).groups())
+    date = datetime(year, month, day)
+
+    # except:
+    #    dt = datetime.today()
+    #    date = datetime(dt.year, dt.month, dt.day)
+
+    # read the file
+    gdf = gdp.read_file(path)
+    gdf = gdf.set_crs(4326)
+
+    # reorder the columns to make it compatible with the application
+    gdf = gdf.filter(items=["geometry", "id", "areaHa"])
+    gdf = gdf.rename(columns={"id": "label", "areaHa": "surface"})
+    gdf["alert"] = 1
+    gdf["date"] = int(date.strftime("%j")) / 1000 + date.year
+    gdf["nb_pixel"] = (gdf["surface"] * (10 ^ 4)) / (30 * 30)
+
+    return gdf
+
+
+def from_recover(path):
+    """retreive the alerts from a recovered gpkg file generated from a prvious work"""
+
+    # read the file
+    path = Path(path)
+    gdf = gdp.read_file(path, layer=cm.map.layer.alerts)
+
+    # rewrite the original_geometry as a dict instead of a string
+    gdf["original_geometry"] = gdf["original_geometry"].apply(lambda g: json.loads(g))
+
+    return gdf

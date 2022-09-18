@@ -35,8 +35,6 @@ class AlertModel(model.Model):
     ############################################################################
     # planet inputs
     ############################################################################
-    api_key = Any(None).tag(sync=True)
-    "the user api key"
 
     valid_key = Any(False).tag(sync=True)
     "set to true if the key is validated to display alert information"
@@ -66,7 +64,7 @@ class AlertModel(model.Model):
         """return a ipygeojson layer ready to be displayed on the map"""
 
         if self.gdf is None:
-            raise Exception("Impossible to load layer without he json data")
+            raise Exception("Impossible to load layer without the json data")
 
         # create a GeoJSON object
         ipygeojson = GeoJSON(

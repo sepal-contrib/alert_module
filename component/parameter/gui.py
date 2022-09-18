@@ -20,4 +20,15 @@ current_alert_style = {  # current alert styling
     "fillOpacity": 0,
 }
 
+edit_style = {  # style of the edited geometry
+    "stroke": True,
+    "color": "#79b1c9",
+    "weight": 4,
+    "opacity": 0.5,
+    "fill": True,
+    "fillColor": None,
+    "fillOpacity": 0.2,
+    "clickable": True,
+}
+
 planet_viz = {"min": 64, "max": 5454, "gamma": 1.8}  # I let the driver decide the bands
