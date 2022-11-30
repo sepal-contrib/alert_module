@@ -250,7 +250,7 @@ Some drivers perform automatic analysis and sometimes the geometry of the alerts
 
 alternatively: 
 
--   Click on :btn:`<fas fa-trash>`to start the deletion interface
+-   Click on :btn:`<fas fa-trash>` to start the deletion interface
 -   Click on :btn:`clear all` to remove the edited geometry. The geometry will be returned to it's original state before any edition was done. 
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/clear.png 
