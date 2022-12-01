@@ -19,11 +19,11 @@ class AlertMap(sm.SepalMap):
         )
 
         # add the fullscreen button
-        fullscreen = sm.FullScreenControl(
+        self.w_fullscreen = sm.FullScreenControl(
             self, position="topright", fullscreen=True, fullapp=True
         )
 
-        self.add_control(fullscreen)
+        self.add_control(self.w_fullscreen)
         self.add_control(self.alert_dc)
 
     def add_widget_as_control(self, widget, position, first=False):

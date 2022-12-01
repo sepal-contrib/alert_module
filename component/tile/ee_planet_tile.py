@@ -114,7 +114,7 @@ class EEPlanetTile(sw.Card):
         if self.w_date.v_model is None:
             return
 
-        # check if the btn need to be hidden
+        # check if the btn needs to be hidden
         index = next(
             i
             for i, v in enumerate(self.w_date.items)
@@ -193,7 +193,9 @@ class EEPlanetTile(sw.Card):
             value = [start_list[i], end_list[i]]
             item = {"text": text, "value": value}
             date_items += [item]
-        self.w_date.items = date_items
+
+        # reverse the list so that the most recent come on top
+        self.w_date.items = date_items[::-1]
 
         # show the widget
         self.show()
@@ -203,8 +205,8 @@ class EEPlanetTile(sw.Card):
 
         return
 
-    def prev_(self, widget, event, data):
-        """got to previous items in the list"""
+    def next_(self, widget, event, data):
+        """got to next items in time (in the future)"""
 
         if self.w_date.v_model is None:
             index = 0
@@ -221,8 +223,8 @@ class EEPlanetTile(sw.Card):
 
         return
 
-    def next_(self, widget, event, data):
-        """got to next items in the list"""
+    def prev_(self, widget, event, data):
+        """got to prev items in time (in the past)"""
 
         if self.w_date.v_model is None:
             index = len(self.w_date.items) - 1
@@ -252,6 +254,7 @@ class EEPlanetTile(sw.Card):
         ).timestamp() * 1000
 
         # find it's closest index in the dates list
+        # remember that the list is in reversed chronological order
         index = next(
             i
             for i, v in enumerate(self.w_date.items)
@@ -270,9 +273,9 @@ class EEPlanetTile(sw.Card):
         self.w_next.disabled = False
 
         if index == 0:
-            self.w_prev.disabled = True
-        elif index == len(self.w_date.items) - 1:
             self.w_next.disabled = True
+        elif index == len(self.w_date.items) - 1:
+            self.w_prev.disabled = True
 
         return
 
