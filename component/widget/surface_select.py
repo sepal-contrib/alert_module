@@ -11,7 +11,9 @@ class SurfaceSelect(sw.Col):
         title = sw.Html(tag="h4", children=[cm.widget.alert.surface.label])
 
         # define the slider with the value vizualizer
-        slider = sw.Slider(v_model=0, min=0, max=100, thumb_label=True, class_="mt-5")
+        slider = sw.Slider(
+            v_model=0, min=0, max=100, thumb_label=True, class_="mt-5", step=0.5
+        )
         number = sw.TextField(suffix="ha", readonly=True, xs2=True)
 
         # create the widget

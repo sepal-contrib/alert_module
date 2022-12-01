@@ -27,7 +27,7 @@
         },
         "alert": {
             "surface": {
-                "label": "Select minimal surface of the alerts"
+                "label": "Select minimal surface of the alerts (ha)"
             }
         }
     },
