@@ -37,22 +37,12 @@ class AoiView(aoi.AoiView):
         self.model.set_object()
 
         # update the map
-        if self.map_:
-            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
-            self.map_.zoom_bounds(self.model.total_bounds())
-
-            if self.ee:
-
-                empty = ee.Image().byte()
-                outline = empty.paint(
-                    featureCollection=self.model.feature_collection, color=1, width=2
-                )
-
-                self.map_.addLayer(outline, {"palette": sc.primary}, "aoi")
-            else:
-                self.map_.add_layer(self.model.get_ipygeojson())
-
-            self.map_.hide_dc()
+        [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
+        self.map_.zoom_bounds(self.model.total_bounds())
+        empty = ee.Image().byte()
+        outline = empty.paint(featureCollection=self.model.feature_collection, color=1, width=2)
+        self.map_.addLayer(outline, {"palette": sc.primary}, "aoi")
+        self.map_.hide_dc()
 
         # tell the rest of the apps that the aoi have been updated
         self.updated += 1
@@ -67,5 +57,5 @@ class AoiControl(sm.MenuControl):
 
         # create the control
         super().__init__(
-            "fas fa-map-marker-alt", self.view, m=map_, card_title=cm.aoi_control.title
+            "fa-solid fa-map-marker-alt", self.view, m=map_, card_title=cm.aoi_control.title
         )

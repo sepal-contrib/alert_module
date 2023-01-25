@@ -99,7 +99,7 @@ class MapTile(sw.Tile):
     def set_code(self, link):
         "add the code link btn to the map"
 
-        btn = sm.MapBtn("fas fa-code", href=link, target="_blank")
+        btn = sm.MapBtn("fa-solid fa-code", href=link, target="_blank")
         control = WidgetControl(widget=btn, position="bottomleft")
         self.map.add_control(control)
 
@@ -108,7 +108,7 @@ class MapTile(sw.Tile):
     def set_wiki(self, link):
         "add the wiki link btn to the map"
 
-        btn = sm.MapBtn("fas fa-book-open", href=link, target="_blank")
+        btn = sm.MapBtn("fa-solid fa-book-open", href=link, target="_blank")
         control = WidgetControl(widget=btn, position="bottomleft")
         self.map.add_control(control)
 
@@ -117,7 +117,7 @@ class MapTile(sw.Tile):
     def set_issue(self, link):
         "add the code link btn to the map"
 
-        btn = sm.MapBtn("fas fa-bug", href=link, target="_blank")
+        btn = sm.MapBtn("fa-solid fa-bug", href=link, target="_blank")
         control = WidgetControl(widget=btn, position="bottomleft")
         self.map.add_control(control)
 

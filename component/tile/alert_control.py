@@ -405,7 +405,7 @@ class AlertControl(sm.MenuControl):
 
         # include it in the control
         super().__init__(
-            "fas fa-exclamation-triangle",
+            "fa-solid fa-exclamation-triangle",
             self.view,
             m=map_,
             card_title=cm.view.setting.alert,

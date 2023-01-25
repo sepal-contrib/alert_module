@@ -9,7 +9,7 @@ Deforestation alert analysis
 Set up
 ------
 
-From the SEPAL app dashboard (purple :icon:`fas fa-wrench` on the left side), search for and click on **deforestation alert analysis**.
+From the SEPAL app dashboard (purple :icon:`fa-solid fa-wrench` on the left side), search for and click on **deforestation alert analysis**.
 
 .. note::
 
@@ -21,20 +21,20 @@ From the SEPAL app dashboard (purple :icon:`fas fa-wrench` on the left side), se
 
 The application should launch itself as a map displaying the world. At the bottom-left side you will find 3 special buttons to open useful links:  
 
--   :btn:`<fas fa-book-open>` the link to the documentation of the module
--   :btn:`<fas fa-bug>` the link to open a new issue in the github repository 
--   :btn:`<fas fa-file-code>` the link to the source code of the application 
+-   :btn:`<fa-solid fa-book-open>` the link to the documentation of the module
+-   :btn:`<fa-solid fa-bug>` the link to open a new issue in the github repository 
+-   :btn:`<fa-solid fa-file-code>` the link to the source code of the application 
 
 Clicking on them will open the link in a new webpage.
 
     
 In the bottom right corner of the map. 3 buttons will help the user navigate through the different widgets of the application:
 
--   :btn:`<fas fa-map-marker-alt>`: the widget to select the AOI (Area of interest)
--   :btn:`<fas fa-exclamation-triangle>`: the widget to select the alerts and filter them
--   :btn:`<fas fa-globe>`: the widget to select Planet parameters
+-   :btn:`<fa-solid fa-map-marker-alt>`: the widget to select the AOI (Area of interest)
+-   :btn:`<fa-solid fa-exclamation-triangle>`: the widget to select the alerts and filter them
+-   :btn:`<fa-solid fa-globe>`: the widget to select Planet parameters
 
-In the top left corner there is :btn:`<fas fa-info>` button to open the metatada interface. More information in the next sections of this document.
+In the top left corner there is :btn:`<fa-solid fa-info>` button to open the metatada interface. More information in the next sections of this document.
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/widgets.png 
     :title: the different areas of interaction of the module
@@ -169,7 +169,7 @@ CUSUM
 
     this will be using the :code:`.tif` output of :doc:`cusum`.
     
-Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface <https://code.earthengine.google.com/>`__. Once the map is available in your assets you can use it in the module. If you don't find the asset in the list, click on the :icon:`fas fa-sync` icon to reload your asset list.
+Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface <https://code.earthengine.google.com/>`__. Once the map is available in your assets you can use it in the module. If you don't find the asset in the list, click on the :icon:`fa-solid fa-sync` icon to reload your asset list.
 
 .. note:: 
 
@@ -206,7 +206,7 @@ Once everything is set, the user can click on :btn:`select alerts` and the modul
 Metadata
 --------
 
-Click on :btn:`<fas fa-info>`to show the metadata panel. This panel will allow you to validate the alerts identified by the driver using Planet VHR (Very High Resolution) imagery. All information about the current alert will be displayed in this table: 
+Click on :btn:`<fa-solid fa-info>`to show the metadata panel. This panel will allow you to validate the alerts identified by the driver using Planet VHR (Very High Resolution) imagery. All information about the current alert will be displayed in this table: 
 
 -   alert ID: the Id of the alert 
 -   geometry edition: a button to trigger geometry edition for one single alert  
@@ -241,7 +241,7 @@ Geometry edition
 Some drivers perform automatic analysis and sometimes the geometry of the alerts poorly represent what you see on the VHR imagery. Using this module you can redifine the geometry before exporting your results to perfectly fit the deforested area.
 
 -   Click on :btn:`edit geometry`. It will release the edition interface (1). 
--   Click on :btn:`<fas fa-edit>` to start edition and move the white square to add or remove vertices. 
+-   Click on :btn:`<fa-solid fa-edit>` to start edition and move the white square to add or remove vertices. 
 -   Once done click on :btn:`save` to exit the edition mode
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/edit.png 
@@ -250,7 +250,7 @@ Some drivers perform automatic analysis and sometimes the geometry of the alerts
 
 alternatively: 
 
--   Click on :btn:`<fas fa-trash>` to start the deletion interface
+-   Click on :btn:`<fa-solid fa-trash>` to start the deletion interface
 -   Click on :btn:`clear all` to remove the edited geometry. The geometry will be returned to it's original state before any edition was done. 
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/clear.png 
@@ -312,7 +312,7 @@ Parameters
 
     this panel is fully optional. If nothing is set, the module will use Planet NICFI level 1 data (monthly mosaics). If you have a NICFI level 2 access, providing your API key will grant you access to daily imagery.
 
-click on :btn:`<fas fa-globe>` to access the`planet API interface. In this panel you can connect to your Planet Profile using either your credentials or your password.
+click on :btn:`<fa-solid fa-globe>` to access the`planet API interface. In this panel you can connect to your Planet Profile using either your credentials or your password.
 
 -   Select the credential mode between "credentials" and "API key"
 -   Set and validate your credentials 
@@ -354,7 +354,7 @@ Level 1 (monthly)
 ^^^^^^^^^^^^^^^^^
 
 Level 1 data are monthly mosaics. When a alert is clicked, the module will load the closest month from the observation date. the user can then use the Planet navigator to change the displayed image.
-Click on the :btn:`<fas fa-palette>` to change the color of the images from CIR to RGB. The user can select the monthly mosaic directly from the dropdown menu or use the navigation buttons. :btn:`<fas fa-chevron-left>` (res. :btn:`<fas fa-chevron-right>`) will move from one mont in the past (res. in the future). The :btn:`<fas fa-circle>` will set back on the closest date from the observation date. 
+Click on the :btn:`<fa-solid fa-palette>` to change the color of the images from CIR to RGB. The user can select the monthly mosaic directly from the dropdown menu or use the navigation buttons. :btn:`<fa-solid fa-chevron-left>` (res. :btn:`<fa-solid fa-chevron-right>`) will move from one mont in the past (res. in the future). The :btn:`<fa-solid fa-circle>` will set back on the closest date from the observation date. 
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/planet_monthly_rgb.png 
     :width: 49%
@@ -374,7 +374,7 @@ Level 2 data are daily imagery. When an alert is clicked, the module will load t
 
     Multiple images are displayed at once so don't hesitate to play with the layer control to hide and show different scenes.
     
-Thus user can navigate through the images using the buttons in the Planet navigator. Click on :btn:`<fas fa-chevron-left>` (res. :btn:`<fas fa-chevron-right>`) to move one day in the past (res. one day in the future). Click on :btn:`<fas fa-chevron-double-left>` (res. :btn:`<fas fa-chevron-double-right>`) to move one month in the past (res. one month in the future). The :btn:`<fas fa-circle>` will set back on the closest date from the observation date. 
+Thus user can navigate through the images using the buttons in the Planet navigator. Click on :btn:`<fa-solid fa-chevron-left>` (res. :btn:`<fa-solid fa-chevron-right>`) to move one day in the past (res. one day in the future). Click on :btn:`<fa-solid fa-chevron-double-left>` (res. :btn:`<fa-solid fa-chevron-double-right>`) to move one month in the past (res. one month in the future). The :btn:`<fa-solid fa-circle>` will set back on the closest date from the observation date. 
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/planet_daily.png 
     :title: the planet daily mosaic displayed in cir

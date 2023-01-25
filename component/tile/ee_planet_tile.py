@@ -44,7 +44,7 @@ class EEPlanetTile(sw.Card):
         self.map = map_
 
         # create the control widgets
-        self.w_color = cw.MapBtn("fas fa-palette")
+        self.w_color = cw.MapBtn("fa-solid fa-palette")
         self.w_prev = cw.MapBtn("mdi-chevron-left", class_="ma-0")
         self.w_now = cw.MapBtn("far fa-circle", class_="ma-0")
         self.w_next = cw.MapBtn("mdi-chevron-right", class_="ma-0")

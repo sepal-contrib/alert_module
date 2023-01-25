@@ -408,7 +408,7 @@ class MetadataControl(sm.MenuControl):
         self.view = MetadataView(alert_model, map_, aoi_model)
 
         # create the control
-        super().__init__("fas fa-info", self.view, m=map_, position="topleft")
+        super().__init__("fa-solid fa-info", self.view, m=map_, position="topleft")
 
         # update some traits of the control
         self.set_size(
