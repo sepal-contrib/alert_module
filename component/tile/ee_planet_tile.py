@@ -49,7 +49,7 @@ class EEPlanetTile(sw.Card):
         self.w_now = cw.MapBtn("far fa-circle", class_="ma-0")
         self.w_next = cw.MapBtn("mdi-chevron-right", class_="ma-0")
         self.w_date = sw.Select(
-            label=cm.view.planet.date.label,
+            label=cm.ee_planet.date.label,
             items=[],
             v_model=None,
             dense=True,
@@ -106,7 +106,7 @@ class EEPlanetTile(sw.Card):
         """
 
         # remove the previous layer
-        self.map.remove_layer(cm.map.layer.planet, none_ok=True)
+        self.map.remove_layer(cm.ee_planet.layer.name, none_ok=True)
         self.free_btn(None)
 
         # exit if nothing is selected
@@ -137,7 +137,7 @@ class EEPlanetTile(sw.Card):
         viz_params = {**cp.planet_viz, "bands": self.BANDS[self.color]}
 
         # display the layer on the map
-        self.map.addLayer(planet_image, viz_params, cm.map.layer.planet)
+        self.map.addLayer(planet_image, viz_params, cm.ee_planet.layer.name)
 
         return
 

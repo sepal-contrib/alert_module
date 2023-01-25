@@ -8,7 +8,7 @@ class SurfaceSelect(sw.Col):
     def __init__(self):
 
         # define a title
-        title = sw.Html(tag="h4", children=[cm.widget.alert.surface.label])
+        title = sw.Html(tag="h4", children=[cm.surface_select.label])
 
         # define the slider with the value vizualizer
         slider = sw.Slider(

@@ -61,7 +61,7 @@ class APIPlanetTile(sw.Card):
             "mdi-chevron-double-right", class_="ma-0", attributes={"increm": 20}
         )
         self.w_date = sw.TextField(
-            label=cm.view.planet.date.label,
+            label=cm.api_planet.date.label,
             v_model=None,
             dense=True,
             class_="ml-1 mr-1",
@@ -128,7 +128,7 @@ class APIPlanetTile(sw.Card):
             self.alert_model.cloud_cover,
         )
 
-        len(items) > 0 or self.alert.add_msg(cm.planet.no_image, "warning")
+        len(items) > 0 or self.alert.add_msg(cm.api_planet.error.no_image, "warning")
 
         for i, e in enumerate(items):
             date = pd.to_datetime(e["properties"]["acquired"]).strftime("%Y-%m-%d")

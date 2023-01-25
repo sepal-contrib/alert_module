@@ -3,8 +3,6 @@ from ipywidgets import Button, Layout
 from sepal_ui import mapping as sm
 import ipyvuetify as v
 
-from component.message import cm
-
 
 class AlertMap(sm.SepalMap):
     def __init__(self):

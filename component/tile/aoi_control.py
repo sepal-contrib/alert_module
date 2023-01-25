@@ -57,14 +57,15 @@ class AoiView(aoi.AoiView):
         # tell the rest of the apps that the aoi have been updated
         self.updated += 1
 
+
 class AoiControl(sm.MenuControl):
-    
     def __init__(self, map_):
-        
-        # create the view 
+
+        # create the view
         self.view = AoiView(map_=map_)
         self.view.class_list.add("ma-5")
-        
+
         # create the control
-        super().__init__("fas fa-map-marker-alt", self.view, m=map_, card_title=cm.view.setting.aoi)
-        
+        super().__init__(
+            "fas fa-map-marker-alt", self.view, m=map_, card_title=cm.aoi_control.title
+        )
