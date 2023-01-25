@@ -226,13 +226,11 @@ class AlertView(sw.Card):
 
         # empty and hide the component by default
         self.w_alert_type.hide()
-        self.w_historic.hide()
-        self.w_recent.hide()
-        self.w_asset.reset()
-        self.w_asset.hide()
-        self.w_file_jica.reset()
-        self.w_file_jica.hide()
-        self.w_file_recover.hide()
+        self.w_historic.hide().reset()
+        self.w_recent.hide().reset()
+        self.w_asset.hide().reset()
+        self.w_file_jica.hide().reset()
+        self.w_file_recover.hide().reset()
 
         # if nrt system is set I need to show the asset select widget first
         # the datepicker is discarded as the information won't be needed
@@ -255,12 +253,12 @@ class AlertView(sw.Card):
         # move to JICA file selector
         elif change["new"] in ["JICA"]:
             self.w_file_jica.show()
-            self.alert_model.start = "2022-01-01"  # dummy dates
-            self.alert_model.end = "2022-01-01"  # dummy dates
-
-        # move to JICA file selector
+            
+        # move to RECOVER file selector
         elif change["new"] in ["RECOVER"]:
             self.w_file_recover.show()
+            
+        if change["new"] in ["NRT", "JICA", "RECOVER"]:    
             self.alert_model.start = "2022-01-01"  # dummy dates
             self.alert_model.end = "2022-01-01"  # dummy dates
 
@@ -290,31 +288,13 @@ class AlertView(sw.Card):
 
         if change["new"] is None:
             return
-        ########################################################################
-        ##       broken for now I'll set 2022-01-01 to 2022-12-31             ##
-        ########################################################################
-
-        ## read the asset and extract the start and end timestamps
-        # image = ee.Image(change["new"])
-        #
-        # min_ = datetime.fromtimestamp(
-        #    image.get("system:time_start").getInfo() / 1000
-        # ).year
-        # max_ = datetime.fromtimestamp(
-        #    image.get("system:time_end").getInfo() / 1000
-        # ).year
-
-        min_ = datetime.strptime("2022-01-01", "%Y-%m-%d")
-        max_ = datetime.strptime("2022-12-31", "%Y-%m-%d")
-
-        ########################################################################
 
         # apply it to the w_historic
+        min_, max_ = (2022, 2022)
         self.w_historic.init(min_, max_)
-        self.w_historic.w_start.menu.children[0].v_model = min_
-        self.w_historic.w_end.menu.children[0].v_model = max_
-        # self.w_historic.unable()
-
+        self.w_historic.w_start.menu.children[0].v_model = f"{min_}-01-01"
+        self.w_historic.w_end.menu.children[0].v_model = f"{max_}-01-01"
+        
         return
 
     def display_spatial_extent(self, change):

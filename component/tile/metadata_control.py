@@ -233,7 +233,14 @@ class MetadataView(sw.Card):
     def _autosave(self):
         """save the current gdf as a geojson. Triggered by any modification to the metadata"""
 
-        name = f"{self.aoi_model.name}_{self.alert_model.start}_{self.alert_model.end}_{self.alert_model.min_size}"
+        # gather the strings
+        aoi = self.aoi_model.name
+        start = self.alert_model.start
+        end = self.alert_model.end
+        min_size = self.alert_model.min_size
+        
+        # build the name of the file and save it
+        name = f"{aoi}_{start}_{end}_{min_size}"
         path = cp.result_dir / f"{name}.gpkg"
         self.alert_model.gdf.to_file(path, layer=cm.map.layer.alerts, driver="GPKG")
 
