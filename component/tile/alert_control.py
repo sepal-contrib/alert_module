@@ -11,6 +11,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui import color as sc
 from sepal_ui import mapping as sm
+from sepal_ui.scripts import decorator as sd
 
 import ee
 
@@ -221,13 +222,14 @@ class AlertView(sw.Card):
 
         return self
 
+    @sd.switch("loading", "disabled")
     def _set_alert_collection(self, change):
         """set the min and max year based on the selected data collection"""
 
         # empty and hide the component by default
         self.w_alert_type.hide()
-        self.w_historic.hide().reset()
-        self.w_recent.hide().reset()
+        self.w_historic.hide() # reset elswhere 
+        self.w_recent.hide() # reset elsewhere
         self.w_asset.hide().reset()
         self.w_file_jica.hide().reset()
         self.w_file_recover.hide().reset()
