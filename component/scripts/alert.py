@@ -1,10 +1,14 @@
 from datetime import date, datetime
 import re
 import json
-
-import geopandas as gdp
-import ee
 from pathlib import Path
+from math import floor, ceil
+from itertools import product
+import requests
+
+import geopandas as gpd
+import ee
+import pandas as pd
 
 from component import parameter as cp
 from component.message import cm
@@ -326,7 +330,7 @@ def from_jica(path):
     #    date = datetime(dt.year, dt.month, dt.day)
 
     # read the file
-    gdf = gdp.read_file(path)
+    gdf = gpd.read_file(path)
     gdf = gdf.set_crs(4326)
 
     # reorder the columns to make it compatible with the application
@@ -344,9 +348,68 @@ def from_recover(path):
 
     # read the file
     path = Path(path)
-    gdf = gdp.read_file(path, layer=cm.map.layer.alerts)
+    gdf = gpd.read_file(path, layer=cm.map.layer.alerts)
 
     # rewrite the original_geometry as a dict instead of a string
     gdf["original_geometry"] = gdf["original_geometry"].apply(lambda g: json.loads(g))
+
+    return gdf
+
+
+def from_jj_fast(start: str, end: str, aoi: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Read the jj-fast alerts from the online API"""
+
+    # init geojson
+    data = {"type": "FeatureCollection", "features": []}
+
+    # transform dates strings into date objects
+    start = datetime.strptime(start, "%Y-%m-%d")
+    end = datetime.strptime(end, "%Y-%m-%d")
+
+    # get the jj-fast url
+    url = (
+        "https://www.eorc.jaxa.jp/cgi-bin/jjfast/api/getlist.cgi?lat={}&lon={}&date={}"
+    )
+
+    # get the geometry grid of 1°x1° tiles
+    minx, miny, maxx, maxy = aoi.total_bounds
+    minx, miny, maxx, maxy = (floor(minx), floor(miny), ceil(maxx), ceil(maxy))
+
+    # loop through every days
+    for day in pd.date_range(start, end):
+
+        # loop through tiles
+        for x, y in product(range(minx, maxx), range(miny, maxy)):
+
+            # get the tile geojson link
+            req = requests.get(url.format(y + 0.5, x + 0.5, day.strftime("%Y%m%d")))
+
+            # sometimes there are no tiles in available (or no alerts)
+            try:
+                req_json = req.json()["data"]
+            except:
+                continue
+
+            for tile in req_json:
+                filename = tile["file"]
+                geojson = json.loads(requests.get(filename).text)
+
+                # get the alerts
+                for feat in geojson["features"]:
+                    feat["properties"] = {
+                        "nb_pixel": 0,
+                        "label": feat["properties"]["Polygon_id"],
+                        "alert": feat["properties"]["Accuracy"],
+                        "date": int(day.strftime("%j")) / 1000 + day.year,
+                    }
+
+                    # add them to the geojson with correct alerts dates
+                    data["features"].append(feat)
+
+    # transform geojson into a dataframe
+    gdf = gpd.read_file(json.dumps(data), driver="GeoJSON").set_crs(4326)
+
+    # add the surfaces
+    gdf["surface"] = gdf.to_crs(3857).area / 10**4
 
     return gdf

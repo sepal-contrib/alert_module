@@ -156,10 +156,8 @@ class AlertView(sw.Card):
 
         if self.w_alert.v_model in ["GLAD-L", "RADD", "NRT", "GLAD-S", "CUSUM"]:
             gdf = self.load_from_gee()
-        elif self.w_alert.v_model in ["JICA"]:
-            gdf = cs.from_jica(self.w_file_jica.v_model)
-        elif self.w_alert.v_model in ["RECOVER"]:
-            gdf = cs.from_recover(self.w_file_recover.v_model)
+        elif self.w_alert.v_model in ["JICA", "RECOVER", "JJ-FAST"]:
+            gdf = self.load_from_geojson()
 
         # set all the unset values
         if self.w_alert.v_model not in ["RECOVER"]:
@@ -217,8 +215,8 @@ class AlertView(sw.Card):
         today = date.today()
         past = today - timedelta(days=change["new"])
 
-        self.alert_model.start = today.strftime("%Y-%m-%d")
-        self.alert_model.end = past.strftime("%Y-%m-%d")
+        self.alert_model.start = past.strftime("%Y-%m-%d")
+        self.alert_model.end = today.strftime("%Y-%m-%d")
 
         return self
 
@@ -228,8 +226,8 @@ class AlertView(sw.Card):
 
         # empty and hide the component by default
         self.w_alert_type.hide()
-        self.w_historic.hide() # reset elswhere 
-        self.w_recent.hide() # reset elsewhere
+        self.w_historic.hide()  # reset elswhere
+        self.w_recent.hide()  # reset elsewhere
         self.w_asset.hide().reset()
         self.w_file_jica.hide().reset()
         self.w_file_recover.hide().reset()
@@ -240,7 +238,7 @@ class AlertView(sw.Card):
             self.w_asset.show()
 
         # init the datepicker with appropriate min and max values
-        elif change["new"] in ["RADD", "GLAD-L", "GLAD-S"]:
+        elif change["new"] in ["RADD", "GLAD-L", "GLAD-S", "JJ-FAST"]:
             self.w_alert_type.show()
             self.w_alert_type.v_model = "RECENT"
             self.w_recent.show()
@@ -255,12 +253,12 @@ class AlertView(sw.Card):
         # move to JICA file selector
         elif change["new"] in ["JICA"]:
             self.w_file_jica.show()
-            
+
         # move to RECOVER file selector
         elif change["new"] in ["RECOVER"]:
             self.w_file_recover.show()
-            
-        if change["new"] in ["NRT", "JICA", "RECOVER"]:    
+
+        if change["new"] in ["NRT", "JICA", "RECOVER"]:
             self.alert_model.start = "2022-01-01"  # dummy dates
             self.alert_model.end = "2022-01-01"  # dummy dates
 
@@ -296,7 +294,7 @@ class AlertView(sw.Card):
         self.w_historic.init(min_, max_)
         self.w_historic.w_start.menu.children[0].v_model = f"{min_}-01-01"
         self.w_historic.w_end.menu.children[0].v_model = f"{max_}-01-01"
-        
+
         return
 
     def display_spatial_extent(self, change):
@@ -374,6 +372,14 @@ class AlertView(sw.Card):
 
         if self.w_alert.v_model == "JICA":
             gdf = cs.from_jica(self.w_file_jica.v_model)
+        elif self.w_alert.v_model in ["RECOVER"]:
+            gdf = cs.from_recover(self.w_file_recover.v_model)
+        elif self.w_alert.v_model == "JJ-FAST":
+            gdf = cs.from_jj_fast(
+                start=self.alert_model.start,
+                end=self.alert_model.end,
+                aoi=self.aoi_model.gdf,
+            )
 
         return gdf
 

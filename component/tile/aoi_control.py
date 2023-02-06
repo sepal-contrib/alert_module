@@ -40,7 +40,9 @@ class AoiView(aoi.AoiView):
         [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
         self.map_.zoom_bounds(self.model.total_bounds())
         empty = ee.Image().byte()
-        outline = empty.paint(featureCollection=self.model.feature_collection, color=1, width=2)
+        outline = empty.paint(
+            featureCollection=self.model.feature_collection, color=1, width=2
+        )
         self.map_.addLayer(outline, {"palette": sc.primary}, "aoi")
         self.map_.hide_dc()
 
@@ -57,5 +59,8 @@ class AoiControl(sm.MenuControl):
 
         # create the control
         super().__init__(
-            "fa-solid fa-map-marker-alt", self.view, m=map_, card_title=cm.aoi_control.title
+            "fa-solid fa-map-marker-alt",
+            self.view,
+            m=map_,
+            card_title=cm.aoi_control.title,
         )

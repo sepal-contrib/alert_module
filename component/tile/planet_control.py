@@ -34,7 +34,10 @@ class PlanetView(sw.Card):
         # instead
         # btn is called c_btn instead of cancel to avoid duplication
         self.btn = sw.Btn(
-            cm.planet_control.btn.apply, "fa-solid fa-check", color="secondary", small=True
+            cm.planet_control.btn.apply,
+            "fa-solid fa-check",
+            color="secondary",
+            small=True,
         )
         self.c_btn = sw.Btn(
             cm.planet_control.btn.cancel,

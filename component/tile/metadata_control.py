@@ -238,7 +238,7 @@ class MetadataView(sw.Card):
         start = self.alert_model.start
         end = self.alert_model.end
         min_size = self.alert_model.min_size
-        
+
         # build the name of the file and save it
         name = f"{aoi}_{start}_{end}_{min_size}"
         path = cp.result_dir / f"{name}.gpkg"
