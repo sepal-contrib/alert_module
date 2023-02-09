@@ -217,7 +217,7 @@ Once everything is set, the user can click on :btn:`select alerts` and the modul
 Metadata
 --------
 
-Click on :btn:`<fa-solid fa-info>`to show the metadata panel. This panel will allow you to validate the alerts identified by the driver using Planet VHR (Very High Resolution) imagery. All information about the current alert will be displayed in this table:
+Click on :btn:`<fa-solid fa-info>` to show the metadata panel. This panel will allow you to validate the alerts identified by the driver using Planet VHR (Very High Resolution) imagery. All information about the current alert will be displayed in this table:
 
 -   alert ID: the Id of the alert
 -   geometry edition: a button to trigger geometry edition for one single alert
@@ -385,7 +385,7 @@ Level 2 data are daily imagery. When an alert is clicked, the module will load t
 
     Multiple images are displayed at once so don't hesitate to play with the layer control to hide and show different scenes.
 
-Thus user can navigate through the images using the buttons in the Planet navigator. Click on :btn:`<fa-solid fa-chevron-left>` (res. :btn:`<fa-solid fa-chevron-right>`) to move one day in the past (res. one day in the future). Click on :btn:`<fa-solid fa-chevron-double-left>` (res. :btn:`<fa-solid fa-chevron-double-right>`) to move one month in the past (res. one month in the future). The :btn:`<fa-solid fa-circle>` will set back on the closest date from the observation date.
+Thus user can navigate through the images using the buttons in the Planet navigator. Click on :icon:`<fa-solid fa-chevron-left>` (res. :icon:`<fa-solid fa-chevron-right>`) to move one day in the past (res. one day in the future). Click on :icon:`<fa-solid fa-chevron-left>` :icon:`<fa-solid fa-chevron-left>` (res. :icon:`<fa-solid fa-chevron-right>` :icon:`<fa-solid fa-chevron-right>`) to move one month in the past (res. one month in the future). The :icon:`<fa-solid fa-circle>` will set back on the closest date from the observation date.
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/planet_daily.png
     :title: the planet daily mosaic displayed in cir
