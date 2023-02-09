@@ -103,7 +103,7 @@ Follow this process:
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/jica_settings.png
     :width: 24%
-    :title: when selecting the JICA widget
+    :title: when selecting the SINGLE-DATE widget
     :group: alert-module
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/recover_settings.png
@@ -175,23 +175,23 @@ Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ing
 
     The footprint of the alert is only displayed once the asset is selected.
 
-JICA
-####
+SINGLE-DATE
+###########
 
-Vietnamese forest department is using a specific alert system that works well. It generates a geojson file every 10 days. This system have been developped in partnership with JICA and you can check the GEE application `here (vietnamese) <http://canhbaomatrung.kiemlam.org.vn>`__.
+For this alert driver, the AOI parameter is ignored and all the alerts available in the file be loaded.
+
+Any alert system including a vector file of geometries and metadata. If included the label will be infered from the ``id`` and the date of the alert need to be set by the user. By default every alert will be using this one so Planet data will not point straight to the correct images.
 
 .. note::
 
-    For this alert driver, the AOI parameter is ignored and all the alerts available in the file be loaded.
+    Vietnamese forest department is using a specific alert system that works well. It generates a geojson file every 10 days. This system have been developped in partnership with JICA and you can check the GEE application `here (vietnamese) <http://canhbaomatrung.kiemlam.org.vn>`__.
 
 RECOVER
 #######
 
+For this alert driver, the AOI parameter is ignored and all the alerts available in the file be loaded.
+
 The user can save it's work by exporting the already interpreted alerts in :code:`.gpkg` forma`. By selecting this format, you will be able to recover your previous analysis and continue the interpretation process.
-
-.. note::
-
-    For this alert driver, the AOI parameter is ignored and all the alerts available in the file be loaded.
 
 JJ-FAST
 #######

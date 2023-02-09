@@ -305,29 +305,25 @@ def _from_cusum(aoi, asset):
     return all_alerts
 
 
-def from_jica(path):
-    """retreive the alerts from a JICA geojson file"""
+def from_single_date(path: Path, date: str) -> gpd.GeoDataFrame:
+    """retreive the alerts from a single date file of any type recognized by fiona"""
 
     # force cast to path
     path = Path(path)
 
-    # get the date from the file name and use today if not existing
-    # try:
-    search = "(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
-    year, month, day = (int(g) for g in re.search(search, path.stem).groups())
-    date = datetime(year, month, day)
-
-    # except:
-    #    dt = datetime.today()
-    #    date = datetime(dt.year, dt.month, dt.day)
+    # force the date to now if not exsting
+    try:
+        date = datetime.strptime(date, "%Y-%m-%d")
+    except Exception:
+        date = datetime.today()
 
     # read the file
     gdf = gpd.read_file(path)
     gdf = gdf.set_crs(4326)
 
     # reorder the columns to make it compatible with the application
-    gdf = gdf.filter(items=["geometry", "id", "areaHa"])
-    gdf = gdf.rename(columns={"id": "label", "areaHa": "surface"})
+    gdf["surface"] = gdf["surface"] = gdf.to_crs(3857).area / 10**4
+    gdf["label"] = gdf["id"]
     gdf["alert"] = 1
     gdf["date"] = int(date.strftime("%j")) / 1000 + date.year
 

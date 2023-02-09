@@ -62,9 +62,8 @@ class AlertView(sw.Card):
         ).hide()
 
         # add a file selector for the vietnamese alert system
-        self.w_file_jica = sw.FileInput(
-            label="geojson file", extentions=[".geojson"]
-        ).hide()
+        self.w_file = sw.FileInput(extentions=[".geojson", ".gpkg", ".shp"]).hide()
+        self.w_date = sw.DatePicker().hide()
 
         # add a file selector for the gpkg file created from previous work
         self.w_file_recover = sw.FileInput(
@@ -106,7 +105,8 @@ class AlertView(sw.Card):
                 self.w_alert_type,
                 self.w_recent,
                 self.w_historic,
-                self.w_file_jica,
+                self.w_file,
+                self.w_date,
                 self.w_file_recover,
                 self.w_size,
                 self.btn,
@@ -156,7 +156,7 @@ class AlertView(sw.Card):
 
         if self.w_alert.v_model in ["GLAD-L", "RADD", "NRT", "GLAD-S", "CUSUM"]:
             gdf = self.load_from_gee()
-        elif self.w_alert.v_model in ["JICA", "RECOVER", "JJ-FAST"]:
+        elif self.w_alert.v_model in ["SINGLE-DATE", "RECOVER", "JJ-FAST"]:
             gdf = self.load_from_geojson()
 
         # exit if gdf is empty
@@ -233,7 +233,8 @@ class AlertView(sw.Card):
         self.w_historic.hide()  # reset elswhere
         self.w_recent.hide()  # reset elsewhere
         self.w_asset.hide().reset()
-        self.w_file_jica.hide().reset()
+        self.w_file.hide().reset()
+        self.w_date.hide().reset()
         self.w_file_recover.hide().reset()
 
         # if nrt system is set I need to show the asset select widget first
@@ -254,15 +255,16 @@ class AlertView(sw.Card):
             # the issue with GLDA-L is now solved keeping this comments for later references
             # (https://groups.google.com/g/globalforestwatch/c/nT_PSdfd3Fs)
 
-        # move to JICA file selector
-        elif change["new"] in ["JICA"]:
-            self.w_file_jica.show()
+        # move to single date file selector
+        elif change["new"] in ["SINGLE-DATE"]:
+            self.w_file.show()
+            self.w_date.show()
 
         # move to RECOVER file selector
         elif change["new"] in ["RECOVER"]:
             self.w_file_recover.show()
 
-        if change["new"] in ["NRT", "JICA", "RECOVER"]:
+        if change["new"] in ["NRT", "SINGLE-DATE", "RECOVER"]:
             self.alert_model.start = "2022-01-01"  # dummy dates
             self.alert_model.end = "2022-01-01"  # dummy dates
 
@@ -372,10 +374,10 @@ class AlertView(sw.Card):
         return gdf
 
     def load_from_geojson(self):
-        """load a file from a geojson file from JICA/previous work alert system"""
+        """load a file from a file of another work alert system"""
 
-        if self.w_alert.v_model == "JICA":
-            gdf = cs.from_jica(self.w_file_jica.v_model)
+        if self.w_alert.v_model == "SINGLE-DATE":
+            gdf = cs.from_single_date(self.w_file.v_model, self.w_date.v_model)
         elif self.w_alert.v_model in ["RECOVER"]:
             gdf = cs.from_recover(self.w_file_recover.v_model)
         elif self.w_alert.v_model == "JJ-FAST":
