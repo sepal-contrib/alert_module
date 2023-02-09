@@ -10,15 +10,15 @@ from .map_btn import *
 class DynamicSelect(sw.Layout):
     def __init__(self):
 
-        self.prev = MapBtn("mdi-chevron-left", value=-1)
-        self.next = MapBtn("mdi-chevron-right", value=1)
+        self.prev = MapBtn("fa-solid fa-chevron-left", value=-1)
+        self.next = MapBtn("fa-solid fa-chevron-right", value=1)
 
         self.select = sw.Select(
             dense=True,
             label=cm.dynamic_select.label,
             v_model=None,
             items=[],
-            prepend_icon="mdi-pound",
+            prepend_icon="fa-solid fa-hashtag",
             clearable=True,
         )
 
