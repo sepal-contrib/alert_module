@@ -42,17 +42,8 @@ def get_alerts_clump(alerts, aoi):
         connectedness=ee.Kernel.square(1), maxSize=1024  # 8 neighbors
     )
 
-    # Compute the number of pixels in each object defined by the "labels" band.
-    object_size = (
-        object_id.select("labels")
-        .connectedPixelCount(eightConnected=True, maxSize=1024)
-        .rename("nb_pixel")
-    )
-
-    image = object_id.addBands(object_size.select("nb_pixel"))
-
     # reduce to vector
-    alert_collection = image.reduceToVectors(
+    alert_collection = object_id.reduceToVectors(
         reducer=ee.Reducer.min(),  # confirmed are 1, and potential 2
         scale=20,  # force scale < nominalScale to obtain correct results
         eightConnected=True,
@@ -338,7 +329,6 @@ def from_jica(path):
     gdf = gdf.rename(columns={"id": "label", "areaHa": "surface"})
     gdf["alert"] = 1
     gdf["date"] = int(date.strftime("%j")) / 1000 + date.year
-    gdf["nb_pixel"] = (gdf["surface"] * (10 ^ 4)) / (30 * 30)
 
     return gdf
 
@@ -397,7 +387,6 @@ def from_jj_fast(start: str, end: str, aoi: gpd.GeoDataFrame) -> gpd.GeoDataFram
                 # get the alerts
                 for feat in geojson["features"]:
                     feat["properties"] = {
-                        "nb_pixel": 0,
                         "label": feat["properties"]["Polygon_id"],
                         "alert": feat["properties"]["Accuracy"],
                         "date": int(day.strftime("%j")) / 1000 + day.year,

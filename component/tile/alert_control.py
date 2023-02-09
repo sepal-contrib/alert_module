@@ -164,7 +164,7 @@ class AlertView(sw.Card):
             gdf["review"] = cm.view.metadata.status.unset
             gdf["comment"] = ""  # add a comment column with empty string
             gdf = gdf[gdf.surface >= self.alert_model.min_size]  # filter alerts
-            gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
+            gdf = gdf.sort_values(by=["surface"], ignore_index=True, ascending=False)
             gdf["id"] = gdf.index  # reset the ids
             gdf["original_geometry"] = gdf["geometry"].apply(
                 lambda g: g.__geo_interface__
