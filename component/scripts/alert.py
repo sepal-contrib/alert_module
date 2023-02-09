@@ -9,6 +9,7 @@ import requests
 import geopandas as gpd
 import ee
 import pandas as pd
+from sepal_ui import sepalwidgets as sw
 
 from component import parameter as cp
 from component.message import cm
@@ -346,7 +347,9 @@ def from_recover(path):
     return gdf
 
 
-def from_jj_fast(start: str, end: str, aoi: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def from_jj_fast(
+    start: str, end: str, aoi: gpd.GeoDataFrame, alert: sw.Alert
+) -> gpd.GeoDataFrame:
     """Read the jj-fast alerts from the online API"""
 
     # init geojson
@@ -365,11 +368,16 @@ def from_jj_fast(start: str, end: str, aoi: gpd.GeoDataFrame) -> gpd.GeoDataFram
     minx, miny, maxx, maxy = aoi.total_bounds
     minx, miny, maxx, maxy = (floor(minx), floor(miny), ceil(maxx), ceil(maxy))
 
+    # count the items to request
+    nb_dates = len([d for d in pd.date_range(start, end)])
+    nb_tile = len([i for i in product(range(minx, maxx), range(miny, maxy))])
+
     # loop through every days
-    for day in pd.date_range(start, end):
+    alert.update_progress(0)
+    for i, day in enumerate(pd.date_range(start, end)):
 
         # loop through tiles
-        for x, y in product(range(minx, maxx), range(miny, maxy)):
+        for j, (x, y) in enumerate(product(range(minx, maxx), range(miny, maxy))):
 
             # get the tile geojson link
             req = requests.get(url.format(y + 0.5, x + 0.5, day.strftime("%Y%m%d")))
@@ -394,6 +402,7 @@ def from_jj_fast(start: str, end: str, aoi: gpd.GeoDataFrame) -> gpd.GeoDataFram
 
                     # add them to the geojson with correct alerts dates
                     data["features"].append(feat)
+            alert.update_progress(((i * nb_tile) + j) / (nb_tile * nb_dates))
 
     # transform geojson into a dataframe
     gdf = gpd.read_file(json.dumps(data), driver="GeoJSON").set_crs(4326)

@@ -379,6 +379,7 @@ class AlertView(sw.Card):
                 start=self.alert_model.start,
                 end=self.alert_model.end,
                 aoi=self.aoi_model.gdf,
+                alert=self.alert,
             )
 
         return gdf
