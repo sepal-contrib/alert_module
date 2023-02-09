@@ -159,6 +159,10 @@ class AlertView(sw.Card):
         elif self.w_alert.v_model in ["JICA", "RECOVER", "JJ-FAST"]:
             gdf = self.load_from_geojson()
 
+        # exit if gdf is empty
+        if len(gdf) == 0:
+            raise Exception(cm.view.alert.error.no_alerts)
+
         # set all the unset values
         if self.w_alert.v_model not in ["RECOVER"]:
             gdf["review"] = cm.view.metadata.status.unset

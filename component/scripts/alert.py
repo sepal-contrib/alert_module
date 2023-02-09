@@ -407,6 +407,10 @@ def from_jj_fast(
     # transform geojson into a dataframe
     gdf = gpd.read_file(json.dumps(data), driver="GeoJSON").set_crs(4326)
 
+    # filterout elements that are not included in the geometry
+    aoi_geom = aoi.geometry.unary_union
+    gdf = gdf[gdf.geometry.within(aoi_geom)]
+
     # add the surfaces
     gdf["surface"] = gdf.to_crs(3857).area / 10**4
 
