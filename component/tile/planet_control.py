@@ -34,11 +34,14 @@ class PlanetView(sw.Card):
         # instead
         # btn is called c_btn instead of cancel to avoid duplication
         self.btn = sw.Btn(
-            cm.planet_control.btn.apply, "fas fa-check", color="secondary", small=True
+            cm.planet_control.btn.apply,
+            "fa-solid fa-check",
+            color="secondary",
+            small=True,
         )
         self.c_btn = sw.Btn(
             cm.planet_control.btn.cancel,
-            "fas fa-times",
+            "fa-solid fa-times",
             color="error",
             outlined=True,
             class_="mr-1",
@@ -115,5 +118,5 @@ class PlanetControl(sm.MenuControl):
 
         # integrate it in a menu
         super().__init__(
-            "fas fa-globe", self.view, m=map_, card_title=cm.view.setting.planet
+            "fa-solid fa-globe", self.view, m=map_, card_title=cm.view.setting.planet
         )

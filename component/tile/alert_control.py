@@ -11,6 +11,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui import color as sc
 from sepal_ui import mapping as sm
+from sepal_ui.scripts import decorator as sd
 
 import ee
 
@@ -61,9 +62,8 @@ class AlertView(sw.Card):
         ).hide()
 
         # add a file selector for the vietnamese alert system
-        self.w_file_jica = sw.FileInput(
-            label="geojson file", extentions=[".geojson"]
-        ).hide()
+        self.w_file = sw.FileInput(extentions=[".geojson", ".gpkg", ".shp"]).hide()
+        self.w_date = sw.DatePicker().hide()
 
         # add a file selector for the gpkg file created from previous work
         self.w_file_recover = sw.FileInput(
@@ -105,7 +105,8 @@ class AlertView(sw.Card):
                 self.w_alert_type,
                 self.w_recent,
                 self.w_historic,
-                self.w_file_jica,
+                self.w_file,
+                self.w_date,
                 self.w_file_recover,
                 self.w_size,
                 self.btn,
@@ -155,17 +156,19 @@ class AlertView(sw.Card):
 
         if self.w_alert.v_model in ["GLAD-L", "RADD", "NRT", "GLAD-S", "CUSUM"]:
             gdf = self.load_from_gee()
-        elif self.w_alert.v_model in ["JICA"]:
-            gdf = cs.from_jica(self.w_file_jica.v_model)
-        elif self.w_alert.v_model in ["RECOVER"]:
-            gdf = cs.from_recover(self.w_file_recover.v_model)
+        elif self.w_alert.v_model in ["SINGLE-DATE", "RECOVER", "JJ-FAST"]:
+            gdf = self.load_from_geojson()
+
+        # exit if gdf is empty
+        if len(gdf) == 0:
+            raise Exception(cm.view.alert.error.no_alerts)
 
         # set all the unset values
         if self.w_alert.v_model not in ["RECOVER"]:
             gdf["review"] = cm.view.metadata.status.unset
             gdf["comment"] = ""  # add a comment column with empty string
             gdf = gdf[gdf.surface >= self.alert_model.min_size]  # filter alerts
-            gdf = gdf.sort_values(by=["nb_pixel"], ignore_index=True, ascending=False)
+            gdf = gdf.sort_values(by=["surface"], ignore_index=True, ascending=False)
             gdf["id"] = gdf.index  # reset the ids
             gdf["original_geometry"] = gdf["geometry"].apply(
                 lambda g: g.__geo_interface__
@@ -216,23 +219,23 @@ class AlertView(sw.Card):
         today = date.today()
         past = today - timedelta(days=change["new"])
 
-        self.alert_model.start = today.strftime("%Y-%m-%d")
-        self.alert_model.end = past.strftime("%Y-%m-%d")
+        self.alert_model.start = past.strftime("%Y-%m-%d")
+        self.alert_model.end = today.strftime("%Y-%m-%d")
 
         return self
 
+    @sd.switch("loading", "disabled")
     def _set_alert_collection(self, change):
         """set the min and max year based on the selected data collection"""
 
         # empty and hide the component by default
         self.w_alert_type.hide()
-        self.w_historic.hide()
-        self.w_recent.hide()
-        self.w_asset.reset()
-        self.w_asset.hide()
-        self.w_file_jica.reset()
-        self.w_file_jica.hide()
-        self.w_file_recover.hide()
+        self.w_historic.hide()  # reset elswhere
+        self.w_recent.hide()  # reset elsewhere
+        self.w_asset.hide().reset()
+        self.w_file.hide().reset()
+        self.w_date.hide().reset()
+        self.w_file_recover.hide().reset()
 
         # if nrt system is set I need to show the asset select widget first
         # the datepicker is discarded as the information won't be needed
@@ -240,7 +243,7 @@ class AlertView(sw.Card):
             self.w_asset.show()
 
         # init the datepicker with appropriate min and max values
-        elif change["new"] in ["RADD", "GLAD-L", "GLAD-S"]:
+        elif change["new"] in ["RADD", "GLAD-L", "GLAD-S", "JJ-FAST"]:
             self.w_alert_type.show()
             self.w_alert_type.v_model = "RECENT"
             self.w_recent.show()
@@ -252,15 +255,16 @@ class AlertView(sw.Card):
             # the issue with GLDA-L is now solved keeping this comments for later references
             # (https://groups.google.com/g/globalforestwatch/c/nT_PSdfd3Fs)
 
-        # move to JICA file selector
-        elif change["new"] in ["JICA"]:
-            self.w_file_jica.show()
-            self.alert_model.start = "2022-01-01"  # dummy dates
-            self.alert_model.end = "2022-01-01"  # dummy dates
+        # move to single date file selector
+        elif change["new"] in ["SINGLE-DATE"]:
+            self.w_file.show()
+            self.w_date.show()
 
-        # move to JICA file selector
+        # move to RECOVER file selector
         elif change["new"] in ["RECOVER"]:
             self.w_file_recover.show()
+
+        if change["new"] in ["NRT", "SINGLE-DATE", "RECOVER"]:
             self.alert_model.start = "2022-01-01"  # dummy dates
             self.alert_model.end = "2022-01-01"  # dummy dates
 
@@ -290,30 +294,12 @@ class AlertView(sw.Card):
 
         if change["new"] is None:
             return
-        ########################################################################
-        ##       broken for now I'll set 2022-01-01 to 2022-12-31             ##
-        ########################################################################
-
-        ## read the asset and extract the start and end timestamps
-        # image = ee.Image(change["new"])
-        #
-        # min_ = datetime.fromtimestamp(
-        #    image.get("system:time_start").getInfo() / 1000
-        # ).year
-        # max_ = datetime.fromtimestamp(
-        #    image.get("system:time_end").getInfo() / 1000
-        # ).year
-
-        min_ = datetime.strptime("2022-01-01", "%Y-%m-%d")
-        max_ = datetime.strptime("2022-12-31", "%Y-%m-%d")
-
-        ########################################################################
 
         # apply it to the w_historic
+        min_, max_ = (2022, 2022)
         self.w_historic.init(min_, max_)
-        self.w_historic.w_start.menu.children[0].v_model = min_
-        self.w_historic.w_end.menu.children[0].v_model = max_
-        # self.w_historic.unable()
+        self.w_historic.w_start.menu.children[0].v_model = f"{min_}-01-01"
+        self.w_historic.w_end.menu.children[0].v_model = f"{max_}-01-01"
 
         return
 
@@ -388,10 +374,19 @@ class AlertView(sw.Card):
         return gdf
 
     def load_from_geojson(self):
-        """load a file from a geojson file from JICA/previous work alert system"""
+        """load a file from a file of another work alert system"""
 
-        if self.w_alert.v_model == "JICA":
-            gdf = cs.from_jica(self.w_file_jica.v_model)
+        if self.w_alert.v_model == "SINGLE-DATE":
+            gdf = cs.from_single_date(self.w_file.v_model, self.w_date.v_model)
+        elif self.w_alert.v_model in ["RECOVER"]:
+            gdf = cs.from_recover(self.w_file_recover.v_model)
+        elif self.w_alert.v_model == "JJ-FAST":
+            gdf = cs.from_jj_fast(
+                start=self.alert_model.start,
+                end=self.alert_model.end,
+                aoi=self.aoi_model.gdf,
+                alert=self.alert,
+            )
 
         return gdf
 
@@ -405,7 +400,7 @@ class AlertControl(sm.MenuControl):
 
         # include it in the control
         super().__init__(
-            "fas fa-exclamation-triangle",
+            "fa-solid fa-exclamation-triangle",
             self.view,
             m=map_,
             card_title=cm.view.setting.alert,

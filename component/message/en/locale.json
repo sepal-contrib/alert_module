@@ -24,11 +24,6 @@
             "select": {
                 "label": "select date"
             }
-        },
-        "alert": {
-            "surface": {
-                "label": "Select minimal surface of the alerts"
-            }
         }
     },
     "parameter": {
@@ -123,7 +118,6 @@
             }
         },
         "setting": {
-            "aoi": "AOI",
             "alert": "Alert",
             "planet": "Planet"
         }

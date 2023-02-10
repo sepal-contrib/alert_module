@@ -1,5 +1,7 @@
 from sepal_ui import sepalwidgets as sw
 
+from component.message import cm
+
 
 class DateLine(sw.Flex):
     """
@@ -9,8 +11,8 @@ class DateLine(sw.Flex):
     def __init__(self):
 
         # create the 2 datepickers
-        self.w_start = sw.DatePicker(label="start", v_model=None)
-        self.w_end = sw.DatePicker(class_="ml-5", label="end", v_model=None)
+        self.w_start = sw.DatePicker(label=cm.date_line.start, v_model=None)
+        self.w_end = sw.DatePicker(class_="ml-5", label=cm.date_line.end, v_model=None)
 
         super().__init__(class_="d-flex", children=[self.w_start, self.w_end])
 

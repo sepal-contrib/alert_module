@@ -44,12 +44,12 @@ class EEPlanetTile(sw.Card):
         self.map = map_
 
         # create the control widgets
-        self.w_color = cw.MapBtn("fas fa-palette")
-        self.w_prev = cw.MapBtn("mdi-chevron-left", class_="ma-0")
-        self.w_now = cw.MapBtn("far fa-circle", class_="ma-0")
-        self.w_next = cw.MapBtn("mdi-chevron-right", class_="ma-0")
+        self.w_color = cw.MapBtn("fa-solid fa-palette")
+        self.w_prev = cw.MapBtn("fa-solid fa-chevron-left", class_="ma-0")
+        self.w_now = cw.MapBtn("fa-regular fa-circle", class_="ma-0")
+        self.w_next = cw.MapBtn("fa-solid fa-chevron-right", class_="ma-0")
         self.w_date = sw.Select(
-            label=cm.view.planet.date.label,
+            label=cm.ee_planet.date.label,
             items=[],
             v_model=None,
             dense=True,
@@ -106,7 +106,7 @@ class EEPlanetTile(sw.Card):
         """
 
         # remove the previous layer
-        self.map.remove_layer(cm.map.layer.planet, none_ok=True)
+        self.map.remove_layer(cm.ee_planet.layer.name, none_ok=True)
         self.free_btn(None)
 
         # exit if nothing is selected
@@ -114,7 +114,7 @@ class EEPlanetTile(sw.Card):
         if self.w_date.v_model is None:
             return
 
-        # check if the btn need to be hidden
+        # check if the btn needs to be hidden
         index = next(
             i
             for i, v in enumerate(self.w_date.items)
@@ -137,7 +137,7 @@ class EEPlanetTile(sw.Card):
         viz_params = {**cp.planet_viz, "bands": self.BANDS[self.color]}
 
         # display the layer on the map
-        self.map.addLayer(planet_image, viz_params, cm.map.layer.planet)
+        self.map.addLayer(planet_image, viz_params, cm.ee_planet.layer.name)
 
         return
 
@@ -193,7 +193,9 @@ class EEPlanetTile(sw.Card):
             value = [start_list[i], end_list[i]]
             item = {"text": text, "value": value}
             date_items += [item]
-        self.w_date.items = date_items
+
+        # reverse the list so that the most recent come on top
+        self.w_date.items = date_items[::-1]
 
         # show the widget
         self.show()
@@ -203,8 +205,8 @@ class EEPlanetTile(sw.Card):
 
         return
 
-    def prev_(self, widget, event, data):
-        """got to previous items in the list"""
+    def next_(self, widget, event, data):
+        """got to next items in time (in the future)"""
 
         if self.w_date.v_model is None:
             index = 0
@@ -221,8 +223,8 @@ class EEPlanetTile(sw.Card):
 
         return
 
-    def next_(self, widget, event, data):
-        """got to next items in the list"""
+    def prev_(self, widget, event, data):
+        """got to prev items in time (in the past)"""
 
         if self.w_date.v_model is None:
             index = len(self.w_date.items) - 1
@@ -252,6 +254,7 @@ class EEPlanetTile(sw.Card):
         ).timestamp() * 1000
 
         # find it's closest index in the dates list
+        # remember that the list is in reversed chronological order
         index = next(
             i
             for i, v in enumerate(self.w_date.items)
@@ -270,9 +273,9 @@ class EEPlanetTile(sw.Card):
         self.w_next.disabled = False
 
         if index == 0:
-            self.w_prev.disabled = True
-        elif index == len(self.w_date.items) - 1:
             self.w_next.disabled = True
+        elif index == len(self.w_date.items) - 1:
+            self.w_prev.disabled = True
 
         return
 

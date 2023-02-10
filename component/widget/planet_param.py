@@ -30,20 +30,20 @@ class PlanetParam(sw.ExpansionPanels):
         # The key is the name attribute name in the model : [tooltip, icon, unit]
         "max_images": [
             cm.view.planet.advance.max_images,
-            "mdi-checkbox-multiple-blank",
+            "fa-solid fa-images",
             "img",
         ],
         "days_before": [
             cm.view.planet.advance.days_before,
-            "mdi-arrow-left-circle",
+            "fa-solid fa-circle-arrow-left",
             "d",
         ],
         "days_after": [
             cm.view.planet.advance.days_after,
-            "mdi-arrow-right-circle",
+            "fa-solid fa-circle-arrow-right",
             "d",
         ],
-        "cloud_cover": [cm.view.planet.advance.cloud_cover, "mdi-cloud", "%"],
+        "cloud_cover": [cm.view.planet.advance.cloud_cover, "fa-solid fa-cloud", "%"],
     }
 
     disable_content = Bool(True).tag(sync=True)

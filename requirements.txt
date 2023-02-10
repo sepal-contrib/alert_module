@@ -1,4 +1,4 @@
-# these libs are requested to build common python libs 
+# these libs are requested to build common python libs
 # if you are an advance user and are sure to not use them you can comment the following lines
 wheel
 Cython
@@ -7,18 +7,17 @@ pre-commit
 
 # if you require GDAL and or pyproj in your module please uncomment these lines
 # there are set up to be inlined with SEPAL implementation of GDAL and PROJ version
-numpy==1.22.2
-GDAL==3.4.3
 pyproj==3.3.0
 
 # uncomment if you want to run your module with GEE in SEPAL
-git+https://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python
+git+https://github.com/openforis/earthengine-api.git@v0.1.332#egg=earthengine-api&subdirectory=python
 
-# the base lib to run any sepal_ui based app 
+# the base lib to run any sepal_ui based app
 # don't forget to fix it to a specific version when you're app is ready
-sepal_ui==2.11.2
+sepal_ui==2.15.1
 
 # custom libs
+numpy==1.22.2
 geopandas==0.10.2
 pandas==1.4.1
 requests==2.22.0

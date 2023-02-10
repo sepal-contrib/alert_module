@@ -3,8 +3,6 @@ from ipywidgets import Button, Layout
 from sepal_ui import mapping as sm
 import ipyvuetify as v
 
-from component.message import cm
-
 
 class AlertMap(sm.SepalMap):
     def __init__(self):
@@ -19,11 +17,11 @@ class AlertMap(sm.SepalMap):
         )
 
         # add the fullscreen button
-        fullscreen = sm.FullScreenControl(
+        self.w_fullscreen = sm.FullScreenControl(
             self, position="topright", fullscreen=True, fullapp=True
         )
 
-        self.add_control(fullscreen)
+        self.add_control(self.w_fullscreen)
         self.add_control(self.alert_dc)
 
     def add_widget_as_control(self, widget, position, first=False):

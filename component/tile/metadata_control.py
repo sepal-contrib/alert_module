@@ -169,6 +169,9 @@ class MetadataView(sw.Card):
             id_ = self.w_id.v_model
             self._on_id_change({"new": self.w_id.v_model})
 
+            # autosave
+            self._autosave()
+
         return
 
     def _id_click(self, change):
@@ -193,12 +196,18 @@ class MetadataView(sw.Card):
         # set the value in the dataframe
         self.alert_model.gdf.at[self.w_id.v_model, "review"] = change["new"]
 
+        # autosave
+        self._autosave()
+
         return
 
     def _on_comment_change(self, change):
         """change the comment of the feature in the dataframe"""
 
         self.alert_model.gdf.at[self.w_id.v_model, "comment"] = change["new"]
+
+        # autosave
+        self._autosave()
 
         return
 
@@ -215,6 +224,25 @@ class MetadataView(sw.Card):
         date = int(date.strftime("%j")) / 1000 + date.year
 
         self.alert_model.gdf.at[self.w_id.v_model, "date"] = date
+
+        # autosave
+        self._autosave()
+
+        return
+
+    def _autosave(self):
+        """save the current gdf as a geojson. Triggered by any modification to the metadata"""
+
+        # gather the strings
+        aoi = self.aoi_model.name
+        start = self.alert_model.start
+        end = self.alert_model.end
+        min_size = self.alert_model.min_size
+
+        # build the name of the file and save it
+        name = f"{aoi}_{start}_{end}_{min_size}"
+        path = cp.result_dir / f"{name}.gpkg"
+        self.alert_model.gdf.to_file(path, layer=cm.map.layer.alerts, driver="GPKG")
 
         return
 
@@ -311,6 +339,9 @@ class MetadataView(sw.Card):
         # show the table
         self.show()
 
+        # autosave
+        self._autosave()
+
         return self
 
     @su.switch("loading", "disabled", on_widgets=["btn_csv", "btn_gpkg", "btn_kml"])
@@ -384,7 +415,7 @@ class MetadataControl(sm.MenuControl):
         self.view = MetadataView(alert_model, map_, aoi_model)
 
         # create the control
-        super().__init__("fas fa-info", self.view, m=map_, position="topleft")
+        super().__init__("fa-solid fa-info", self.view, m=map_, position="topleft")
 
         # update some traits of the control
         self.set_size(
