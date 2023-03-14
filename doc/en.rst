@@ -169,7 +169,7 @@ CUSUM
 
     this will be using the :code:`.tif` output of :doc:`cusum`.
 
-Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface <https://code.earthengine.google.com/>`__. Once the map is available in your assets you can use it in the module. If you don't find the asset in the list, click on the :icon:`fa-solid fa-sync` icon to reload your asset list.
+Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface <https://code.earthengine.google.com/>`__. Once the map is available in your assets you can use it in the module. If you don't find the asset in the list, click on the :icon:`fa-solid fa-arrows-rotate` icon to reload your asset list.
 
 .. note::
 
@@ -252,7 +252,7 @@ Geometry edition
 Some drivers perform automatic analysis and sometimes the geometry of the alerts poorly represent what you see on the VHR imagery. Using this module you can redifine the geometry before exporting your results to perfectly fit the deforested area.
 
 -   Click on :btn:`edit geometry`. It will release the edition interface (1).
--   Click on :btn:`<fa-solid fa-edit>` to start edition and move the white square to add or remove vertices.
+-   Click on :btn:`<fa-solid fa-pen-to-square>` to start edition and move the white square to add or remove vertices.
 -   Once done click on :btn:`save` to exit the edition mode
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/edit.png
