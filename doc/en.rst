@@ -31,7 +31,7 @@ Clicking on them will open the link in a new webpage.
 In the bottom right corner of the map. 3 buttons will help the user navigate through the different widgets of the application:
 
 -   :btn:`<fa-solid fa-map-marker-alt>`: the widget to select the AOI (Area of interest)
--   :btn:`<fa-solid fa-exclamation-triangle>`: the widget to select the alerts and filter them
+-   :btn:`<fa-solid fa-triange-exclamation>`: the widget to select the alerts and filter them
 -   :btn:`<fa-solid fa-globe>`: the widget to select Planet parameters
 
 In the top left corner there is :btn:`<fa-solid fa-info>` button to open the metatada interface. More information in the next sections of this document.
@@ -169,7 +169,7 @@ CUSUM
 
     this will be using the :code:`.tif` output of :doc:`cusum`.
 
-Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface <https://code.earthengine.google.com/>`__. Once the map is available in your assets you can use it in the module. If you don't find the asset in the list, click on the :icon:`fa-solid fa-sync` icon to reload your asset list.
+Once you've run the CUSUM module, you'll obtain a 3 bands :code:`.tif` file. Ingest this file in Google Earth Engine using the `code editor interface <https://code.earthengine.google.com/>`__. Once the map is available in your assets you can use it in the module. If you don't find the asset in the list, click on the :icon:`fa-solid fa-arrows-rotate` icon to reload your asset list.
 
 .. note::
 
@@ -252,7 +252,7 @@ Geometry edition
 Some drivers perform automatic analysis and sometimes the geometry of the alerts poorly represent what you see on the VHR imagery. Using this module you can redifine the geometry before exporting your results to perfectly fit the deforested area.
 
 -   Click on :btn:`edit geometry`. It will release the edition interface (1).
--   Click on :btn:`<fa-solid fa-edit>` to start edition and move the white square to add or remove vertices.
+-   Click on :btn:`<fa-solid fa-pen-to-square>` to start edition and move the white square to add or remove vertices.
 -   Once done click on :btn:`save` to exit the edition mode
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/edit.png
