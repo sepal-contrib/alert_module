@@ -30,8 +30,8 @@ Clicking on them will open the link in a new webpage.
 
 In the bottom right corner of the map. 3 buttons will help the user navigate through the different widgets of the application:
 
--   :btn:`<fa-solid fa-map-marker-alt>`: the widget to select the AOI (Area of interest)
--   :btn:`<fa-solid fa-exclamation-triangle>`: the widget to select the alerts and filter them
+-   :btn:`<fa-solid fa-location-dot>`: the widget to select the AOI (Area of interest)
+-   :btn:`<fa-solid fa-triangle-exclamation>`: the widget to select the alerts and filter them
 -   :btn:`<fa-solid fa-globe>`: the widget to select Planet parameters
 
 In the top left corner there is :btn:`<fa-solid fa-info>` button to open the metatada interface. More information in the next sections of this document.
