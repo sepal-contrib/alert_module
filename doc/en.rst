@@ -178,9 +178,33 @@ For this alert driver, the AOI parameter is ignored and all the alerts available
 
 Any alert system including a vector file of geometries and metadata. If included the label will be infered from the ``id`` and the date of the alert need to be set by the user. By default every alert will be using this one so Planet data will not point straight to the correct images.
 
+The source needs to be a geojson file using the following format:
+
+.. code-block:: json
+
+    {
+	    "type": "FeatureCollection",
+	    "features": [{
+		    "geometry": {
+			    "coordinates": ["<feature_coordinates>"],
+			    "geodesic": false,
+			    "type": "Polygon"
+		    },
+		    "id": "+605258+71623",
+		    "properties": {
+                "prop1": 0.0,
+                "prop2": 0.0
+		    },
+		    "type": "Feature"
+	    },
+        {"<other_feature_complete_description>"}
+	    ]
+    }
+
 .. note::
 
     Vietnamese forest department is using a specific alert system that works well. It generates a geojson file every 10 days. This system have been developped in partnership with JICA and you can check the GEE application `here (vietnamese) <http://canhbaomatrung.kiemlam.org.vn>`__.
+
 
 RECOVER
 #######
