@@ -31,7 +31,7 @@ Clicking on them will open the link in a new webpage.
 In the bottom right corner of the map. 3 buttons will help the user navigate through the different widgets of the application:
 
 -   :btn:`<fa-solid fa-map-marker-alt>`: the widget to select the AOI (Area of interest)
--   :btn:`<fa-solid fa-triange-exclamation>`: the widget to select the alerts and filter them
+-   :btn:`<fa-solid fa-triangle-exclamation>`: the widget to select the alerts and filter them
 -   :btn:`<fa-solid fa-globe>`: the widget to select Planet parameters
 
 In the top left corner there is :btn:`<fa-solid fa-info>` button to open the metatada interface. More information in the next sections of this document.
@@ -113,10 +113,6 @@ Follow this process:
 
 GLAD-L
 ######
-
-.. warning::
-
-    The GLAD-L repository is currently under heavy maintenance, no alerts from 2022 are available. Only historical date from 2018 to 2021 can be selected. More information `here <https://code.earthengine.google.com/4c46540499ee0f7b7c14959a069927d2>`__.
 
 By selecting this alert system, you will use the GLAD alerts based on the Landsatsatellites.
 
