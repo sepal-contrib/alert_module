@@ -30,7 +30,8 @@ Clicking on them will open the link in a new webpage.
 
 In the bottom right corner of the map. 3 buttons will help the user navigate through the different widgets of the application:
 
--   :btn:`<fa-solid fa-map-marker-alt>`: the widget to select the AOI (Area of interest)
+
+-   :btn:`<fa-solid fa-location-dot>`: the widget to select the AOI (Area of interest)
 -   :btn:`<fa-solid fa-triangle-exclamation>`: the widget to select the alerts and filter them
 -   :btn:`<fa-solid fa-globe>`: the widget to select Planet parameters
 
@@ -405,7 +406,7 @@ Level 2 data are daily imagery. When an alert is clicked, the module will load t
 
     Multiple images are displayed at once so don't hesitate to play with the layer control to hide and show different scenes.
 
-Thus user can navigate through the images using the buttons in the Planet navigator. Click on :icon:`<fa-solid fa-chevron-left>` (res. :icon:`<fa-solid fa-chevron-right>`) to move one day in the past (res. one day in the future). Click on :icon:`<fa-solid fa-chevron-left>` :icon:`<fa-solid fa-chevron-left>` (res. :icon:`<fa-solid fa-chevron-right>` :icon:`<fa-solid fa-chevron-right>`) to move one month in the past (res. one month in the future). The :icon:`<fa-solid fa-circle>` will set back on the closest date from the observation date.
+Thus user can navigate through the images using the buttons in the Planet navigator. Click on :btn:`<fa-solid fa-chevron-left>` (res. :btn:`<fa-solid fa-chevron-right>`) to move one day in the past (res. one day in the future). Click on :btn:`<fa-solid fa-chevron-left>` :btn:`<fa-solid fa-chevron-left>` (res. :btn:`fa-solid fa-chevron-right` :btn:`<fa-solid fa-chevron-right>`) to move one month in the past (res. one month in the future). The :btn:`<fa-solid fa-circle>` will set back on the closest date from the observation date.
 
 .. thumbnail:: https://raw.githubusercontent.com/sepal-contrib/alert_module/master/doc/img/planet_daily.png
     :title: the planet daily mosaic displayed in cir
