@@ -30,6 +30,7 @@ Clicking on them will open the link in a new webpage.
 
 In the bottom right corner of the map. 3 buttons will help the user navigate through the different widgets of the application:
 
+
 -   :btn:`<fa-solid fa-location-dot>`: the widget to select the AOI (Area of interest)
 -   :btn:`<fa-solid fa-triangle-exclamation>`: the widget to select the alerts and filter them
 -   :btn:`<fa-solid fa-globe>`: the widget to select Planet parameters
@@ -114,10 +115,6 @@ Follow this process:
 GLAD-L
 ######
 
-.. warning::
-
-    The GLAD-L repository is currently under heavy maintenance, no alerts from 2022 are available. Only historical date from 2018 to 2021 can be selected. More information `here <https://code.earthengine.google.com/4c46540499ee0f7b7c14959a069927d2>`__.
-
 By selecting this alert system, you will use the GLAD alerts based on the Landsatsatellites.
 
     Since the opening of the Landsat archive in 2008, medium spatial resolution data have been available for use in alert-based applications.  Since 2013, two Landsat sensors, the Enhanced Thematic Mapper Plus (ETM+) onboard Landsat 7, and the Operational Land Imager (OLI) onboard Landsat 8, have been systematically acquiring global multi-spectral observations at a 30m spatial resolution.  The orbits of the two spacecraft are coordinated to enable potential 8-day repeat coverage globally.   Given this cadence, the use of Landsat as a near-real time source of land change information is possible. The data displayed and made available here quantify forest disturbance events for the tropics using ETM+ and OLI data as an input.  Daily updates are made for areas where quality land observations are acquired.  We define forest cover as 5m tall trees with a canopy closure exceeding 30%.  An alert is defined as any Landsat pixel that experiences a canopy loss in excess of 50% cover.
@@ -182,9 +179,33 @@ For this alert driver, the AOI parameter is ignored and all the alerts available
 
 Any alert system including a vector file of geometries and metadata. If included the label will be infered from the ``id`` and the date of the alert need to be set by the user. By default every alert will be using this one so Planet data will not point straight to the correct images.
 
+The source needs to be a geojson file using the following format:
+
+.. code-block:: json
+
+    {
+	    "type": "FeatureCollection",
+	    "features": [{
+		    "geometry": {
+			    "coordinates": ["<feature_coordinates>"],
+			    "geodesic": false,
+			    "type": "Polygon"
+		    },
+		    "id": "+605258+71623",
+		    "properties": {
+                "prop1": 0.0,
+                "prop2": 0.0
+		    },
+		    "type": "Feature"
+	    },
+        {"<other_feature_complete_description>"}
+	    ]
+    }
+
 .. note::
 
     Vietnamese forest department is using a specific alert system that works well. It generates a geojson file every 10 days. This system have been developped in partnership with JICA and you can check the GEE application `here (vietnamese) <http://canhbaomatrung.kiemlam.org.vn>`__.
+
 
 RECOVER
 #######
