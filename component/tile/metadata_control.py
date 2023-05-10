@@ -1,5 +1,6 @@
 import math
 from datetime import datetime, timedelta
+import re
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
@@ -213,14 +214,16 @@ class MetadataView(sw.Card):
 
     def _on_date_change(self, change):
         """change the date of the feature in the dataframe"""
+        # exite when empty
+        if not change["new"]:
+            return
 
         # date is saved in the dataframe using yyyy.doy format so I need to build
-        # it from the v_model
-        value = change["new"]
-        year = int(value[0:4])
-        month = int(value[5:7])
-        day = int(value[8:10])
-        date = datetime(year, month, day)
+        # it from the v_model which is using yyyy-mm-dd
+        date_pattern = re.compile(r"(\d{4})-(0[1-9]|1[0-2])-([0-2][1-9]|3[01])")
+        match = date_pattern.match(change["new"])
+        year, month, day = match.groups if match else ("1970", "01", "01")
+        date = datetime(int(year), int(month), int(day))
         date = int(date.strftime("%j")) / 1000 + date.year
 
         self.alert_model.gdf.at[self.w_id.v_model, "date"] = date
