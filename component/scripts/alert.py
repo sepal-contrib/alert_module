@@ -5,6 +5,7 @@ from pathlib import Path
 from math import floor, ceil
 from itertools import product
 import requests
+from math import pi, sqrt
 
 import geopandas as gpd
 import ee
@@ -17,14 +18,15 @@ from component.message import cm
 from .utils import to_date
 
 
-def get_alerts_clump(alerts, aoi):
+def get_alerts_clump(alerts: ee.Image, aoi, mmu: int):
     """
     Transform the Image into a featureCollection of agregated alert
     Import it into SEPAL as a GeoJson dict.
 
     Args:
-        alerts (ee.Image): the refactored alerts with an adapted masked to the requested dates
+        alerts: the refactored alerts with an adapted masked to the requested dates
         aoi (ee.FeatureCollection): the featureCollection of the selected AOI
+        mmu: minimal mapping unit
 
     Return:
         (dict): a geojson dict
@@ -37,6 +39,18 @@ def get_alerts_clump(alerts, aoi):
         geometry=aoi.geometry(),
         scale=30,
     )
+
+    # remove very small patches from the vectorization step to avoid overloading GEE
+    # mmu is given in ha, I'll be using the corresponding number of pixels for a 30m resolution raster
+    # it's too big for sentinel based dataset but that will still filter things
+    mmu = int(sqrt((mmu * 10 ^ 6) / pi))
+    mask = (
+        alerts.select("alert")
+        .gt(0)
+        .connectedPixelCount(ee.Number(mmu).add(2))
+        .gte(ee.Number(mmu))
+    )
+    alerts = alerts.updateMask(mask)
 
     # Uniquely label the alert image objects.
     object_id = alerts.connectedComponents(
