@@ -20,7 +20,7 @@ from pathlib import Path
 def app(session):
     """Run the application"""
     session.install("-r", "requirements.txt")
-    session.run("jupyter", "trust", "new_ui.ipynb")
+    session.run("jupyter", "trust", "ui.ipynb")
     session.run("voila", "--show_tracebacks=True", "ui.ipynb")
 
 

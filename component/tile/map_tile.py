@@ -103,7 +103,7 @@ class MapTile(sw.Tile):
         control = WidgetControl(widget=btn, position="bottomleft")
         self.map.add_control(control)
 
-        return
+        return self
 
     def set_wiki(self, link):
         "add the wiki link btn to the map"
@@ -112,7 +112,7 @@ class MapTile(sw.Tile):
         control = WidgetControl(widget=btn, position="bottomleft")
         self.map.add_control(control)
 
-        return
+        return self
 
     def set_issue(self, link):
         "add the code link btn to the map"
@@ -121,4 +121,4 @@ class MapTile(sw.Tile):
         control = WidgetControl(widget=btn, position="bottomleft")
         self.map.add_control(control)
 
-        return
+        return self
