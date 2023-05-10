@@ -28,5 +28,5 @@ def app(session):
 def jupyter(session):
     """Run the application"""
     session.install("-r", "requirements.txt")
-    session.run("jupyter", "trust", "notebook_ui.ipynb")
-    session.run("jupyter", "notebook", "notebook_ui.ipynb")
+    session.run("jupyter", "trust", "map_ui.ipynb")
+    session.run("jupyter", "notebook", "map_ui.ipynb")

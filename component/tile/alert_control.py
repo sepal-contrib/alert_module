@@ -352,7 +352,9 @@ class AlertView(sw.Card):
                 asset=self.alert_model.asset,
             )
 
-            alert_clump = cs.get_alerts_clump(alerts=all_alerts, aoi=ee_geom)
+            alert_clump = cs.get_alerts_clump(
+                alerts=all_alerts, aoi=ee_geom, mmu=self.alert_model.min_size
+            )
 
             if data is None:
                 data = alert_clump.getInfo()
