@@ -222,7 +222,7 @@ class MetadataView(sw.Card):
         # it from the v_model which is using yyyy-mm-dd
         date_pattern = re.compile(r"(\d{4})-(0[1-9]|1[0-2])-([0-2][1-9]|3[01])")
         match = date_pattern.match(change["new"])
-        year, month, day = match.groups if match else ("1970", "01", "01")
+        year, month, day = match.groups() if match else ("1970", "01", "01")
         date = datetime(int(year), int(month), int(day))
         date = int(date.strftime("%j")) / 1000 + date.year
 
@@ -419,6 +419,7 @@ class MetadataControl(sm.MenuControl):
 
         # create the control
         super().__init__("fa-solid fa-info", self.view, m=map_, position="topleft")
+        self.menu.close_on_click = False
 
         # update some traits of the control
         self.set_size(
