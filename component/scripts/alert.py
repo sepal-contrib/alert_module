@@ -43,7 +43,7 @@ def get_alerts_clump(alerts: ee.Image, aoi, mmu: int):
     # remove very small patches from the vectorization step to avoid overloading GEE
     # mmu is given in ha, I'll be using the corresponding number of pixels for a 30m resolution raster
     # it's too big for sentinel based dataset but that will still filter things
-    mmu = int(sqrt((mmu * 10 ^ 6) / pi))
+    mmu = int(sqrt((mmu * (10**6)) / pi))
     mask = (
         alerts.select("alert")
         .gt(0)
