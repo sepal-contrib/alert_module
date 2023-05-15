@@ -1,0 +1,3 @@
+files:
+  - source: /component/message/en/*.json
+    translation: /component/message/%two_letters_code%/%original_file_name%

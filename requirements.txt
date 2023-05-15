@@ -8,6 +8,7 @@ toml
 sepal_ui
 
 # custom libs
+ipywidgets==8.0.4
 earthengine-api
 numpy
 geopandas
