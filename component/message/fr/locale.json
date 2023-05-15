@@ -1,0 +1,125 @@
+{
+    "app": {
+        "title": "Deforestation alert verification module",
+        "drawer_item": {
+            "about": "About",
+            "map": "Map"
+        }
+    },
+    "map": {
+        "control": {
+            "metadata": "Deforestation alert metadata",
+            "navigate": "Navigate through Planet imagery",
+            "parameter": "Toggle Parameter window",
+            "fullscreen": "Toggle fullscreen"
+        },
+        "layer": {
+            "alerts": "alerts",
+            "current": "current alert",
+            "planet": "PlanetLab imagery"
+        }
+    },
+    "widget": {
+        "planet": {
+            "select": {
+                "label": "select date"
+            }
+        }
+    },
+    "parameter": {
+        "time_delta": {
+            "day": "24h",
+            "week": "7 days",
+            "month": "31 days"
+        }
+    },
+    "alert": {
+        "wrong_collection": "{} alert collection is not yet included in the tool"
+    },
+    "planet": {
+        "no_nicfi": "{} is not an NCFI level 1 recognized mosaic name",
+        "no_image": "there is no image corresponding to your request parameters for this day"
+    },
+    "view": {
+        "alert": {
+            "collection": {
+                "label": "Alert collection"
+            },
+            "type": {
+                "label": "type of alerts",
+                "recent": "Recent",
+                "custom": "Historical"
+            },
+            "asset": {
+                "label": "nrt alert asset"
+            },
+            "recent": {
+                "label": "In the last"
+            },
+            "btn": {
+                "label": "Select alerts"
+            },
+            "error": {
+                "no_aoi": "select an aoi first",
+                "no_collection": "select alert collection",
+                "no_type": "select an alert type",
+                "no_start": "select a start for the alerts",
+                "no_end": "select an end for the alerts",
+                "no_size": "select a minimal size",
+                "no_alerts": "no alerts were spoted with your parameters"
+            }
+        },
+        "metadata": {
+            "status": {
+                "valid": "yes",
+                "unvalid": "no",
+                "unset": "unset"
+            },
+            "btn": {
+                "csv": "To .csv",
+                "gpkg": "To .gpkg",
+                "kml": "To .kml"
+            },
+            "row": {
+                "alert": "alert",
+                "date": "date",
+                "pixels": "number of pixels",
+                "coords": "coordinates",
+                "review": "review",
+                "comment": "comment",
+                "surface": "surface"
+            },
+            "type": {
+                "0": "undefined",
+                "1": "high confidence",
+                "2": "low confidence"
+            },
+            "export": "The file have been exported to {}"
+        },
+        "planet": {
+            "advance": {
+                "title": "Advanced parameters",
+                "days_before": "Search up to (day before)",
+                "days_after": "Search up to (day after)",
+                "max_images": "Search up to (max image)",
+                "cloud_cover": "cloud cover"
+            },
+            "key": {
+                "label": "Planet API key"
+            },
+            "date": {
+                "label": "dates"
+            },
+            "error": {
+                "no_key": "Please provide a Planet API key",
+                "to_gee": "falling back to the GEE NICFI level 1 binding",
+                "valid_key": "The Planet API key have been validated, you are now using NICFI level 2 data",
+                "unvalid_key": "The provided Planet API cannot be validated"
+            }
+        },
+        "setting": {
+            "alert": "Alert",
+            "planet": "Planet"
+        }
+    }
+}
