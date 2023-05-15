@@ -4,7 +4,7 @@
             "label": "dates"
         },
         "error": {
-            "no_image": "there is no image corresponding to your request parameters for this day"
+            "no_image": "il n'y a pas d'image correspondant à vos paramètres de requête pour ce jour"
         }
     }
 }
