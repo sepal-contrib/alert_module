@@ -418,7 +418,9 @@ class MetadataControl(sm.MenuControl):
         self.view = MetadataView(alert_model, map_, aoi_model)
 
         # create the control
-        super().__init__("fa-solid fa-info", self.view, m=map_, position="topleft")
+        super().__init__(
+            "fa-solid fa-info", self.view, m=map_, group=1, position="topleft"
+        )
         self.menu.close_on_click = False
 
         # update some traits of the control
