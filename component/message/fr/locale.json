@@ -1,68 +1,68 @@
 {
     "app": {
-        "title": "Deforestation alert verification module",
+        "title": "Module de vérification d'alerte de déforestation",
         "drawer_item": {
-            "about": "About",
-            "map": "Map"
+            "about": "À propos",
+            "map": "Carte"
         }
     },
     "map": {
         "control": {
-            "metadata": "Deforestation alert metadata",
-            "navigate": "Navigate through Planet imagery",
-            "parameter": "Toggle Parameter window",
-            "fullscreen": "Toggle fullscreen"
+            "metadata": "Métadonnées d'alerte de déforestation",
+            "navigate": "Naviguer à travers les images Planet",
+            "parameter": "Activer/désactiver la fenêtre des paramètres",
+            "fullscreen": "Plein écran"
         },
         "layer": {
-            "alerts": "alerts",
-            "current": "current alert",
-            "planet": "PlanetLab imagery"
+            "alerts": "alertes",
+            "current": "alerte courante",
+            "planet": "Imagerie PlanetLab"
         }
     },
     "widget": {
         "planet": {
             "select": {
-                "label": "select date"
+                "label": "sélectionnez la date"
             }
         }
     },
     "parameter": {
         "time_delta": {
             "day": "24h",
-            "week": "7 days",
-            "month": "31 days"
+            "week": "7 jours",
+            "month": "31 jours"
         }
     },
     "alert": {
-        "wrong_collection": "{} alert collection is not yet included in the tool"
+        "wrong_collection": "{} la collection d'alertes n'est pas encore incluse dans l'outil"
     },
     "planet": {
-        "no_nicfi": "{} is not an NCFI level 1 recognized mosaic name",
-        "no_image": "there is no image corresponding to your request parameters for this day"
+        "no_nicfi": "{} n'est pas un nom de mosaïque reconnu de niveau 1",
+        "no_image": "il n'y a pas d'image correspondant à vos paramètres de requête pour ce jour"
     },
     "view": {
         "alert": {
             "collection": {
-                "label": "Alert collection"
+                "label": "Collection d'alertes"
             },
             "type": {
-                "label": "type of alerts",
-                "recent": "Recent",
-                "custom": "Historical"
+                "label": "type d'alerte",
+                "recent": "Récent",
+                "custom": "Historique"
             },
             "asset": {
-                "label": "nrt alert asset"
+                "label": "asset d'alerte NRT"
             },
             "recent": {
-                "label": "In the last"
+                "label": "Au cours des derniers"
             },
             "btn": {
-                "label": "Select alerts"
+                "label": "Sélectionner les alertes"
             },
             "error": {
-                "no_aoi": "select an aoi first",
-                "no_collection": "select alert collection",
-                "no_type": "select an alert type",
+                "no_aoi": "sélectionnez d'abord une AOI",
+                "no_collection": "sélectionner la collection d'alertes",
+                "no_type": "sélectionner un type d'alerte",
                 "no_start": "select a start for the alerts",
                 "no_end": "select an end for the alerts",
                 "no_size": "select a minimal size",
