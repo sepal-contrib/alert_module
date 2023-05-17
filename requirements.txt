@@ -5,14 +5,21 @@ toml
 
 # the base lib to run any sepal_ui based app
 # don't forget to fix it to a specific version when you're app is ready
-sepal_ui
+sepal_ui==2.16.3
+
+# requirement already satisfied when venv installation
+# earthengine-api
 
 # custom libs
-ipywidgets==8.0.4
-earthengine-api
+ipyvuetify==1.8.1
+ipywidgets==7.6.5
+
 numpy
 geopandas
+
+# Fix this version to avoid Index64 error while exporting gpd
 pandas==1.5.3
+
 requests
 Shapely
 shapely_geojson
