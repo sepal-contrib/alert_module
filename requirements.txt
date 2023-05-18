@@ -1,6 +1,6 @@
 # these libs are requested to build application env
-jupyter
-voila
+# jupyter
+# voila
 toml
 
 # the base lib to run any sepal_ui based app
