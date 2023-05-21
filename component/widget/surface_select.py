@@ -1,4 +1,4 @@
-from ipywidgets import jslink, dlink
+from ipywidgets import dlink
 from sepal_ui import sepalwidgets as sw
 
 from component.message import cm
@@ -6,7 +6,6 @@ from component.message import cm
 
 class SurfaceSelect(sw.Col):
     def __init__(self):
-
         # define a title
         title = sw.Html(tag="h4", children=[cm.surface_select.label])
 

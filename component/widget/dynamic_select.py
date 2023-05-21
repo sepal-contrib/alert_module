@@ -1,6 +1,6 @@
 from sepal_ui import sepalwidgets as sw
 from sepal_ui import color as sc
-from ipywidgets import jslink
+from traitlets import link
 import ipyvuetify as v
 
 from component.message import cm
@@ -9,7 +9,6 @@ from .map_btn import *
 
 class DynamicSelect(sw.Layout):
     def __init__(self):
-
         self.prev = MapBtn("fa-solid fa-chevron-left", value=-1)
         self.next = MapBtn("fa-solid fa-chevron-right", value=1)
 
@@ -34,7 +33,7 @@ class DynamicSelect(sw.Layout):
         self.disable()
 
         # js behaviour
-        jslink((self, "v_model"), (self.select, "v_model"))
+        link((self, "v_model"), (self.select, "v_model"))
         self.prev.on_event("click", self._on_click)
         self.next.on_event("click", self._on_click)
 
@@ -73,7 +72,6 @@ class DynamicSelect(sw.Layout):
         return self
 
     def disable(self):
-
         self.prev.disabled = True
         self.next.disabled = True
         self.select.disabled = True
@@ -81,7 +79,6 @@ class DynamicSelect(sw.Layout):
         return self
 
     def unable(self):
-
         self.prev.disabled = False
         self.next.disabled = False
         self.select.disabled = False
