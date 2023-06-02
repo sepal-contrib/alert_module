@@ -1,4 +1,4 @@
-from ipywidgets import dlink
+from traitlets import directional_link as dlink
 from sepal_ui import sepalwidgets as sw
 
 from component.message import cm
