@@ -6,7 +6,6 @@ import ipyvuetify as v
 
 class AlertMap(sm.SepalMap):
     def __init__(self):
-
         default = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
 
         super().__init__(["SATELLITE", default], zoom=4)
@@ -21,7 +20,9 @@ class AlertMap(sm.SepalMap):
             self, position="topright", fullscreen=True, fullapp=True
         )
 
+        self.add_control(self.w_fullscreen)
         self.add_control(self.alert_dc)
+        self.layout.height = "90vh"
 
     def add_widget_as_control(self, widget, position, first=False):
         """
@@ -38,12 +39,10 @@ class AlertMap(sm.SepalMap):
         )
 
         if first == True:
-
             self.controls = tuple(
                 [new_control] + [control for control in self.controls]
             )
         else:
-
             self.controls = self.controls + tuple([new_control])
 
         return
