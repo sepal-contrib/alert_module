@@ -2,9 +2,7 @@ from datetime import timedelta, date, datetime
 import time
 
 import ee
-from pathlib import Path
 import geopandas as gpd
-from ipyleaflet import GeoJSON
 from traitlets import Int
 
 from sepal_ui import sepalwidgets as sw
@@ -20,14 +18,13 @@ from component import widget as cw
 from component.model import AlertModel
 from component import scripts as cs
 from component.message import cm
+from component.widget.custom_alert import Alert
 
 
 class AlertView(sw.Card):
-
     updated = Int(0).tag(sync=True)
 
     def __init__(self, aoi_model, map_):
-
         # init the models
         self.alert_model = AlertModel()
         self.aoi_model = aoi_model
@@ -85,7 +82,7 @@ class AlertView(sw.Card):
         self.btn = sw.Btn(cm.view.alert.btn.label)
 
         # set an alert to display information to the end user
-        self.alert = sw.Alert()
+        self.alert = Alert()
 
         # bind the widgets and the model
         # w_recent binding will be done manually
@@ -337,10 +334,9 @@ class AlertView(sw.Card):
         # loop in the grid to avoid timeout in the define AOI
         # display information to the user
         self.alert.reset().show()
-        self.alert.update_progress(0)
+        self.alert.set_total(len(grid))
         data = None
         for i, geom in enumerate(grid.geometry):
-
             ee_geom = ee.FeatureCollection(ee.Geometry(geom.__geo_interface__))
 
             # load the alerts in the system
@@ -361,7 +357,7 @@ class AlertView(sw.Card):
             else:
                 data["features"] += alert_clump.getInfo()["features"]
 
-            self.alert.update_progress(i / len(grid))
+            self.alert.update_progress()
 
         # save the clumps as a geoJson dict in the model
         # exit if nothing is found
@@ -395,7 +391,6 @@ class AlertView(sw.Card):
 
 class AlertControl(sm.MenuControl):
     def __init__(self, aoi_model, map_):
-
         # create the view
         self.view = AlertView(aoi_model, map_)
         self.view.class_list.add("ma-5")
