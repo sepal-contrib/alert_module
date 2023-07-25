@@ -34,6 +34,10 @@ class Alert(sw.Alert):
         """Reset the value of the span"""
 
         self.count_span.reset()
+
+        # Reset the native alert component type
+        self.type = "info"
+
         super().reset()
 
         return self
