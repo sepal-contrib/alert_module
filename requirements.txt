@@ -8,7 +8,7 @@ toml
 git+https://github.com/12rambau/sepal_ui.git@5277a82db3fe4e5bb971eb6676b28d9652b90564
 
 # requirement already satisfied when venv installation
-# earthengine-api
+earthengine-api
 
 # custom libs
 ipyvuetify==1.8.1
