@@ -1,3 +1,9 @@
+## 0.2.0 (2023-09-29)
+
+### Feat
+
+- revert ui.ipynb python env
+
 ## 0.1.0 (2023-09-29)
 
 ### Feat
