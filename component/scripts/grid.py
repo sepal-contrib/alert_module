@@ -1,7 +1,6 @@
 from itertools import product
 
 from shapely import geometry as sg
-from shapely.ops import unary_union
 import geopandas as gpd
 import numpy as np
 import ee
@@ -30,7 +29,6 @@ def set_grid(aoi_gdf):
     # create the grid
     names, squares = [], []
     for ix, iy in product(range(len(longitudes) - 1), range(len(lattitudes) - 1)):
-
         # fill the grid values
         names.append(f"{longitudes[ix]:.4f}E-{lattitudes[iy]:.4f}N")
         squares.append(

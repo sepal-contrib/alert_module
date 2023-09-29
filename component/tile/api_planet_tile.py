@@ -1,17 +1,13 @@
-import json
 import math
 from datetime import datetime, timedelta
 
 from sepal_ui import sepalwidgets as sw
-from traitlets import Bool
-from shapely_geojson import dumps
 from shapely.geometry import box
 from ipyleaflet import TileLayer
 import pandas as pd
 
 from component import widget as cw
 from component.message import cm
-from component import scripts as cs
 from component import parameter as cp
 
 
