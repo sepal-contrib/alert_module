@@ -1,4 +1,4 @@
-uivoila
+voila
 earthengine-api
 
 # Change this line until sepal_ui is >2.16.4
