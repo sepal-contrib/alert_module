@@ -133,7 +133,7 @@ class AlertView(sw.Card):
 
         return
 
-    @su.loading_button(debug=True)
+    @su.loading_button()
     def load_alerts(self, widget, event, data):
         """load the alerts in the model"""
 
