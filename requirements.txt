@@ -1,9 +1,7 @@
 voila
 earthengine-api
 
-# Change this line until sepal_ui is >2.16.4
-# Widgets versions will be handled by sepal_ui
-git+https://github.com/12rambau/sepal_ui.git@sepal_pre_release
+sepal_ui==2.17
 
 # In sepal this will be skipped. It is installed by deefault
 
