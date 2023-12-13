@@ -11,14 +11,12 @@ from component.message import cm
 
 
 class PlanetView(sw.Card):
-
     updated = Int(0).tag(sync=True)
 
     api = Bool(False).tag(sync=True)
     "wether or not to use the Planet API"
 
     def __init__(self, alert_model):
-
         # inti the model
         self.alert_model = alert_model
 
@@ -52,8 +50,8 @@ class PlanetView(sw.Card):
         self.alert = sw.Alert()
 
         # manually decorate the functions
-        self.cancel = su.loading_button(self.alert, self.c_btn, True)(self.cancel)
-        self.apply = su.loading_button(self.alert, self.btn, True)(self.apply)
+        self.cancel = su.loading_button(self.alert, self.c_btn)(self.cancel)
+        self.apply = su.loading_button(self.alert, self.btn)(self.apply)
 
         # create the object
         super().__init__(
@@ -111,7 +109,6 @@ class PlanetView(sw.Card):
 
 class PlanetControl(sm.MenuControl):
     def __init__(self, alert_model, map_):
-
         # create a view
         self.view = PlanetView(alert_model)
         self.view.class_list.add("ma-5")
