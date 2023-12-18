@@ -1,7 +1,9 @@
 Deforestation alert analysis
 ============================
+*Retrieve any type of alert on a selected AOI*
 
-.. note::
+
+.. attention::
 
     To use this module, you must register to the NICFI – Planet Lab programme and link your account to Google Earth Engine (GEE) (see :doc:`../../setup/nicfi`).
 
