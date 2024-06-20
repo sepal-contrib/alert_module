@@ -1,0 +1,11 @@
+{
+    "metadata_control": {
+        "select": {
+            "label": "Select alert"
+        },
+        "edit": [
+            "Edit geometry",
+            "finish edition"
+        ]
+    }
+}
