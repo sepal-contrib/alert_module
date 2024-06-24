@@ -13,5 +13,4 @@ pandas==1.5.3
 requests==2.31.0
 Shapely==2.0.1
 
-# Set until sepal releases a new version and 1.9.0 is available
-ipyvuetify==1.8.10
+# trigger the install of the pre-release version of the sepal_ui package
