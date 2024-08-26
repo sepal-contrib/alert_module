@@ -1,7 +1,7 @@
 voila
 earthengine-api
 
-git+https://github.com/12rambau/sepal_ui.git@sepal_pre_release
+sepal_ui==2.19.0
 
 # In sepal this will be skipped. It is installed by deefault
 
@@ -12,5 +12,3 @@ geopandas==0.14.0
 pandas==1.5.3
 requests==2.31.0
 Shapely==2.0.1
-
-# trigger the install of the pre-release version of the sepal_ui package
