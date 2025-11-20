@@ -10,7 +10,11 @@ dependencies:
   - geopandas=0.14.0
   - pandas=1.5.3
   - requests=2.31.0
+  - rioxarray=0.17.0
+  - rio-cogeo=5.3.6
+  - gdal=3.8.3
   - pip
   - pip:
-    - sepal_ui==2.21.0
-    - git+https://github.com/openforis/earthengine-api.git@v1.1.5rc0#egg=earthengine-api&subdirectory=python
+    # Add packages that must stay as pip installs:
+    - sepal_ui==2.21.0  # Use exact version from requirements.txt
+    - git+https://github.com/openforis/earthengine-api.git@v1.1.5rc0
