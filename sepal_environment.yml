@@ -17,4 +17,4 @@ dependencies:
   - pip:
     # Add packages that must stay as pip installs:
     - sepal_ui==2.21.0  # Use exact version from requirements.txt
-    - git+https://github.com/openforis/earthengine-api.git@v1.1.5rc0
+    - git+https://github.com/openforis/earthengine-api.git@v1.1.5rc0#egg=earthengine-api&subdirectory=python
