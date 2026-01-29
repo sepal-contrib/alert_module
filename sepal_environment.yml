@@ -5,7 +5,6 @@ channels:
 dependencies:
   - python=3.10
   - pyproj  # Always include to avoid PROJ conflicts
-  - rasterio
   - numpy=1.26.0
   - geopandas=0.14.0
   - pandas=1.5.3
@@ -18,3 +17,4 @@ dependencies:
     # Add packages that must stay as pip installs:
     - sepal_ui==2.21.0  # Use exact version from requirements.txt
     - git+https://github.com/openforis/earthengine-api.git@v1.1.5rc0#egg=earthengine-api&subdirectory=python
+    - rasterio<=1.4.3
