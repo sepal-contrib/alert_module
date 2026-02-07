@@ -1,0 +1,125 @@
+{
+    "app": {
+        "title": "Module de vérification d'alerte de déforestation",
+        "drawer_item": {
+            "about": "À propos",
+            "map": "Carte"
+        }
+    },
+    "map": {
+        "control": {
+            "metadata": "Métadonnées d'alerte de déforestation",
+            "navigate": "Naviguer à travers les images Planet",
+            "parameter": "Activer/désactiver la fenêtre des paramètres",
+            "fullscreen": "Plein écran"
+        },
+        "layer": {
+            "alerts": "alertes",
+            "current": "alerte courante",
+            "planet": "Imagerie PlanetLab"
+        }
+    },
+    "widget": {
+        "planet": {
+            "select": {
+                "label": "sélectionnez la date"
+            }
+        }
+    },
+    "parameter": {
+        "time_delta": {
+            "day": "24h",
+            "week": "7 jours",
+            "month": "31 jours"
+        }
+    },
+    "alert": {
+        "wrong_collection": "{} la collection d'alertes n'est pas encore incluse dans l'outil"
+    },
+    "planet": {
+        "no_nicfi": "{} n'est pas un nom de mosaïque reconnu de niveau 1",
+        "no_image": "il n'y a pas d'image correspondant à vos paramètres de requête pour ce jour"
+    },
+    "view": {
+        "alert": {
+            "collection": {
+                "label": "Collection d'alertes"
+            },
+            "type": {
+                "label": "type d'alerte",
+                "recent": "Récent",
+                "custom": "Historique"
+            },
+            "asset": {
+                "label": "asset d'alerte NRT"
+            },
+            "recent": {
+                "label": "Au cours des derniers"
+            },
+            "btn": {
+                "label": "Sélectionner les alertes"
+            },
+            "error": {
+                "no_aoi": "sélectionnez d'abord une AOI",
+                "no_collection": "sélectionner la collection d'alertes",
+                "no_type": "sélectionner un type d'alerte",
+                "no_start": "select a start for the alerts",
+                "no_end": "select an end for the alerts",
+                "no_size": "select a minimal size",
+                "no_alerts": "no alerts were spoted with your parameters"
+            }
+        },
+        "metadata": {
+            "status": {
+                "valid": "yes",
+                "unvalid": "no",
+                "unset": "unset"
+            },
+            "btn": {
+                "csv": "To .csv",
+                "gpkg": "To .gpkg",
+                "kml": "To .kml"
+            },
+            "row": {
+                "alert": "alert",
+                "date": "date",
+                "pixels": "number of pixels",
+                "coords": "coordinates",
+                "review": "review",
+                "comment": "comment",
+                "surface": "surface"
+            },
+            "type": {
+                "0": "undefined",
+                "1": "high confidence",
+                "2": "low confidence"
+            },
+            "export": "The file have been exported to {}"
+        },
+        "planet": {
+            "advance": {
+                "title": "Advanced parameters",
+                "days_before": "Search up to (day before)",
+                "days_after": "Search up to (day after)",
+                "max_images": "Search up to (max image)",
+                "cloud_cover": "cloud cover"
+            },
+            "key": {
+                "label": "Planet API key"
+            },
+            "date": {
+                "label": "dates"
+            },
+            "error": {
+                "no_key": "Please provide a Planet API key",
+                "to_gee": "falling back to the GEE NICFI level 1 binding",
+                "valid_key": "The Planet API key have been validated, you are now using NICFI level 2 data",
+                "unvalid_key": "The provided Planet API cannot be validated"
+            }
+        },
+        "setting": {
+            "alert": "Alert",
+            "planet": "Planet"
+        }
+    }
+}

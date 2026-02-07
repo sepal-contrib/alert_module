@@ -1,0 +1,10 @@
+{
+    "api_planet": {
+        "date": {
+            "label": "dates"
+        },
+        "error": {
+            "no_image": "il n'y a pas d'image correspondant à vos paramètres de requête pour ce jour"
+        }
+    }
+}

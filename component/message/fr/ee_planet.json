@@ -1,0 +1,10 @@
+{
+    "ee_planet": {
+        "date": {
+            "label": "dates"
+        },
+        "layer": {
+            "name": "Imagerie PlanetLab"
+        }
+    }
+}
